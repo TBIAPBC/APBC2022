@@ -10,7 +10,7 @@ Students of the class shall work on different assignments and ---finally--- on a
 
 The warm up assignment in subdirectory A0 demos this scheme and explains the submission via GitHub (including preparations). Follow this assignment to get started.
 
-Feel free to discuss via pull request comments (in particular, assignment specific stuff) or GitHub issues for all more general things. Don't forget to mention the people you want to address (e.g. @mtw for me or @TBIAPBC/APBC2022 for all).
+Feel free to discuss via pull request comments (in particular, assignment specific stuff) or GitHub issues for all more general things. Don't forget to mention the people you want to address (e.g. @<user> for a particular GitHub user or @TBIAPBC/APBC2022 for all).
 
 ------------------------
 Assignments and Provisional Schedule
