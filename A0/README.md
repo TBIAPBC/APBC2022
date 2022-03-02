@@ -50,7 +50,7 @@ Now let's get to the thing:
 
   If you clone via SSH, you might consider [SSH Keys](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent), which allow you to connect to GitHub without supplying your username and password each time.
 
-  The clone command fills the directory APBC with the contents from the central repository (together with all the version and meta-information in subdirectory .git).
+  The clone command fills the directory APBC2022 with the contents from the central repository (together with all the version and meta-information in subdirectory .git).
 * Unless already done, configure your user name and email address:
 ```
   cd APBC2022
@@ -60,8 +60,7 @@ Now let's get to the thing:
 
 * Create a new branch named after your github account name; change to this branch
 ```
-  git branch $githubname
-  git checkout $githubname
+  git checkout -b $githubname
 ```
 
 * __NOTE: You should NEVER write anything into the master branch of our repository!__ Always use your *own branch*. To this end, create a new branch for every assignment, e.g. $githubname-A0 / $githubname-A1 etc.
@@ -79,7 +78,7 @@ Now let's get to the thing:
 
 * Push your branch to the same branch in the repository on Github
 ```
-  git push --set-upstream origin $githubname:$githubname
+  git push --set-upstream origin $branchname
 ```
   The --set-upstream causes git to remember the upstream branch; it can be ommitted in follow-up pushs from your branch.
 
@@ -93,9 +92,8 @@ Now let's get to the thing:
   My program is not executed with error XYZ
 ```
 
-* After successful testing (optional) and if you like your program, write another comment (alternatively, file a review request) to let us know we
-  should review the submission. If everything is ok, we will merge your submission into the branch 'master' (or tell you what to
-  improve).
+* After successful testing (optional) and if you like your program, write another comment (alternatively, file a review request) to let your colleagues know they 
+  should review the submission. 
 
 ```
   @mtw , please review
