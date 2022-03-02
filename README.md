@@ -16,24 +16,32 @@ Feel free to discuss via pull request comments (in particular, assignment specif
 Assignments and Provisional Schedule
 ------------------------
 
-Here are the single assignments together with our meeting schedule. Generally, solutions are due one day before the next meeting where we will discuss the solutions and present the next assignment. Please submit your solutions ahead of time, allowing allow at least one or two days for review and potential revision before we meet again. As we will meet on Wednesdays, the latest possible date for a submission is on Tuesdays 10:00 AM. Please find the assignment descriptions in the respective subdirectories.
+Individual assignments, together with a preliminary schedule are listed below. Generally, __solutions are due at 10:00 AM on Tuesdays before the next meeting__ (where we will discuss the solutions and present the next assignment). Please submit your solutions ahead of time.
+
+Tuesdays and Wednesdays before the next meeting should be used for code review and feedback of you colleagues' submissions. Everybody is supposed to provide code review and feedback during the course of the semester. Your feedback will help your colleagues, and is supposed to stimulate collaborative work which will be an asset during the final team project.
+
+Upon receiving code review and feedback, you are encouraged to provide code revisions prior to our Thursday meetings.
+
+Please note: As we will meet on Thursdays, the latest possible date for a submission is on Tuesdays at 10:00 AM. Please find the assignment descriptions in the respective subdirectories.
 
 
-* Mar-03-2021 (A0 and A1) --- Github submission and warm up assignment: Word Count
+* Mar-03-2022 (A0 and A1) --- Github submission and warm up assignment: Word Count
 
-* Mar-10-2021 (A2) --- Optimization
+* Mar-10-2022 (A2) --- Optimization
 
-* Mar-24-2021 (A3) --- Dynamic programming
+* Mar-24-2022 (A3) --- Dynamic programming
 
-* Apr-14-2021 (A4) --- Random Sequences
+* Apr-07-2022 (A4) --- Random Sequences
 
-* Apr-30-2021 (A5) --- Topic to be defined
+* Apr-28-2022 (A5) --- Team Project (planning meeting)
 
-* May-12-2021 (A6) --- Team Project (planning meeting)
+* May-05-2022 or May-12-2022 (A6) --- Team Project II (coordination meeting)
 
-* May-26-2021 --- Team Project II (coordination meeting)
+* May-19-2022 --- Team Project III
 
-* (Jun-9-2021 --- Extra project meeting ?)
+* Jun-2-2022 --- Team Project IV  
+
+* Jun-9-2022 --- Team Project V
 
 * Jun-23-2021 --- Final project meeting
 
