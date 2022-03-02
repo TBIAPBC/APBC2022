@@ -46,11 +46,10 @@ Now let's get to the thing:
 ```
   git clone git@github.com:TBIAPBC/APBC2022.git
 ```
-to clone using ssh or (if the former should not work)
-```
-  git clone https://github.com/TBIAPBC/APBC2022.git
-```
-[If you clone via ssh (as recommended), then it pays off to generate an SSH key and upload your public key to Github. This will allow you to safely push to Github w/o typing your password every time.]
+  to clone using [SSH](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/about-ssh).
+
+  If you clone via SSH, you might consider [SSH Keys](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent), which allow you to connect to GitHub without supplying your username and password each time.
+
   The clone command fills the directory APBC with the contents from the central repository (together with all the version and meta-information in subdirectory .git).
 * Unless already done, configure your user name and email address:
 ```
