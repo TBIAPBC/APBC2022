@@ -18,9 +18,9 @@ Assignments and Provisional Schedule
 
 Individual assignments, together with a preliminary schedule are listed below. Generally, __solutions are due at 10:00 AM on Tuesdays before the next meeting__ (where we will discuss the solutions and present the next assignment). Please submit your solutions ahead of time.
 
-Tuesdays and Wednesdays before the next meeting should be used for code review and feedback of you colleagues' submissions. Everybody is supposed to provide code review and feedback during the course of the semester. Your feedback will help your colleagues, and is supposed to stimulate collaborative work which will be an asset during the final team project.
+Tuesdays and Wednesdays before the next meeting should be used for code review and feedback of your colleagues' submissions. Everybody is supposed to provide code review and feedback during the course of the semester. Your feedback will help your colleagues, and is supposed to stimulate collaborative work which will be an asset during the final team project.
 
-Upon receiving code review and feedback, you are encouraged to provide code revisions prior to our Thursday meetings.
+Upon receiving code review and feedback, you are encouraged to commit code revisions prior to our Thursday meetings.
 
 Please note: As we will meet on Thursdays, the latest possible date for a submission is on Tuesdays at 10:00 AM. Please find the assignment descriptions in the respective subdirectories.
 
