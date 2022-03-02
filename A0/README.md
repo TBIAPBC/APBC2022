@@ -58,9 +58,9 @@ Now let's get to the thing:
   git config user.email "your mail address"
 ```
 
-* Create a new branch named after your github account name; change to this branch
+* Create a new branch named after your GitHub user name (and the current assignment), and switch to the new branch
 ```
-  git checkout -b $githubname
+  git checkout -b $githubname-A0
 ```
 
 * __NOTE: You should NEVER write anything into the master branch of our repository!__ Always use your *own branch*. To this end, create a new branch for every assignment, e.g. $githubname-A0 / $githubname-A1 etc.
@@ -80,11 +80,11 @@ Now let's get to the thing:
 ```
   git push --set-upstream origin $branchname
 ```
-  The --set-upstream causes git to remember the upstream branch; it can be ommitted in follow-up pushs from your branch.
+  (with $branchname being e.g. $githubname-A0). The --set-upstream causes git to remember the upstream branch; it can be ommitted in follow-up pushs from your branch.
 
-* Go to https://github.com/TBIAPBC/APBC2022; make a pull request (PR) from your branch into the master branch.
+* Go to https://github.com/TBIAPBC/APBC2022; make a pull request (PR) from your branch into the master branch. This tells others that you are ready for code review.
 
-* If you get stuck let us know via the comment functionality in the PR on github. Include all necessary information, what went wrong and
+* If you get stuck let us know via the comment functionality in the PR on GitHub. Include all necessary information, what went wrong and
   how we can help e.g.:
 
 ```
