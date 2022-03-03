@@ -7,7 +7,8 @@ else:
 #reading the input file and trim the text
 with open(inputFile, 'r') as reader:
     inputText = reader.read().strip()
-#prints to standard output
+#writing into the output file with additionally Hello World
+with open('HelloWorld-test1.out', 'w') as writer:
+    writer.write("Hello World!\n" + inputText)
+#prints output to standard output
 print("Hello World!\n" + inputText)
-    
-  
