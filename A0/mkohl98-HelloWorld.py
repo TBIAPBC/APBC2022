@@ -1,6 +1,3 @@
-"""
-Solution for A0 by Marcel Kohl / mkohl98
-"""
 import argparse
 
 
@@ -12,9 +9,7 @@ def main():
     a = parser.parse_args()
 
     # read and create files
-    print(a.input_file.help)
     input_file = open(a.input_file, "r")
-
     if a.output_file is not None:
         output_file = open(a.output_file, "w")
     else:
