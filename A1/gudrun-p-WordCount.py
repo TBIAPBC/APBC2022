@@ -44,7 +44,9 @@ sortedlist = sorted(myDict.items(), key=lambda x:(-x[1], x[0]))  # sort by frequ
 
 #print("Total Number of words: ", n)
 #print("Number of different words: ", len(myDict))
-print(len(myDict),'/',n)
+
 if list1:
     for element in sortedlist:
         print("%s\t%s"%(element[0],element[1]))
+else:
+    print(len(myDict), '/', n)
