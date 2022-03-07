@@ -13,7 +13,7 @@ def main():
 
     # get input content
     with open(arg.input_file, "r", encoding="utf-8") as input_file:
-        input_content = re.split("[^a-zA-Z0-9äöüß]", input_file.read())
+        input_content = re.split("[^a-zA-Z0-9äöüÄÜÖß]", input_file.read())
 
     # count words
     words = {}
