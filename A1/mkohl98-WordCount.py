@@ -6,7 +6,7 @@ def main():
     # setup parser
     parser = argparse.ArgumentParser()
     parser.add_argument("input_file", type=str, help="Enter path of input file.")
-    parser.add_argument("-i", "--ignore", required=False, action="store_true", help="Enable case-insensitivity mode.")
+    parser.add_argument("-I", "--ignore", required=False, action="store_true", help="Enable case-insensitivity mode.")
     parser.add_argument("-l", "--listing", required=False, action="store_true", help="Output word count listing.")
     parser.add_argument("-o", "--output_file", required=False, type=str, help="Enter optional output file name.")
     arg = parser.parse_args()
