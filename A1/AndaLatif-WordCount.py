@@ -6,7 +6,7 @@ from collections import Counter
 import codecs
 
 def read_file(ifn):
-    f = codecs.open(ifn, 'r',  "utf-8")
+    f = open(ifn, 'r',  encoding="utf-8")
     return f
 
 def Genwords(f, opt = ""):
@@ -33,7 +33,7 @@ if __name__ == '__main__':
         ifn = inp[-1]
         f = read_file(ifn)  
         ofn = ifn.split(".")[0] + ".out"
-        out = codecs.open(ofn, 'w', 'utf-8')       
+        out = open(ofn, 'w', encoding="utf-8")       
         if len(inp) > 1:
             arg = inp[0:-1]      
             if "-I" in arg:
@@ -55,7 +55,8 @@ if __name__ == '__main__':
               
         else:
             words = Genwords(f)
-            list = dict(Counter(words))
+            list = Counter(words)
             out.write(str(len(list)) + " / " + str(len(words)) +'\n')
         out.close()
+        f.close()
         print(ofn + " contains the output")
