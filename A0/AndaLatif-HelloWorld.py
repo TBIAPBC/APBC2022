@@ -14,7 +14,7 @@ if __name__ == '__main__':
          print("Too many arguments. Please run again providing only one input file name")
      else:
          ifn=arg[-1]
-         out=open("HelloWorld-test1.out", 'w')
+         out=open(ifn.split(".")[0]+".out", 'w')
          text=read_from_file(ifn)
          out.write("Hello World!\n"+text)
          out.close()
