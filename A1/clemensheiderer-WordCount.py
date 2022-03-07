@@ -1,8 +1,15 @@
 import argparse
 import sys
 import regex as re
-
-
+#word_dictionary
+def each_word(words):
+    wcount = {}
+    for w in words:
+        if w not in wcount:
+            wcount[w] = 1
+        else:
+            wcount[w] += 1
+    return wcount
 
 def Main():
     parser = argparse.ArgumentParser()
@@ -15,50 +22,27 @@ def Main():
 
     file = open(args.filename, 'r', encoding='utf-8')
     read_data = file.read()
-    new_string = re.sub(r'[^\w\s]', ' ', read_data)
-    new_string = new_string.split()
-
-    uppercase_string = [str for str in new_string if str[0].isupper()]
-    lowercase_words = len(new_string) - len(uppercase_string)
+    file.close()
+    #all words in list
+    words = re.sub(r'[^\w\s]', ' ', read_data)
+    words = words.split()
 
     sys.stdout = open('clemensheiderer-WordCount.out', 'wt')
 
-    if len(sys.argv) == 2:
-        print(f"{lowercase_words} / {len(new_string)}")
-
-
     if args.ignore:
-        lowercase_string = [str.lower() for str in new_string]
-        new_string = lowercase_string
+        lowercase_string = [str.lower() for str in words]
+        words = lowercase_string
 
+
+    word_dict = each_word(words)
 
     if args.list:
-        def each_word(words):
-            wcount = {}
-            for w in words:
-                if w not in wcount:
-                    wcount[w] = 1
-                else:
-                    wcount[w] += 1
-            return wcount
-
-        dew = each_word(new_string)
-
-
-        dew_sorted = sorted(dew.items(), key=lambda kv: (-kv[1], kv[0]))
-
+        dew_sorted = sorted(word_dict.items(), key=lambda kv: (-kv[1], kv[0]))
 
         for k, v in dew_sorted:
             print(f"{k} \t {v}")
-
-
-
-
-
-
-
-
-
+    else:
+        print(f"{len(word_dict)} / {len(words)}")
 
 
 if __name__ == '__main__':
