@@ -2,7 +2,7 @@ import sys
 import re
 
 # read in file
-filename = sys.argv[1]
+filename = sys.argv[len(sys.argv)-1]
 file = open(filename)
 
 
@@ -18,15 +18,13 @@ for i in range(len(sys.argv)):
 
 
 # create list of all words in the file
-word_list = []
 
-lines_list = file.readlines()
+text = file.read()
 regex = re.compile('[^a-zA-ZäöüÄÖÜß]', flags=re.UNICODE)
-for line in lines_list:
-    line = regex.sub(' ', line)
-    words = line.split()
-    for w in words:
-        word_list.append(w)
+
+text = regex.sub(' ', text)
+word_list = text.split()
+
 
 
 # set to lower case if option "-I" is selected
@@ -42,9 +40,9 @@ for w1 in word_list:
     count = 0
     for w2 in different_words:
         if w1 == w2:
-            count += 1
-    if count == 0:
-        different_words.append(w1)
+            break
+
+    different_words.append(w1)
 
 
 # if the option "-l" is selected, sort words by count
