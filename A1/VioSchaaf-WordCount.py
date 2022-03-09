@@ -58,19 +58,13 @@ if list:
 
         count_list.append(count)
 
-
     # create dictionary with word as key and count as value
     dictionary = {}
     for i in range(0, len(different_words)):
         dictionary[different_words[i]] = count_list[i]
 
-    # create new dictionary which is sorted alphabetically
-    dictionary2 = {}
-    for i in sorted(dictionary):
-        dictionary2[i] = dictionary[i]
-
     # sort words by count number
-    words_sorted = sorted(dictionary2.items(), key=lambda x: x[1], reverse=True)
+    words_sorted = sorted(dictionary.items(), key=lambda x: (-x[1], x[0]))
 
     for i in words_sorted:
         print(i[0], "\t", i[1])
