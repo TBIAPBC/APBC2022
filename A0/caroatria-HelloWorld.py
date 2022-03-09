@@ -1,5 +1,6 @@
 #!/usr/bin/python
-filename=input("Please input your filename: ")
+import sys
+filename=sys.argv[1]
 f = open(filename, "r")
 content = f.read()
 print("Hello World!\n" + content, end="")
