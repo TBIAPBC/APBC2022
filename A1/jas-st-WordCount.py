@@ -9,7 +9,7 @@ def main():
 
 def Word_Counter():
     ###open the file and remove all special symbols
-    with open(input_text, "r") as record:
+    with open(input_text, "r", encoding='utf-8') as record:
         text_string = record.read()
 
     for char in '.?!%^();:-_+,[]\'\"':
@@ -24,29 +24,27 @@ def Word_Counter():
     
     ###count every distinct word and write into dictionary
     count_list = {}
-    word_count = 0
     for word in word_list:
         if word in count_list:
             count_list[word]+=1
         else:
             count_list[word] = 1
-            word_count += 1  
 
     ###prints the sorted list
     if "-l" in command_list:
         count_list = sorted(count_list.items(), key=lambda x: (-x[1],x[0])) ### sort the list
         for key, value in count_list:
-            print('%s\t%d\n' % (key, value))
+            print('%s\t%d' % (key, value))
             
     ###for testing purposes write the values into a text file
         """ test = open("test.txt", "w") 
         for key, value in count_list:
-            test.write('%s\t%s\n' % (key, value)) 
+            test.write('%s\t%d' % (key, value)) 
         test.close() """
 
     ###prints just the number of distinct words + all words
     else:
-        print("%d/%d" % (word_count, len(word_list)))
+        print("%d/%d" % (len(count_list), len(word_list)))
 
 if __name__ == "__main__":
     command_list = sys.argv
