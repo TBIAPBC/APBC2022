@@ -13,6 +13,6 @@ text = read(sys.argv[1])
 #
 
 outprint_world = "Hello World!\n" + str(text)
-sys.stdout = open('HelloWorld-test1.out','wt')
+#sys.stdout = open('HelloWorld-test1.out','wt')
 
 print(outprint_world)
