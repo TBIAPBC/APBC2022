@@ -35,10 +35,10 @@ def Word_Counter():
             print('%s\t%d' % (key, value))
             
     ###for testing purposes write the values into a text file
-        test = open("test.txt", "w") 
+        """ test = open("test.txt", "w") 
         for key, value in count_list:
             test.write('%s\t%d\n' % (key, value)) 
-        test.close() 
+        test.close()  """
 
     ###prints just the number of distinct words + all words
     else:
