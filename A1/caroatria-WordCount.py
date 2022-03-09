@@ -1,6 +1,12 @@
 #!/usr/bin/python
 import sys
 import re
+import argparse
+
+parser=argparse.ArgumentParser()
+parser.add_argument("-l", help = "create a list")
+parser.add_argument("-I", help = "ignore cases")
+parser.add_argument("filename")
 
 def sorting_function (dict):
     sort_by_key = {k:v for (k,v) in sorted(dict.items())}
@@ -9,7 +15,7 @@ def sorting_function (dict):
 
 def ignore_special_char (text):
     global new_file_content
-    new_file_content = re.sub(r"[.?!%^()-_+]", " ", text)
+    new_file_content = re.sub(r"[.?!%^()]", " ", text)
     return new_file_content
 
 def word_count(option, filename):
@@ -37,7 +43,7 @@ def word_count(option, filename):
             else:
                 counts[word] = 1
         number_of_words = len(counts)
-        print(str(len(word_list)) + "/" + str(number_of_words))
+        print(str(len(word_list)) + " / " + str(number_of_words))
     else:
         counts = dict()
         word_list= new_file_content.split() 
@@ -48,12 +54,13 @@ def word_count(option, filename):
                 counts[word] = 1
         number_of_words = len(counts)
         f.close()
-        print(str(len(word_list)) + "/" + str(number_of_words))
+        print(str(number_of_words) + " / " + str(len(word_list)))
 
 def option_function (name_of_script):
     if (name_of_script == "-l" or name_of_script == "-I"):
         word_count(sys.argv[1],sys.argv[2])
     else:
         word_count("no option",sys.argv[1])
-
-option_function(sys.argv[1])
+args=parser.parse_args()
+option_function(sys.argv[0])
+#word_count(args.filename, args.l)
