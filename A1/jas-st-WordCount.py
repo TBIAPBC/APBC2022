@@ -1,4 +1,5 @@
 import sys
+import re
 
 def main():
     ###checks if the commands are listed right 
@@ -12,15 +13,12 @@ def Word_Counter():
     with open(input_text, "r", encoding='utf-8') as record:
         text_string = record.read()
 
-    for char in '.?!%^();:-_+,[]\'\"':
-        text_string = text_string.replace(char," ")
-
     #lowercase if specified
     if "-I" in command_list:
         text_string = text_string.lower()
 
-    ###split into a list of words
-    word_list = text_string.split()
+    ###split into a list of words (findall returns all occurences that match the pattern as a list of strings)
+    word_list = re.findall("[a-zA-ZüöäÜÖÄß]+", text_string)
     
     ###count every distinct word and write into dictionary
     count_list = {}
@@ -37,10 +35,10 @@ def Word_Counter():
             print('%s\t%d' % (key, value))
             
     ###for testing purposes write the values into a text file
-        """ test = open("test.txt", "w") 
+        test = open("test.txt", "w") 
         for key, value in count_list:
-            test.write('%s\t%d' % (key, value)) 
-        test.close() """
+            test.write('%s\t%d\n' % (key, value)) 
+        test.close() 
 
     ###prints just the number of distinct words + all words
     else:
