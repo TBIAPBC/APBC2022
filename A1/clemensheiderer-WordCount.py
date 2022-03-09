@@ -27,7 +27,7 @@ def Main():
     words = re.sub(r'[^\w\s]', ' ', read_data)
     words = words.split()
 
-    sys.stdout = open('clemensheiderer-WordCount.out', 'wt')
+    #sys.stdout = open('clemensheiderer-WordCount.out', 'wt')
 
     if args.ignore:
         lowercase_string = [str.lower() for str in words]
