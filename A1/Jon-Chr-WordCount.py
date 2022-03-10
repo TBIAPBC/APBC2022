@@ -5,7 +5,8 @@ ignorecase = False
 get_list = False
 command_length = len(sys.argv)
 file = ""
-symbols = [".",",","?","%","^","(",")","-","+","*","~","#",";","!","\"","\'"]
+symbols = [".",",","?","%","^","(",")","-","+","*","~","#",";","!","\"","\'",":"]
+
 
 # Check for arguments
 for i in range(command_length):
@@ -23,8 +24,8 @@ for i in range(command_length):
 # Get WordCount
 def Get_WordCount(filename, ignorecase, get_list):
     word_count = dict()
-    words = 1
-    diff_words = 1
+    words = 0
+    diff_words = 0
     word_list = ""
 
     f = open(filename)
@@ -38,6 +39,7 @@ def Get_WordCount(filename, ignorecase, get_list):
     f.close() 
 
     word_list = word_list.split()
+    word_list = sorted(word_list)
 
     for word in word_list:
         if (word in word_count):
@@ -47,7 +49,8 @@ def Get_WordCount(filename, ignorecase, get_list):
             word_count[word] = 1
             words += 1;
             diff_words += 1 
-
+            
+    
     return words, diff_words, word_count
 
 # Check for special Symbols
@@ -55,7 +58,7 @@ def Check_Symbols(word):
     new_word = ""
     for letter in word:
         if (letter in symbols):
-            continue
+            new_word += '\t'
         else:
             new_word += letter
     return new_word
@@ -68,7 +71,7 @@ if (get_list == True):
     g = open("Jon-Chr-" + file[:length] + ".out", "w")
     # Create Output file with words for simplicity 
     for key in sorted(word_count, key=word_count.get, reverse=True):
-        sentence = str(key) + " " + str(word_count[key]) + "\n"
+        sentence = str(key) + "\t" + str(word_count[key]) + "\n"
         g.write(sentence)
     g.close()
 else:
