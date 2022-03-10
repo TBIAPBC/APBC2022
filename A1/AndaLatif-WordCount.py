@@ -40,7 +40,7 @@ if __name__ == '__main__':
                 words = Genwords(f, "I")
             else:
                 words = Genwords(f)                
-            list = dict(Counter(words))
+            list = Counter(words)
             
             if "-l" in arg:
                 sorted_list = Sort_by_Values(list)                
