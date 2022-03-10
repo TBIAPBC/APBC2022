@@ -1,6 +1,14 @@
 import sys
 import numpy as np
 
+def SolOutput(pairs):  # prints one line of output
+    for tuples in pairs:
+        for element in tuples:
+            print(element, end="")
+        print(" ", end="")
+    print("")
+
+
 def PairCost(a,b, costM, capitals):  # function that returns the cost for assigning an authority to the two cities a and b
     aindex = capitals.index(a)
     bindex = capitals.index(b)
@@ -10,11 +18,13 @@ def PairCost(a,b, costM, capitals):  # function that returns the cost for assign
 def administration(paired, rest, costM, costlimit):
     #print("rest = ", rest)
     #print("paired = ", paired)
-    sol = []
+    #sol = []
     if len(rest)==0:
+        SolOutput(paired)
         return paired
     elif len(rest)==2:
         paired.extend([rest])  # extend is like append except it does not give a nested list of lists
+        SolOutput(paired)
         #print("rest added: ", rest)
         return paired
     else:
@@ -24,9 +34,10 @@ def administration(paired, rest, costM, costlimit):
             #print("pair extend: ", [[rest[0], rest[i]]])
             rest_2 = rest[1:i]  # need an extra variable, since x.extend() always returns None
             rest_2.extend(rest[i+1:])  # rest without element 0 and without element i
-            sol.extend([administration(paired_2, rest_2, costM, costlimit)])
+            #sol.extend([administration(paired_2, rest_2, costM, costlimit)])
+            administration(paired_2, rest_2, costM, costlimit)
             #print("    sol = ", sol)
-        return sol
+        #return sol
 
 
 
@@ -65,5 +76,5 @@ for i in np.arange(0,nCapitals):
 # --- FINISHED READING IN THE DATA -----
 
 #print("PairCost(E,G) = ", PairCost("E","G",costM,capitals))
-capitals=["1","2","3","4","5","6"]#,"7","8"]
+capitals=["1","2","3","4","5","6","7","8"]
 print("administration([], capitals, costM, costlimit) = ", administration([], capitals, costM, costlimit))
