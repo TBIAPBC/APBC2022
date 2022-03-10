@@ -5,6 +5,7 @@ ignorecase = False
 get_list = False
 command_length = len(sys.argv)
 file = ""
+out = ""
 symbols = [".",",","?","%","^","(",")","-","+","*","~","#",";","!","\"","\'",":"]
 
 
@@ -63,7 +64,6 @@ def Check_Symbols(word):
             new_word += letter
     return new_word
 
-
 words, diff_words, word_count = Get_WordCount(file, ignorecase, get_list)
 
 if (get_list == True):
@@ -73,7 +73,10 @@ if (get_list == True):
     for key in sorted(word_count, key=word_count.get, reverse=True):
         sentence = str(key) + "\t" + str(word_count[key]) + "\n"
         g.write(sentence)
+        out += sentence
     g.close()
+    out = out.strip()
+    print(out)
 else:
     # Print Result to Console
     print(str(diff_words) + ' / ' + str(words))
