@@ -50,6 +50,26 @@ def administration(paired, rest, costM, costlimit):
         #return sol
 
 
+def administrationOpt(paired, rest, costM, costlimit):
+    if len(rest)==0:
+        return costlimit
+    elif len(rest)==2:
+        if ListCost(paired, costM, capitals) + PairCost(rest[0], rest[1], costM, capitals) <= costlimit:
+            paired.extend([rest])  # extend is like append except it does not give a nested list of lists
+            costlimit = ListCost(paired, costM, capitals)
+        return costlimit
+    else:
+        for i in np.arange(1,len(rest)):
+            # only keep working on list with this pair (rest[0], rest[i] IF adding this pair does not make the solution go over the cost limit:
+            if ListCost(paired, costM, capitals) + PairCost(rest[0], rest[i], costM, capitals) <= costlimit:
+                paired_2 = paired.copy()  # need extended paired for recursive call, but for next for-loop iteration want to undo, therefore copy
+                paired_2.extend([[rest[0],rest[i]]])  # add the tuple (0,i) from rest
+                rest_2 = rest[1:i]  # need an extra variable, since x.extend() always returns None
+                rest_2.extend(rest[i+1:])  # rest without element 0 and without element i
+                costlimit = administrationOpt(paired_2, rest_2, costM, costlimit)
+        return costlimit
+
+
 
 
 
@@ -78,9 +98,9 @@ costlimit = int(input_split[1])  # cost limit
 capitals = input_split[2:2+nCapitals]  # list of capitals
 
 costM = np.zeros([nCapitals, nCapitals])  # initialize cost Matrix
-#print(input_split[2+nCapitals])  # the first '-', start of cost matrix
 
 #define cost matrix:
+#input_split[2+nCapitals] is  the first '-' (start of cost matrix)
 for i in np.arange(0,nCapitals):
     for j in np.arange(0,nCapitals):
         if i==j:
@@ -99,6 +119,12 @@ for i in np.arange(0,nCapitals):
 
 # --- FINISHED READING IN THE DATA -----
 
+
+
+
 #print("PairCost(E,G) = ", PairCost("E","G",costM,capitals))
 #capitals=["1","2","3","4","5","6","7","8"]
-administration([], capitals, costM, costlimit)
+if optim:
+    print("minimum cost: ", administrationOpt([], capitals, costM, costlimit))
+else:
+    administration([], capitals, costM, costlimit)
