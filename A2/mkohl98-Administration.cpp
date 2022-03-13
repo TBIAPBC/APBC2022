@@ -15,7 +15,7 @@ using namespace std;
 vector<pair<string, int>> solution;
 int num_cities, limit;
 
-// Node class to store costs and elements
+// Node class
 class Node{
     string name;  // id of node
     int cost;  // cost of node + parents
