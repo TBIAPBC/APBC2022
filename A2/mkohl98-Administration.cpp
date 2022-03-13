@@ -231,24 +231,20 @@ int main(int argc, char *argv[]) {
     getline(input_file, line);
     vector<string> node_strings = split(line);
 
-    // build adjacency matrix
-    vector<vector<int>> adjacency_matrix;
-    for (int i = 0; i < num_cities; i++){
-        getline(input_file, line);
-        adjacency_matrix.push_back(intify(split(line), i));
-    }
-    input_file.close();
-
-    // assign costs to possible nodes for easy access
+    // generate node, assign costs
+    vector<int> cost_line;
     map<string, int> node_costs;
     vector<string> node_names;
     for (int i = 0; i < num_cities; i++){
+        getline(input_file, line);
+        cost_line = intify(split(line), i);
         for (int j = i + 1; j < num_cities; j++){
             string node_name = node_strings[i] + node_strings[j];
-            node_costs[node_name] = adjacency_matrix[i][j];
+            node_costs[node_name] = cost_line[j];
             node_names.push_back(node_name);
         }
     }
+    input_file.close();
 
     // solve
     for (const auto &root_name: node_names) {
