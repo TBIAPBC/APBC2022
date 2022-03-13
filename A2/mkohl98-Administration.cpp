@@ -108,7 +108,7 @@ bool Node::check_cost() const{
     return this->cost <= bound;
 }
 
-// update currents node costs by subracting parents costs - current nodes cost from cost map
+// update currents node costs by adding current node cost + parent cost
 void Node::update_cost() {
     if (this->parent != nullptr){
         this->cost = this->parent->cost + ref_node_costs[this->name];
@@ -146,7 +146,7 @@ void Node::update_solution_path() {
     this->solution_path.push_back(this->name);
 }
 
-// method to enumerate solutions less than fixed bound
+// get solution
 void Node::solve(bool optimize) {
     while(!this->possible_children.empty() && this->check_cost()){
         string new_name = this->possible_children.back();
