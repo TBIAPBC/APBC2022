@@ -182,6 +182,7 @@ vector<string> split(string& str){
     return output;
 }
 
+// turn vector of strings to vector of ints
 vector<int> intify(vector<string> arr, int skip){
     vector<int> arr_out;
     int inf = numeric_limits<int>::max();
@@ -254,8 +255,12 @@ int main(int argc, char *argv[]) {
     }
 
     // print solution
-    for (const auto &x: solution) {
-        cout << x.first << endl;
+    if (opt){
+        cout << solution[0].second << endl;
+    } else {
+        for (const auto &x: solution) {
+            cout << x.first << endl;
+        }
     }
 
     return 0;
