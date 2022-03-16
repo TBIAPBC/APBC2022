@@ -248,8 +248,9 @@ int main(int argc, char *argv[]) {
     input_file.close();
 
     // solve
-    for (const auto &root_name: node_names) {
-        Node root(root_name, node_costs[root_name], nullptr, limit, node_costs, node_names);
+    for (int i = 0; i < node_names.size(); i++) {
+        vector<string> unused_node_names(&node_names[i], &node_names[node_names.size()]);
+        Node root(node_names[i], node_costs[node_names[i]], nullptr, limit, node_costs, unused_node_names);
         root.update_possible_children(opt);
         root.solve(opt);
     }
