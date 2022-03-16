@@ -13,6 +13,7 @@ def read_from_file(ifn):
         for i in range(len(capitals)):
             if cap != capitals[i]:
                cost[tuple(sorted([cap,capitals[i]]))] = int(line[i]) #since the matrix is symetric
+    f.close()
     return  int(no_of_capitals) , cost_limit, capitals, cost
 
 def Generate_authorities( partial_res, cost_limit, cost, unvisited, opt):
@@ -21,18 +22,15 @@ def Generate_authorities( partial_res, cost_limit, cost, unvisited, opt):
     if unvisited == []:
         if (len(partial_res) == no_of_capitals) and (cost_limit >= optimum):
             if opt == "-o":
-                #print(partial_res)
                 if cost_limit > optimum:
-                    #if not (optimum == cost_limit):
                         optimum = cost_limit
                         res = []
-            #print(optimum, cost_limit)
             
             current = []
-            for i in range(len(partial_res)-1):
+            for i in range(len(partial_res) - 1):
                 if i % 2 == 0:
                    current.append("".join(sorted([partial_res[i], partial_res[i+1]])))
-            current=" ".join(current)       
+            current = " ".join(current)       
             if not(current in res):
                 res.append(current)
             #print(res)
@@ -46,7 +44,7 @@ def Generate_authorities( partial_res, cost_limit, cost, unvisited, opt):
              else:
                  Generate_authorities( partial_res + [unvisited[i]], cost_limit, cost, unvisited[:i] + unvisited[i+1:], opt)
     else:
-         for i in range(len(unvisited)): ##even
+         for i in range(len(unvisited)): ##odd
              if i == 0:
                 Generate_authorities( partial_res + [unvisited[i]], cost_limit-cost[tuple(sorted([partial_res[-1], unvisited[i]]))], cost, unvisited[i+1:], opt)
              else:
