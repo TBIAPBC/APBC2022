@@ -69,24 +69,9 @@ void Node::update_global_solution() {
             path += vec_sort_tmp[i];
         }
     }
-    // check if already existing
-    if (solution.empty()){
-        out.first = path;
-        out.second = this->cost;
-        solution.push_back(out);
-    } else {
-        bool tmp_check = true;
-        for (const auto& pair: solution) {
-            if (pair.first == path) {
-                tmp_check = false;
-            }
-        }
-        if (tmp_check){
-            out.first = path;
-            out.second = this->cost;
-            solution.push_back(out);
-        }
-    }
+    out.first = path;
+    out.second = this->cost;
+    solution.push_back(out);
 }
 
 // lower upper bound and remove not optimal solutions
