@@ -80,8 +80,16 @@ if __name__ == '__main__':
         res = []
         optimum = 0
         Generate_authorities( [], cost_limit, cost, capitals, opt)
-        out.write("\n".join( list for list in res))
-        out.write("\n")
+        
+        if opt == "-o" :
+            c=0
+            for pair in res[0].split(" "):                
+                c=c + cost[tuple(pair)]                
+            print(c)
+            out.write(str(c)+"\n")
+        else:
+            out.write("\n".join( list for list in res))
+            out.write("\n")
         out.close()
     ##         print(ifn.split(".")[0]+".out contains the output")
             
