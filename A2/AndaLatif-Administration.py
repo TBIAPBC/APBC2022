@@ -20,16 +20,11 @@ def Generate_authorities( partial_res, cost_limit, cost, unvisited, opt):
     global optimum
     global res
     if unvisited == []:
-        #print(partial_res)
         if (len(partial_res) == no_of_capitals) and (cost_limit >= optimum):
             if opt == "-o":
-                #print(partial_res)
                 if cost_limit > optimum:
-                    #if not (optimum == cost_limit):
                         optimum = cost_limit
                         res = []
-            #print(optimum, cost_limit)
-            
             current = []
             for i in range(len(partial_res)-1):
                 if i % 2 == 0:
@@ -37,33 +32,25 @@ def Generate_authorities( partial_res, cost_limit, cost, unvisited, opt):
             current=" ".join(current)       
             if not(current in res):
                 res.append(current)
-            #print(res)
             return  res, partial_res
     
-    if cost_limit < optimum:
-       
+    if cost_limit < optimum: #throw away
        return 
     
-    if len(partial_res) % 2 == 0: ##even
+    if len(partial_res) % 2 == 0: ##even, just start with the first still unvisited
                 if unvisited == []:
                     return
                 Generate_authorities( partial_res + [unvisited[0]], cost_limit, cost, unvisited[1:], opt)
-            
     else:
-         for i in range(len(unvisited)): ##even
-             if i == 0:
-                 if cost_limit - cost[tuple(sorted([partial_res[-1], unvisited[i]]))] >= 0:
-                    Generate_authorities( partial_res + [unvisited[i]], cost_limit-cost[tuple(sorted([partial_res[-1], unvisited[i]]))], cost, unvisited[i+1:], opt)
-             else:
-                 if cost_limit - cost[tuple(sorted([partial_res[-1], unvisited[i]]))] >= 0:
-                    Generate_authorities( partial_res + [unvisited[i]], cost_limit-cost[tuple(sorted([partial_res[-1], unvisited[i]]))], cost, unvisited[:i] + unvisited[i+1:], opt)
+         for i in range(len(unvisited)): ##odd, pair with all others 
+            curr_cost = cost_limit - cost[tuple(sorted([partial_res[-1], unvisited[i]]))]
+            if  curr_cost >= 0:
+                    Generate_authorities( partial_res + [unvisited[i]],  curr_cost, cost, unvisited[:i] + unvisited[i+1:], opt)
  
 if __name__ == '__main__':
     arg = sys.argv[0:]   
-    
     if (len(arg) == 1):
         print("Please run again providing an input file name")
-    
     if (len(arg) > 3):
          print("Too many arguments. Please run again providing maximally the option -o and one input file name")
     else:
@@ -73,7 +60,6 @@ if __name__ == '__main__':
             if not "." in opt:
                 print("option " + opt + " was ignored, only -o is a valid option")
                 opt=""
-    
         ifn = arg[-1]
         out = open(ifn.split(".")[0] + ".out", 'w')
         no_of_capitals , cost_limit, capitals, cost = read_from_file(ifn)
@@ -91,6 +77,4 @@ if __name__ == '__main__':
             out.write("\n".join( list for list in res))
             out.write("\n")
         out.close()
-    ##         print(ifn.split(".")[0]+".out contains the output")
-            
-        
+        print(ifn.split(".")[0]+".out contains the output")
