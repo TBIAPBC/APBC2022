@@ -1,6 +1,5 @@
 #Latif Anda Ramona
 # 01046290
-from calendar import c
 import sys
 
 def read_from_file(ifn):
@@ -17,9 +16,9 @@ def read_from_file(ifn):
     f.close()
     return  int(no_of_capitals) , cost_limit, capitals, cost
 
-def Generate_authorities(partial_res, cost_limit, cost, unvisited, opt, res):
+def Generate_authorities(partial_res, cost_limit, cost, unvisited, opt):
     global optimum
-    #global res
+    global res
     if cost_limit < optimum: #throw away
        return #res
     if unvisited == []:            
@@ -28,21 +27,23 @@ def Generate_authorities(partial_res, cost_limit, cost, unvisited, opt, res):
                 if i % 2 == 0:
                    current.append("".join(sorted([partial_res[i], partial_res[i+1]])))
             current=" ".join(current)
-            res.append(current)
             if opt == "-o":
                 if cost_limit > optimum:
-                        optimum = cost_limit   
+                        optimum = cost_limit  
+                        res=[]
+            res.append(current)
+             
             return 
         
     if len(partial_res) % 2 == 0: ##even, just start with the first still unvisited
                 if unvisited == []:
                     return 
-                Generate_authorities( partial_res + [unvisited[0]], cost_limit, cost, unvisited[1:], opt, res)
+                Generate_authorities( partial_res + [unvisited[0]], cost_limit, cost, unvisited[1:], opt)
     else:
          for i in range(len(unvisited)): ##odd, pair with all others 
             curr_cost = cost_limit - cost[tuple(sorted([partial_res[-1], unvisited[i]]))]
             if  curr_cost >= 0:
-                    Generate_authorities( partial_res + [unvisited[i]],  curr_cost, cost, unvisited[:i] + unvisited[i+1:], opt, res)
+                    Generate_authorities( partial_res + [unvisited[i]],  curr_cost, cost, unvisited[:i] + unvisited[i+1:], opt)
  
 if __name__ == '__main__':
     arg = sys.argv[0:]   
@@ -62,8 +63,8 @@ if __name__ == '__main__':
         no_of_capitals , cost_limit, capitals, cost = read_from_file(ifn)
         res = []
         optimum = 0
-        Generate_authorities( [], cost_limit, cost, capitals, opt, res)
-        
+        Generate_authorities( [], cost_limit, cost, capitals, opt)
+        print(res)
         if opt == "-o" :
             out.write(str(cost_limit-optimum)+"\n")
         else:
