@@ -40,7 +40,8 @@ def administration(cost, limit, solution, to_visit, interm_cost):
                 elif not optimum:
                       solutions.append(solution + [to_visit[0],to_visit[1]])
 
-      #pairing mode where the function finds all capitals that produce sum less than the limit     
+      #pairing mode with the chosen capital, where the function finds all capitals that havent been visited
+      #and that produce sum less than the limit     
      else:
            for el in to_visit:
                  if interm_cost + cost.get((solution[-1],el)) <= limit:
@@ -65,7 +66,7 @@ def input_verifier():
 
 if __name__ == "__main__":
 
-      if input_verifier():
+      if input_verifier():  #only proceed if the input is valid
 
             ##reading the file and assigning variables
             input_file = read_input(sys.argv[-1]) 
@@ -79,17 +80,18 @@ if __name__ == "__main__":
             else:
                   optimum = False
 
-            begin = []  
+            solution_sequence = []  
             intermediate_cost = 0     
             cost_min = input_file[0] 
-            solutions = [] 
+            solutions = []    #store all the possible solution sequences
 
+            administration(cost_values, cost_lim, solution_sequence, capitals_list, intermediate_cost)
+
+
+            ##output the solution 
             if optimum:
-                  administration(cost_values, cost_lim, begin, capitals_list, intermediate_cost)
                   print(cost_min)
-            else:
-                  administration(cost_values, cost_lim, begin, capitals_list, intermediate_cost)
-                  
+            else:           
                   for sol in solutions:
                         end_list = ["".join(el) for el in zip(sol[::2],sol[1::2])] 
                         print(*end_list, sep=" ")
