@@ -16,7 +16,7 @@ class Node:
         self.cost = cost
 
 
-# checks if the potentialNode or a permutation of it is already in the solution List
+# checks if the potentialNode or a permutation of it is already in the solution list
 def isEqual(solutionList, potentialNode):
     for item in solutionList:
         if (item.name.find(potentialNode.name[0]) != -1) | (item.name.find(potentialNode.name[1]) != -1):
@@ -24,7 +24,7 @@ def isEqual(solutionList, potentialNode):
     return True
 
 
-# returns the cost of a potentialNode the solutionList
+# returns the cost of a potential node and the solution list
 def getCurrentCost(solutionList, potentialNodeCost):
     cost = potentialNodeCost
     for node in solutionList:
@@ -32,11 +32,11 @@ def getCurrentCost(solutionList, potentialNodeCost):
     return cost
 
 
-# checks if the currentSolution is already in the solution to avoid duplicates
-def duplicate(solution,globalSolution ):
+# checks if the current solution is already in the global solution, to avoid duplicates
+def duplicate(currentSolution, globalSolution):
     if len(globalSolution) == 0:
         return False
-    possibleSolutions = list(itertools.permutations(solution))
+    possibleSolutions = list(itertools.permutations(currentSolution))
     for current in globalSolution:
         for possibilities in possibleSolutions:
             if current.name.find(getString(possibilities)) != -1:  # true if value is found
@@ -58,20 +58,18 @@ def branchAndBound(authoritiesList, solution, globalSolution):
         return solution
 
     if len(solution) == numberCapitals / 2:
-        stringSolution = getString(solution)
         if not duplicate(solution, globalSolution):
-            solutionCost = getCurrentCost(solution, 0)
-            globalSolution.append(Node(stringSolution, solutionCost))
+            globalSolution.append(Node(
+                getString(solution).strip(),
+                getCurrentCost(solution, 0)))
 
-    count = 0
-    for potentialAuthority in authoritiesList:
-        count += 1
-        if isEqual(solution, potentialAuthority):
-            currentCost = getCurrentCost(solution, potentialAuthority.cost)
-            if currentCost <= costLimit:
-                tempSolution = solution.copy()
-                tempSolution.append(potentialAuthority)
-                branchAndBound(authoritiesList[count:].copy(), tempSolution,globalSolution)
+    for i in range(0, len(authoritiesList)):
+        if isEqual(solution, authoritiesList[i]):
+            if getCurrentCost(solution, authoritiesList[i].cost) <= costLimit:
+                branchAndBound(
+                    authoritiesList[i:],
+                    solution + [authoritiesList[i]],
+                    globalSolution)
     return solution
 
 
@@ -88,7 +86,7 @@ def main():
     optimize = False
     match len(sys.argv):
         case 1:
-            print("No input file is given. Please enter a file name after the scriptname and retry")
+            print("No input file is given. Please enter a file name after the script name and retry")
             exit()
         case 2:
             inputText = getInputText(sys.argv[1])
@@ -101,7 +99,7 @@ def main():
     numberCapitals = int(inputText[0].split(" ")[0].strip())
     costLimit = int(inputText[0].split(" ")[1].strip())
     capitals = re.findall(r'[^\W_]+', inputText[1])
-    costs = re.findall(r'[^\n|^" "]+', ''.join(inputText[2:]))
+    costs = re.findall(r'[^\n|^" ]+', ''.join(inputText[2:]))
 
     nodeList = []
     for i in range(0, numberCapitals, 1):
@@ -119,6 +117,7 @@ def main():
     else:
         for solution in globalSolution:
             print(f'{solution.name}')
+
 
 if __name__ == '__main__':
     main()
