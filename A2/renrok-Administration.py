@@ -33,7 +33,7 @@ def getCurrentCost(solutionList, potentialNodeCost):
 
 
 # checks if the currentSolution is already in the solution to avoid duplicates
-def duplicate(solution):
+def duplicate(solution,globalSolution ):
     if len(globalSolution) == 0:
         return False
     possibleSolutions = list(itertools.permutations(solution))
@@ -52,15 +52,14 @@ def getString(solution):
     return resultString
 
 
-def branchAndBound(authoritiesList, solution):
-    global costLimit
+def branchAndBound(authoritiesList, solution, globalSolution):
     # termination condition
     if (len(authoritiesList) == 0) | (authoritiesList is None):
         return solution
 
     if len(solution) == numberCapitals / 2:
         stringSolution = getString(solution)
-        if not duplicate(solution):
+        if not duplicate(solution, globalSolution):
             solutionCost = getCurrentCost(solution, 0)
             globalSolution.append(Node(stringSolution, solutionCost))
 
@@ -72,7 +71,7 @@ def branchAndBound(authoritiesList, solution):
             if currentCost <= costLimit:
                 tempSolution = solution.copy()
                 tempSolution.append(potentialAuthority)
-                branchAndBound(authoritiesList[count:].copy(), tempSolution)
+                branchAndBound(authoritiesList[count:].copy(), tempSolution,globalSolution)
     return solution
 
 
@@ -85,7 +84,7 @@ def getBestSolution(globalSolution):
 
 
 def main():
-    global costLimit, numberCapitals, globalSolution, optimize
+    global costLimit, numberCapitals
     optimize = False
     match len(sys.argv):
         case 1:
@@ -112,7 +111,8 @@ def main():
                 nodeName = capitals[i] + capitals[j]
                 nodeList.append(Node(nodeName, nodeCost))
 
-    branchAndBound(nodeList, [])
+    branchAndBound(nodeList, [], globalSolution)
+
     if optimize:
         best = getBestSolution(globalSolution)
         print(f'{best.name}')
