@@ -31,11 +31,10 @@ def Generate_authorities(partial_res, cost_limit, cost, unvisited, opt, res):
             
             if opt == "-o":
                 if cost_limit > optimum:
-                    while res!= []: #why it is not the same as res = []??
-                        res.pop()                    
+                    res.clear()                    
                     optimum = cost_limit 
             res.append(current)
-            return res
+            return 
         
     if len(partial_res) % 2 == 0: ##even, just start with the first still unvisited
                 if unvisited == []:
