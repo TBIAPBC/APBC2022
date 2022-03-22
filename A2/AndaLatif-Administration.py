@@ -1,6 +1,7 @@
 #Latif Anda Ramona
 # 01046290
 import sys
+from pathlib import Path
 
 def read_from_file(ifn):
     f = open(ifn, 'r')   
@@ -16,34 +17,35 @@ def read_from_file(ifn):
     f.close()
     return  int(no_of_capitals) , cost_limit, capitals, cost
 
-def Generate_authorities(partial_res, cost_limit, cost, unvisited, opt):
+def Generate_authorities(partial_res, cost_limit, cost, unvisited, opt, res):
     global optimum
-    global res
+    #global res
     if cost_limit < optimum: #throw away
-       return #res
+       return 
     if unvisited == []:            
             current = []
             for i in range(len(partial_res)-1):
                 if i % 2 == 0:
                    current.append("".join(sorted([partial_res[i], partial_res[i+1]])))
             current=" ".join(current)
+            
             if opt == "-o":
                 if cost_limit > optimum:
-                        optimum = cost_limit  
-                        res=[]
+                    while res!= []: #why it is not the same as res = []??
+                        res.pop()                    
+                    optimum = cost_limit 
             res.append(current)
-             
-            return 
+            return res
         
     if len(partial_res) % 2 == 0: ##even, just start with the first still unvisited
                 if unvisited == []:
-                    return 
-                Generate_authorities( partial_res + [unvisited[0]], cost_limit, cost, unvisited[1:], opt)
+                    return  
+                Generate_authorities( partial_res + [unvisited[0]], cost_limit, cost, unvisited[1:], opt, res)
     else:
          for i in range(len(unvisited)): ##odd, pair with all others 
             curr_cost = cost_limit - cost[tuple(sorted([partial_res[-1], unvisited[i]]))]
-            if  curr_cost >= 0:
-                    Generate_authorities( partial_res + [unvisited[i]],  curr_cost, cost, unvisited[:i] + unvisited[i+1:], opt)
+            if  curr_cost >= optimum:
+                     Generate_authorities( partial_res + [unvisited[i]],  curr_cost, cost, unvisited[:i] + unvisited[i+1:], opt, res)
  
 if __name__ == '__main__':
     arg = sys.argv[0:]   
@@ -58,17 +60,21 @@ if __name__ == '__main__':
             if not "." in opt:
                 print("option " + opt + " was ignored, only -o is a valid option")
                 opt=""
-        ifn = arg[-1]
-        out = open(ifn.split(".")[0] + ".out", 'w')
+        ifn = Path(arg[-1])    
+        ofn = ifn.stem+ ".out"        
+        out = open( ofn, 'w')
         no_of_capitals , cost_limit, capitals, cost = read_from_file(ifn)
         res = []
         optimum = 0
-        Generate_authorities( [], cost_limit, cost, capitals, opt)
-        print(res)
+        Generate_authorities( [], cost_limit, cost, capitals, opt, res)
         if opt == "-o" :
             out.write(str(cost_limit-optimum)+"\n")
+            for adm in res:
+                out.write(adm+"\n")
         else:
             out.write("\n".join( list for list in res))
             out.write("\n")
         out.close()
-        print(ifn.split(".")[0]+".out contains the output")
+        print(ofn +" contains the output")
+        
+
