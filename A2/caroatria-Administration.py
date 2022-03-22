@@ -14,15 +14,13 @@ else:
     filename = sys.argv[1]
 matrix_list=[]
 
-
 with open(filename) as f:
-    next(f)
+    number_capitals , cost_limit = f.readline().split()
     next(f)
     for line in f:
         content = line.split()
         matrix_list.append(content)
     capital_letters = linecache.getline(filename,2).strip("\n")
-
 
 f.close()
 for i in range(len(matrix_list)):
@@ -38,14 +36,14 @@ for capital in capital_letters:
         capital_index_list = capital_letters.index(capital)
         #print(capital_index_list)
 
-def get_combos(list_name):
+def get_combos(list_name,cost_limit):
     #list(combinations.enumerate,list_name)
     cost_pairs=[]
     pairs = [x for x in combinations(list_name, 2) ]
     # b = list((i,j) for ((i,_),(j,_)) in pairs)
     # print(b)
     for x in pairs:    
-        if x[0] + x[1]<=10:
+        if x[0] + x[1]<=int(cost_limit):
             cost_pairs.append(x)
     return authority(cost_pairs)
 
@@ -70,4 +68,4 @@ if selected_option:
     print("option -o chosen")
 else:
     for i in range(len(matrix_list)):
-        get_combos(matrix_list[i])
+        get_combos(matrix_list[i],cost_limit)
