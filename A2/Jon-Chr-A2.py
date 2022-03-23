@@ -88,7 +88,7 @@ def branch_and_bound(capital_candidates, capitals, nr_cap, cost_limit, cost_dict
                     if optimize:
                         if updated_cost < best:
                             best = updated_cost
-                            res_opt = []
+                            res_opt.clear()
                             res_opt.append(next_node)
                         elif updated_cost == best:
                             res_opt.append(next_node)
@@ -107,6 +107,8 @@ def branch_and_bound(capital_candidates, capitals, nr_cap, cost_limit, cost_dict
             if n not in tree:
                 tree[n] = next_branch[n]
 
+    optimal_score = "Best score:" + str(best)
+    res_opt.append(optimal_score)
     result = sorted(res_opt) if optimize else sorted(res)
 
     return result
@@ -126,21 +128,19 @@ matrix, cap_ids, nr_cap, cost_limit = read_data(filename)
 # Get unique combinations of capitals without repitition
 c = list(combinations(cap_ids, 2))
 combos = [''.join(x) for x in c]
-unique_combos = np.unique(combos)
+unique_combos = np.array(combos)
 
 # Store Costs in a dictionary, if they are smaller than the cost-limit
 cost_dict = dict()
 for cap in unique_combos:
     cost = get_cost(cap_ids, cap, matrix)
-    if cost >= cost_limit:
-        continue
-    else:
-        if cap not in cost_dict:
-            cost_dict[cap] = cost
+    if cap not in cost_dict:
+        cost_dict[cap] = cost
 
 capital_candidates = list(cost_dict.keys())  # keys in dictionary
-res = branch_and_bound(capital_candidates, cap_ids, nr_cap,
+res = branch_and_bound(unique_combos, cap_ids, nr_cap,
                        cost_limit, cost_dict, optimize)
+
 
 # Print Results as specified by excercise
 for i in range(len(res)):
