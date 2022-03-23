@@ -1,0 +1,15 @@
+############################################################
+# Test input 1 for the Manhattan tourist problem
+#
+# small example instance
+#
+
+# size (north-south dimension times west-east dimension)
+# 3 3
+# north-south streets
+1 6 2
+4 0 7
+# west-east streets
+3 3
+3 2
+5 7
