@@ -51,7 +51,7 @@ def administration(cost, limit, solution, to_visit, interm_cost):
                         ## when the optimum mode is on, it always checks if the current sum doesn't exceed the current lowest optimal sum
                         if optimum and interm_cost+cost.get((solution[-1], el))<=cost_min:
                               administration(cost, limit, solution+[el], new_unvisited, interm_cost+cost.get((solution[-1],el)))
-                        else:
+                        elif not optimum:
                               administration(cost, limit, solution+[el], new_unvisited, interm_cost+cost.get((solution[-1],el))) 
 
 def input_verifier():
