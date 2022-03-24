@@ -1,7 +1,6 @@
 #caroatria solution attempt for assignment 2
-#printing the capital letters does not yet work
+#not yet able to sotre which capitals already used
 
-from dataclasses import replace
 import linecache
 import sys
 from itertools import combinations
@@ -12,60 +11,43 @@ if sys.argv[1] == "-o":
     filename = sys.argv[2]
 else:
     filename = sys.argv[1]
-matrix_list=[]
 
 with open(filename) as f:
-    number_capitals , cost_limit = f.readline().split()
-    next(f)
-    for line in f:
-        content = line.split()
-        matrix_list.append(content)
-    capital_letters = linecache.getline(filename,2).strip("\n")
-
+    cost_per_combo={} #dictionary to store the data
+    number_capitals, cost_limit = f.readline().split()
+    content = f.readline().split()
+    for capital in content:
+        line = f.readline().split()
+        for iterator in range(len(content)): #iterates through the capitals (letters)
+            if capital is not content[iterator]: #to avoid calling the same capital twice
+                combinations = [capital,content[iterator]] #list of unique capital combinations
+                cost_per_combo[tuple(combinations)]=(line[iterator]) #stores the combinations as keys and costs as values
 f.close()
-for i in range(len(matrix_list)):
-    matrix_column = matrix_list[i]
-    for j in range(len(matrix_list)):
-        if matrix_column[j] == '-':
-            matrix_column[j] = 0 #to get rid of the "-" character and to facilitate the computational steps later on
-        else:
-            matrix_column[j] = int(matrix_column[j])
-    matrix_list[i] = matrix_column
-for capital in capital_letters:
-    if capital.isalpha():
-        capital_index_list = capital_letters.index(capital)
-        #print(capital_index_list)
 
-def get_combos(list_name,cost_limit):
-    #list(combinations.enumerate,list_name)
-    cost_pairs=[]
-    pairs = [x for x in combinations(list_name, 2) ]
-    # b = list((i,j) for ((i,_),(j,_)) in pairs)
-    # print(b)
-    for x in pairs:    
-        if x[0] + x[1]<=int(cost_limit):
-            cost_pairs.append(x)
-    return authority(cost_pairs)
-
-def authority(cost_pairs):
-    authority = []
+def authority_allocator(cost_per_combo,cost_limit):
+    final_list = [(0,0)]
+    already_listed =[]
     authority_counter = 0
-    for combination in cost_pairs:
-        if authority_counter > 4:
-            break
-        elif authority_counter == 0:
-            authority.append(combination)
-            authority_counter += 1
-        else:
-            if combination[0] or combination[1] in authority:
-                break
-            else:
-                authority.append(combination)
-                authority_counter += 1
-    return(authority)  
+    for cost in cost_per_combo:
+        if authority_counter < 8:
+            i=0
+            j=0
+            while i < len(cost):
+                while j < len(cost):
+                    if cost[i] not in final_list[j]:
+                        final_list.append(cost)
+                        authority_counter += 1
+                        #j +=1
+                    else:
+                        already_listed.append(cost)
+                    j +=1
+                    i+=1
+    final_list.pop(0)
+    solution = list(set(final_list)-set(already_listed))
+    print(solution)
+
 
 if selected_option:
     print("option -o chosen")
 else:
-    for i in range(len(matrix_list)):
-        get_combos(matrix_list[i],cost_limit)
+    authority_allocator(cost_per_combo,cost_limit)
