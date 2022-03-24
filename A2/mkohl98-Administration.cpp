@@ -118,9 +118,9 @@ void Node::update_possible_children(bool optimize) {
     if (this->possible_children.empty() && this->solution_path.size() == num_cities/2){
         if (this->check_cost()){
             this->update_global_solution();
-            if (optimize){
-                this->optimize_global_solution();
-            }
+//            if (optimize){
+//                this->optimize_global_solution();
+//            }
         }
     }
 }
@@ -134,8 +134,8 @@ void Node::update_solution_path() {
 // get solution
 void Node::solve(bool optimize) {
     while(!this->possible_children.empty() && this->check_cost()){
-        string new_name = this->possible_children.back();
-        this->possible_children.pop_back();
+        string new_name = this->possible_children[0];
+        this->possible_children.erase(this->possible_children.begin());
 
         Node child(new_name, ref_node_costs[new_name], this, bound, this->ref_node_costs, this->possible_children);
         child.update_solution_path();
@@ -233,7 +233,7 @@ int main(int argc, char *argv[]) {
     input_file.close();
 
     // solve
-    for (int i = 0; i < node_names.size(); i++) {
+    for (int i = 0; i < node_strings.size(); i++) {
         vector<string> unused_node_names(&node_names[i], &node_names[node_names.size()]);
         Node root(node_names[i], node_costs[node_names[i]], nullptr, limit, node_costs, unused_node_names);
         root.update_possible_children(opt);
@@ -242,7 +242,7 @@ int main(int argc, char *argv[]) {
 
     // print solution
     if (opt){
-        cout << solution[0].second << endl;
+        cout << limit << endl;
     } else {
         for (const auto &x: solution) {
             cout << x.first << endl;
