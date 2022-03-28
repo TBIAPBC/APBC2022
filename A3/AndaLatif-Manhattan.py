@@ -14,7 +14,6 @@ def read_file(ifn, diag):
         if '#' in line.strip(): #skip the rest of the line
             line = line[: line.index("#")]
         lines.append([float(el) for el in line.strip().split()])
-        
     if diag:
         NS = lines[ : (len(lines)-1) // 3]    
         WE = lines[(len(lines)-1) // 3 : 2*(len(lines)-1) // 3+1 ]
@@ -23,14 +22,12 @@ def read_file(ifn, diag):
         WE=[ [0] + line for line in WE]
         D=[ [0 for _ in range(len(D[0]))] ] + D
         D=[ [0] + line for line in D]
-    
     else: 
         NS = lines[ : len(lines) // 2]    
         WE = lines[len(lines) // 2 : ]
         NS=[ [0 for _ in range(len(NS[0]))] ] + NS
         WE=[ [0] + WE[i] for i in range(len(WE))]    
-        D=[[-1000 for _ in range(len(WE[0])+1)] for _ in range(len(NS)+1)]
-    
+        D=[[-float("inf") for _ in range(len(WE[0]))] for _ in range(len(NS))]
     f.close()
     return NS, WE, D
 
@@ -91,20 +88,20 @@ def reconstruct_path(path, backtrack, out):
     j = len(backtrack[0])-1
     while i >  0 or j >  0:
         match backtrack[i][j]:
-            case 1:
-                path="S" + path
-                i=i-1
             case 0:
                 path="E" + path
-                j=j-1
+                j = j-1
+            case 1:
+                path="S" + path
+                i = i-1
             case 2:
                 path="D" + path
-                i-=1
-                j-=1 
-            
+                i -= 1
+                j -= 1 
     out.write(path)
     print(path)
-    return              
+    return     
+         
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("input_file", type = str, help="Enter path of input file.")
@@ -116,9 +113,10 @@ if __name__ == '__main__':
     ofn = ifn.stem+ ".out"      
     out = open(ofn, "w")
     NS, WE, D = read_file(arg.input_file, arg.diagonal)
-    max, backtrack = find_path_D(NS, WE, D)
-    if  not arg.diagonal:
-         max, backtrack = find_path(NS, WE)
+    if   arg.diagonal:
+        max, backtrack = find_path_D(NS, WE, D)
+    else: 
+        max, backtrack = find_path(NS, WE)
     if int(max) == float(max):
             decimals = 0
     else:
@@ -126,7 +124,6 @@ if __name__ == '__main__':
     out.write('{0:.{1}f}'.format(max, decimals) + "\n")
     print('{0:.{1}f}'.format(max, decimals))
     if arg.best_path: 
-          
         reconstruct_path("", backtrack, out)
         out.write("\n")         
     out.close()
