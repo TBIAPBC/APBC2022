@@ -7,10 +7,12 @@ import sys
 def manhattan(down,left,n,m,*d):
     solution = np.zeros((n,m))
     
+    ##first fill the 0th row and column by simply going in one direction
     for i in range(1,n):
         solution[i,0] = solution[i-1,0] + down[i-1,0]
     for j in range(1,m):
         solution[0,j] = solution[0,j-1] + left[0,j-1]
+    ##the inner nodes 
     for i in range(1,n):
         for j in range(1,m):
             if diag_toggle:
@@ -23,6 +25,7 @@ def manhattan(down,left,n,m,*d):
 def traceback(sol,down,left,n,m,*d):
     path = []
     while(n>0 or m>0):
+    ##favoring the south direction
         if sol[n,m] == sol[n-1,m]+down[n-1,m] and n>0 and m>0:
             path.insert(0,"S")
             n-=1
@@ -51,7 +54,8 @@ def float_append(matrix,val_string):
 
 def file_reader(file_name):
     with open(file_name,"r") as test:
-        line_length = 0
+    ## keeps track of the current line length so it can correctly save the right matrices
+        line_length = 0   
         north_south = []
         east_west = []
         if diag_toggle:
