@@ -24,12 +24,12 @@ def readHVFile(file):
     return np.array(ns), np.array(ew)  # return numpy arrays (more pleasant to work with)
 
 
-def maxPathHV(ns, ew):
+def maxWeightHV(ns, ew):  # calculates the weight of the maximum weight path from the starting node to the target node
     numberOfNodeRows = len(ew[:,0])
     numberOfNodeColumns = len(ns[0,:])
-    MW = np.zeros([numberOfNodeRows, numberOfNodeColumns])
-    for i in range(0, numberOfNodeRows):
-        for j in range(0, numberOfNodeColumns):
+    MW = np.zeros([numberOfNodeRows, numberOfNodeColumns])  # MW(i,j) = weight of maximum weight path that leads to node (i,j)
+    for i in np.arange(0, numberOfNodeRows):
+        for j in np.arange(0, numberOfNodeColumns):
             if i == 0 and j == 0:  # I am in the north-west corner (starting node). The maximum weight to get here is 0.
                 MW[i,j] = 0
             elif i == 0:  # if I am in the north-most street, I can't have come from the north. I must have come from the west.
@@ -39,9 +39,56 @@ def maxPathHV(ns, ew):
             else:  # to get to node (i,j) I can either come from the north or from the east.
                 # I want to have come from the node that has the maximum (weight to get to it + weight to get from it to (i,j)).
                 MW[i,j] = max(MW[i,j-1] + ew[i,j-1], MW[i-1,j] + ns[i-1,j])  # result: maximum weight to get to node (i,j)
-    return MW[numberOfNodeRows-1, numberOfNodeColumns-1]
+    return MW[numberOfNodeRows-1, numberOfNodeColumns-1]  # return last entry of MW matrix (bottom right, target node)
 
 
+def maxPathHV(ns, ew):  # calculates the weight of the maximum weight path and the maximum weight path from the starting node to the target node
+    numberOfNodeRows = len(ew[:,0])
+    numberOfNodeColumns = len(ns[0,:])
+    MW = np.zeros([numberOfNodeRows, numberOfNodeColumns])  # MW(i,j) = weight of maximum weight path that leads to node (i,j)
+    CameFrom = np.empty([numberOfNodeRows, numberOfNodeColumns], dtype="<U1")  # string matrix that saves heaviest path to each node (i,j) but backwards (where you came from)
+    for i in np.arange(0, numberOfNodeRows):
+        for j in np.arange(0, numberOfNodeColumns):
+            if i == 0 and j == 0:  # I am in the north-west corner (starting node). The maximum weight to get here is 0.
+                MW[i,j] = 0
+            elif i == 0:  # if I am in the north-most street, I can't have come from the north. I must have come from the west.
+                MW[i,j] = MW[i,j-1] + ew[i,j-1]  # the maximum weight to get to node i,j-1 plus the weight to walk from j-1 to j
+                CameFrom[i,j] = 'W'  # I came from the west to get to (i,j)
+            elif j == 0:  # if I am in the west-most street, I must have come from the north.
+                MW[i,j] = MW[i-1,j] + ns[i-1,j]  # maximum weight to get to node (i-1,j) plus the weight to walk to node (i,j) from the north.
+                CameFrom[i,j] = 'N'  # I came from the north to get to (i,j)
+            else:  # to get to node (i,j) I can either come from the north or from the east.
+                # I want to have come from the node that has the maximum (weight to get to it + weight to get from it to (i,j)).
+                if MW[i,j-1] + ew[i,j-1] > MW[i-1,j] + ns[i-1,j]:  # Heavier path if I came from the west
+                    MW[i,j] = MW[i,j-1] + ew[i,j-1]
+                    CameFrom[i,j] = 'W'
+                else:  # heavier path if I came from the north (or if the two paths are equal)
+                    MW[i,j] = MW[i - 1, j] + ns[i - 1, j]
+                    CameFrom[i,j] = 'N'
+    MaximumPathWeight = MW[numberOfNodeRows-1, numberOfNodeColumns-1]
+    numberOfSteps = numberOfNodeRows + numberOfNodeColumns - 2  # number of steps needed to go from starting node to target node (independent of path)
+    backwardsPath = np.empty(numberOfSteps, dtype="<U1")  # vector of length number-of-steps that are needed to reach target node
+    i = numberOfNodeRows-1
+    j = numberOfNodeColumns-1
+    k = 0
+    while k < numberOfSteps:
+        backwardsPath[k] = CameFrom[i, j]
+        if backwardsPath[k] == 'N':  # if I came to the node from the north, next look at the node to the north
+            i = i-1
+        elif backwardsPath[k] == 'W':  # if I came from the west, look how I got to the node in the west
+            j = j-1
+        k = k+1
+    path = np.empty(numberOfSteps, dtype="<U1")
+    for i in np.arange(0, numberOfSteps):
+        if backwardsPath[numberOfSteps-1-i] == 'N':  # start with last element of backwardsPath, which is how I got from starting node to next node
+            path[i] = 'S'
+        if backwardsPath[
+            numberOfSteps - 1 - i] == 'W':
+            path[i] = 'E'
+    # I could have used 'S' and 'E' from the start instead of 'W' and 'N', then I would just have to reverse the backwardsPath vector
+    # However, I find that the concept of what is being calculated is more easy to understand by using 'N' and 'W'.
+    # I depends if performance or understandability is more important.
+    return MaximumPathWeight, path
 
 
 
@@ -74,6 +121,12 @@ f.close()
 #print("npparray(ns) = ", np.array(ns))
 
 
-maxpath = maxPathHV(ns, ew)
-print(maxpath)
 
+if printBestPath:
+    [maxweight, maxpath] = maxPathHV(ns, ew)
+    print(maxweight)
+    for p in maxpath:
+        print(p, end="")
+else:
+    maxweight = maxWeightHV(ns, ew)
+    print(maxweight)
