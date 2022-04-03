@@ -3,6 +3,8 @@
 import sys
 import numpy as np
 
+
+# --- read street grid with no diagonals: ---
 def readHVFile(file):
     ns = []  # list of weights of all north-south streets
     ew = []  # list of weights of all east-west streets
@@ -24,7 +26,43 @@ def readHVFile(file):
     return np.array(ns), np.array(ew)  # return numpy arrays (more pleasant to work with)
 
 
-def maxWeightHV(ns, ew):  # calculates the weight of the maximum weight path from the starting node to the target node
+# --- read street grid with diagonals: ---
+def readHVDFile(file):
+    # Note: Because of the form of the street grid, ew will always have one row more than ns, and one column less than ns.
+    # Because of this, ns is a (n x m) matrix, ew is a (n+1, m-1) matrix,
+    # and the diagonal matrix will start at row n + n+1 + 1, aka row 2n + 2
+    ns = []  # list of weights of all north-south streets
+    ew = []  # list of weights of all east-west streets
+    diag = []  # list of weights of all diagonal streets
+    firstline = True  # use this to set the number of columns of north-south streets
+    lines = file.readlines()  # read each line separately so I can ignore those that are comments
+    nsColumns = 0  # number of columns of north-south streets
+    processedRows = 0  # rows that have so far been read
+    nsRows = 0  # number of vertical streets that have so far been read
+    for line in lines:
+        if line[0] != '#':  # ignore lines that are comments
+            row = line.split()  # split by spaces so each number is separate
+            if len(row) != 0:  # ignore empty lines
+                row = [float(i) for i in row]  # convert all numbers from strings to ints
+                if firstline:  # only the first line that isnt empty and isnt a comment
+                    nsColumns = len(row)  # set number of north-south streets so I know when the east-west streets start
+                firstline = False
+                if len(row) < nsColumns:  # all these lines are not ns-streets
+                    #print("processedRows = ", processedRows)
+                    #print("2 * nsRows + 1 = ", 2 * nsRows + 1)
+                    if processedRows > 2 * nsRows:  # then diagonal rows
+                        diag. append(row)
+                    else:  # ew rows
+                        ew.append(row)
+                else:  # all these lines are north-south streets
+                    ns.append(row)
+                    nsRows += 1
+                processedRows += 1
+    return np.array(ns), np.array(ew), np.array(diag)  # return numpy arrays (more pleasant to work with)
+
+
+# --- calculates the weight of the maximum weight path from the starting node to the target node  without diagonals ---
+def maxWeightHV(ns, ew):
     numberOfNodeRows = len(ew[:,0])
     numberOfNodeColumns = len(ns[0,:])
     MW = np.zeros([numberOfNodeRows, numberOfNodeColumns])  # MW(i,j) = weight of maximum weight path that leads to node (i,j)
@@ -42,7 +80,8 @@ def maxWeightHV(ns, ew):  # calculates the weight of the maximum weight path fro
     return MW[numberOfNodeRows-1, numberOfNodeColumns-1]  # return last entry of MW matrix (bottom right, target node)
 
 
-def maxPathHV(ns, ew):  # calculates the weight of the maximum weight path and the maximum weight path from the starting node to the target node
+# --- calculates the weight of the maximum weight path and the maximum weight path from the starting node to the target node without diagonals ---
+def maxPathHV(ns, ew):
     numberOfNodeRows = len(ew[:,0])
     numberOfNodeColumns = len(ns[0,:])
     MW = np.zeros([numberOfNodeRows, numberOfNodeColumns])  # MW(i,j) = weight of maximum weight path that leads to node (i,j)
@@ -92,8 +131,7 @@ def maxPathHV(ns, ew):  # calculates the weight of the maximum weight path and t
 
 
 
-
-
+# --- main: ---
 
 diagonalFile = False
 printBestPath = False
@@ -110,13 +148,14 @@ f = open(sys.argv[-1], "r")
 if not diagonalFile:
     [ns, ew] = readHVFile(f)
 else:
-    print("diagonal file reading not yet implemented")
+    [ns, ew, diag] = readHVDFile(f)
 f.close()
 
 
-#print("ns = ", ns)
-#print("ew = ", ew)
-#print("ns[1][1] = ", ns[1][2])
+#print("ns = \n", ns)
+#print("ew = \n", ew)
+#print("diag = \n", diag)
+#print("ns[0][3] = ", ns[0][3])
 #print("ew[1][1] = ", ew[2][1])
 #print("npparray(ns) = ", np.array(ns))
 
