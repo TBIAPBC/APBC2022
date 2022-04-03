@@ -40,11 +40,11 @@ def calculateMatrix(northSouth, westEast, diagonals, doDiagonal):
     # init zero matrix - D_0_0 = 0
     D = numpy.zeros([westEast.shape[0], northSouth.shape[1]])
 
-    # add values for D_i_0 = i | i > 0 since D_0_0 = 0
+    # add values for D_i_0 = sum i vertical distances | i > 0 since D_0_0 = 0
     for i in range(1, D.shape[0]):
         D[i, 0] = D[i - 1, 0] + northSouth[i - 1, 0]
 
-    # add values for D_0_j = j | j > 0 since D_0_0 = 0
+    # add values for D_0_j = sum j horizontal distances | j > 0 since D_0_0 = 0
     for j in range(1, D.shape[1]):
         D[0, j] = D[0, j - 1] + westEast[0, j - 1]
 
