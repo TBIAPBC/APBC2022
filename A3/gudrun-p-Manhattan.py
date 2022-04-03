@@ -61,7 +61,7 @@ def readHVDFile(file):
     return np.array(ns), np.array(ew), np.array(diag)  # return numpy arrays (more pleasant to work with)
 
 
-# --- calculates the weight of the maximum weight path from the starting node to the target node  without diagonals ---
+# --- calculates the weight of the maximum weight path from the starting node to the target node without diagonals ---
 def maxWeightHV(ns, ew):
     numberOfNodeRows = len(ew[:,0])
     numberOfNodeColumns = len(ns[0,:])
@@ -130,6 +130,28 @@ def maxPathHV(ns, ew):
     return MaximumPathWeight, path
 
 
+# --- calculates the weight of the maximum weight path from the starting node to the target node with diagonals ---
+def maxWeightHVD(ns, ew, diag):
+    numberOfNodeRows = len(ew[:,0])
+    numberOfNodeColumns = len(ns[0,:])
+    MW = np.zeros([numberOfNodeRows, numberOfNodeColumns])  # MW(i,j) = weight of maximum weight path that leads to node (i,j)
+    for i in np.arange(0, numberOfNodeRows):
+        for j in np.arange(0, numberOfNodeColumns):
+            if i == 0 and j == 0:  # I am in the north-west corner (starting node). The maximum weight to get here is 0.
+                MW[i,j] = 0
+            elif i == 0:  # if I am in the north-most street, I can't have come from the north or diagonally. I must have come from the west.
+                MW[i,j] = MW[i,j-1] + ew[i,j-1]  # the maximum weight to get to node i,j-1 plus the weight to walk from j-1 to j
+            elif j == 0:  # if I am in the west-most street, I must have come from the north.
+                MW[i,j] = MW[i-1,j] + ns[i-1,j]  # maximum weight to get to node (i-1,j) plus the weight to walk to node (i,j) from the north.
+            else:  # to get to node (i,j) I can either come from the north or from the east or diagonally.
+                # I want to have come from the node that has the maximum (weight to get to it + weight to get from it to (i,j)).
+                MW[i,j] = max(MW[i,j-1] + ew[i,j-1], MW[i-1,j] + ns[i-1,j], MW[i-1,j-1] + diag[i-1, j-1])  # result: maximum weight to get to node (i,j)
+    return MW[numberOfNodeRows-1, numberOfNodeColumns-1]  # return last entry of MW matrix (bottom right, target node)
+
+
+def maxPathHVD(ns, ew, diag):
+    print("not yet implemented")
+
 
 # --- main: ---
 
@@ -145,10 +167,10 @@ if len(args)>2:
     if '-t' in args:
         printBestPath = True
 f = open(sys.argv[-1], "r")
-if not diagonalFile:
-    [ns, ew] = readHVFile(f)
-else:
+if diagonalFile:
     [ns, ew, diag] = readHVDFile(f)
+else:
+    [ns, ew] = readHVFile(f)
 f.close()
 
 
@@ -160,12 +182,21 @@ f.close()
 #print("npparray(ns) = ", np.array(ns))
 
 
-
-if printBestPath:
-    [maxweight, maxpath] = maxPathHV(ns, ew)
-    print(maxweight)
-    for p in maxpath:
-        print(p, end="")
+if diagonalFile:
+    if printBestPath:
+        [maxweight, maxpath] = maxPathHVD(ns, ew, diag)
+        print("%.2f"%maxweight)
+        for p in maxpath:
+            print(p, end="")
+    else:
+        maxweight = maxWeightHVD(ns, ew, diag)
+        print("%.2f"%maxweight)
 else:
-    maxweight = maxWeightHV(ns, ew)
-    print(maxweight)
+    if printBestPath:
+        [maxweight, maxpath] = maxPathHV(ns, ew)
+        print("%.2f"%maxweight)
+        for p in maxpath:
+            print(p, end="")
+    else:
+        maxweight = maxWeightHV(ns, ew)
+        print("%.2f"%maxweight)
