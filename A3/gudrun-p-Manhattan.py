@@ -48,8 +48,6 @@ def readHVDFile(file):
                     nsColumns = len(row)  # set number of north-south streets so I know when the east-west streets start
                 firstline = False
                 if len(row) < nsColumns:  # all these lines are not ns-streets
-                    #print("processedRows = ", processedRows)
-                    #print("2 * nsRows + 1 = ", 2 * nsRows + 1)
                     if processedRows > 2 * nsRows:  # then diagonal rows
                         diag. append(row)
                     else:  # ew rows
@@ -181,10 +179,6 @@ def maxPathHVD(ns, ew, diag):
                         MW[i, j] = MW[i - 1, j - 1] + diag[i - 1, j - 1]
                         CameFrom[i, j] = 'D'
     MaximumPathWeight = MW[numberOfNodeRows-1, numberOfNodeColumns-1]
-
-#    numberOfSteps = numberOfNodeRows + numberOfNodeColumns - 2  # number of steps needed to go from starting node to target node (independent of path)
-#    backwardsPath = np.empty(numberOfSteps, dtype="<U1")  # vector of length number-of-steps that are needed to reach target node
-
     backwardsPath = np.empty(0, dtype = "U1")
     i = numberOfNodeRows-1
     j = numberOfNodeColumns-1
@@ -231,14 +225,6 @@ if diagonalFile:
 else:
     [ns, ew] = readHVFile(f)
 f.close()
-
-
-#print("ns = \n", ns)
-#print("ew = \n", ew)
-#print("diag = \n", diag)
-#print("ns[0][3] = ", ns[0][3])
-#print("ew[1][1] = ", ew[2][1])
-#print("npparray(ns) = ", np.array(ns))
 
 
 if diagonalFile:
