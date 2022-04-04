@@ -1,5 +1,3 @@
-from importlib.resources import path
-from re import L
 import numpy as np
 import sys
 
@@ -121,13 +119,14 @@ if __name__ == "__main__":
         east_west = value_matrices[1]
         rows = east_west.shape[0]
         columns = north_south.shape[1]
+        
 
         if diag_toggle:
             diagonal_values = value_matrices[2]
             path_score_diag = manhattan(north_south,east_west, rows, columns, diagonal_values)
             print(path_score_diag[1])
             if path_toggle:
-                print(traceback(path_score_diag[0],north_south,east_west,rows, columns, diagonal_values))
+                print(traceback(path_score_diag[0],north_south,east_west,rows-1, columns-1, diagonal_values))
         else:
             path_score = manhattan(north_south,east_west, east_west.shape[0],north_south.shape[1])
             print(path_score[1])
