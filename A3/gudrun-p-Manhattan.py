@@ -230,18 +230,30 @@ f.close()
 if diagonalFile:
     if printBestPath:
         [maxweight, maxpath] = maxPathHVD(ns, ew, diag)
-        print("%.2f"%maxweight)
+        if np.abs(maxweight - round(maxweight)) < 0.001:
+            print(round(maxweight))
+        else:
+            print("%.2f"%maxweight)
         for p in maxpath:
             print(p, end="")
     else:
         maxweight = maxWeightHVD(ns, ew, diag)
-        print("%.2f"%maxweight)
+        if np.abs(maxweight - round(maxweight)) < 0.001:
+            print(round(maxweight))
+        else:
+            print("%.2f" % maxweight)
 else:
     if printBestPath:
         [maxweight, maxpath] = maxPathHV(ns, ew)
-        print("%.2f"%maxweight)
+        if np.abs(maxweight - round(maxweight)) < 0.001:
+            print(round(maxweight))
+        else:
+            print("%.2f" % maxweight)
         for p in maxpath:
             print(p, end="")
     else:
         maxweight = maxWeightHV(ns, ew)
-        print("%.2f"%maxweight)
+        if np.abs(maxweight - round(maxweight)) < 0.001:
+            print(round(maxweight))
+        else:
+            print("%.2f" % maxweight)
