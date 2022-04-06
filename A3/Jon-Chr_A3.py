@@ -94,12 +94,12 @@ def solve_manhatten(A, diagonal):
     else:
         # Separate Matrix into down and right matrix (not diagonal)
 
-        n = len(A[0])
-        m = int((len(A) + 1) / 2)
+        m = len(A[0])
+        n = int((len(A) + 1) / 2)
 
         cut = 0
         for i in A:
-            if len(i) == n:
+            if len(i) == m:
                 cut += 1
             else:
                 break
@@ -130,8 +130,16 @@ def solve_manhatten(A, diagonal):
 # Main
 A = file_to_matrix(file)
 res, path = solve_manhatten(A, diagonal)
-if best_path:
-    print(round(res, 2), "\n" + path)
+if diagonal:
+    if best_path:
+        print(format(res, '.2f'), "\n" + path)
+    else:
+        print(format(res, '.2f'))
 else:
-    print(round(res, 2))
+    if best_path:
+        print(round(res, 2), "\n" + path)
+    else:
+        print(round(res, 2))
+
+
 
