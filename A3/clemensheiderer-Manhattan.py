@@ -12,7 +12,7 @@ parser = argparse.ArgumentParser(description='Manhattan',
                                      """,
                                  formatter_class=argparse.RawTextHelpFormatter)
 
-parser.add_argument('fastafile')
+parser.add_argument('inputfile')
 
 parser.add_argument("-t", "--t_path", help="""
     load it with:filename.py -t Manhattan-testHV1.in
@@ -29,7 +29,7 @@ parser.add_argument("-d", "--diagonal", help="""
 args = parser.parse_args()
 
 if not args.diagonal:
-    with open(args.fastafile) as f:
+    with open(args.inputfile) as f:
         list = []
         for line in f:
             li = line.strip()
@@ -106,7 +106,7 @@ if not args.diagonal:
 
 
 if args.diagonal:
-    fasta_seq_list = [f.strip() for f in open(args.fastafile).readlines()]
+    fasta_seq_list = [f.strip() for f in open(args.inputfile).readlines()]
     #print(fasta_seq_list)
     multiple_fasta_dict = {}
 
