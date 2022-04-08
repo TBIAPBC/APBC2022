@@ -8,7 +8,6 @@ parser = argparse.ArgumentParser(description='Manhattan',
                                  use "%(prog)s --help" for more information
 
 
-
                                      """,
                                  formatter_class=argparse.RawTextHelpFormatter)
 
@@ -28,6 +27,7 @@ parser.add_argument("-d", "--diagonal", help="""
 
 args = parser.parse_args()
 
+
 if not args.diagonal:
     with open(args.inputfile) as f:
         list = []
@@ -35,178 +35,189 @@ if not args.diagonal:
             li = line.strip()
             if not li.startswith("#"):
                 b = line.split()
-                result = np.array(b, dtype=float)
+                result = (np.array(b, dtype=float)).round(decimals=2)
                 if len(result) != 0:
                     list.append(result)
 
-    east = []
-    south = []
 
-    for i in range(len(list)):
-        if len(list[i]) == len(list[0]):
-            south.append(list[i])
-        else:
-            east.append(list[i])
-    east = np.array(east)
-    south = np.array(south)
 
-    y = len(east[0]) + 1
-
-    x = len(south) + 1
-
-    a = len(east[0]) + 1
-
-    matrix = np.zeros((x, y))
-    matrix[0, 0] = 0
-
-    matrix_backtrack = np.zeros((x, y))
-    # print(matrix_backtrack)
-    up = 1
-    left = -1
-    matrix[0, 0] = 0
-
-    for col in range(1, y):
-        matrix[0, col] = matrix[0, col - 1] + east[0, col - 1]
-        matrix_backtrack[0, col] = left
-    #
-    for row in range(1, x):
-        matrix[row, 0] = matrix[row - 1, 0] + south[row - 1, 0]
-        matrix_backtrack[row, 0] = up
-
-    for row in range(1, x):
-        for col in range(1, y):
-            matrix[row, col] = max(matrix[row - 1, col] + south[row - 1, col],
-                                   matrix[row, col - 1] + east[row, col - 1])
-            if matrix[row, col - 1] + east[row, col - 1] > matrix[row - 1, col] + south[row - 1, col]:
-                matrix_backtrack[row, col] = left
+    def initializing_matrix(list):
+        east = []
+        south = []
+        for i in range(len(list)):
+            if len(list[i]) == len(list[0]):
+                south.append(list[i])
             else:
-                matrix_backtrack[row, col] = up
+                east.append(list[i])
+        east = np.array(east)
+        south = np.array(south)
+        y = len(east[0]) + 1
+        x = len(south) + 1
+        a = len(east[0]) + 1
 
+        matrix = np.zeros((x, y))
+        matrix[0, 0] = 0
+
+        matrix_backtrack = np.zeros((x, y))
+
+        matrix[0, 0] = 0
+        return matrix, matrix_backtrack, x, y, east, south
+
+
+    matrix, matrix_backtrack, x, y, east, south = initializing_matrix(list)
+
+
+    def matrix_calculation(matrix, matrix_backtrack, x, y, east, south):
+        up, left = 1, -1
+
+        for col in range(1, y):
+            matrix[0, col] = matrix[0, col - 1] + east[0, col - 1]
+            matrix_backtrack[0, col] = left
+
+        for row in range(1, x):
+            matrix[row, 0] = matrix[row - 1, 0] + south[row - 1, 0]
+            matrix_backtrack[row, 0] = up
+
+        for row in range(1, x):
+            for col in range(1, y):
+                matrix[row, col] = max(matrix[row - 1, col] + south[row - 1, col], matrix[row, col - 1] + east[row, col - 1])
+                if matrix[row, col - 1] + east[row, col - 1] > matrix[row - 1, col] + south[row - 1, col]:matrix_backtrack[row, col] = left
+
+                else:
+                    matrix_backtrack[row, col] = up
+
+        return matrix, matrix_backtrack
+
+
+    matrix, matrix_backtrack = matrix_calculation(matrix, matrix_backtrack, x, y, east, south)
     m = matrix[-1][-1]
-    if str(m)[::-1].find('.') == 1:
-        print(round(m))
+    m_2_dec = "{:.2f}".format(matrix[-1][-1])
+
+    is_it_int = str(float(m_2_dec) - int(float(m_2_dec)))[1:]
+    if is_it_int == ".0":
+        print(round(float(m_2_dec)))
     else:
-        print(m)
+        print(m_2_dec)
 
 
     if args.t_path:
-        path_backtrack = ""
-        row = x - 1
-        col = y - 1
 
-        while row > 0 or col > 0:
-            if matrix_backtrack[row, col] == up:
-                path_backtrack = "S" + path_backtrack
-                row = row - 1
-            else:
-                path_backtrack = "E" + path_backtrack
-                col = col - 1
+        def backtrack_path(matrix_backtrack, x, y):
+            up, left = 1, -1
+            path_backtrack = ""
+            row = x - 1
+            col = y - 1
+            while row > 0 or col > 0:
+                if matrix_backtrack[row, col] == up:
+                    path_backtrack = "S" + path_backtrack
+                    row = row - 1
+                else:
+                    path_backtrack = "E" + path_backtrack
+                    col = col - 1
+            return path_backtrack
+
+
+        path_backtrack = backtrack_path(matrix_backtrack, x, y)
         print(path_backtrack)
-
 
 
 if args.diagonal:
     fasta_seq_list = [f.strip() for f in open(args.inputfile).readlines()]
-    #print(fasta_seq_list)
     multiple_fasta_dict = {}
-
     for line in fasta_seq_list:
         dom = []
         if not line:
             continue
         if line[0] == '#':
             reads = line
-            # print(reads)
-
-            # reads = [4, 3, 3]
-
             if reads not in multiple_fasta_dict:
                 multiple_fasta_dict[line] = []
-
             continue
         line = line.split()
+        def trunc(values, decs=0):
+            return np.trunc(values * 10 ** decs) / (10 ** decs)
+
         result = np.array(line, dtype=float)
-        # print(result)
+        result = trunc(result, decs = 2)
         dom.append(result)
         multiple_fasta_dict[reads] += dom
-        # print(line)
 
-        # print(dom)
-        # multiple_fasta_dict[reads] += ', '
-
-    #print(multiple_fasta_dict)
     n = []
     for k, v in multiple_fasta_dict.items():
         if len(v) >= 1:
-            # print(k, v)
             n.append(np.array(v))
 
     south = n[0]
     east = n[1]
     diag = n[2]
-
     y = len(east[0]) + 1
-    # print(f"y: {y}")
-    #
     x = len(south) + 1
-    # print(x)
     a = len(east[0]) + 1
-    # print(f"a: {a}")
     matrix = np.zeros((x, y))
     matrix[0, 0] = 0
-
     matrix_backtrack = np.zeros((x, y))
-    # print(matrix_backtrack)
-    up = 1
-    left = -1
-    dig = 2
 
-    for col in range(1, y):
-        matrix[0, col] = matrix[0, col - 1] + east[0, col - 1]
-        matrix_backtrack[0, col] = left
-    #
-    for row in range(1, x):
-        matrix[row, 0] = matrix[row - 1, 0] + south[row - 1, 0]
-        matrix_backtrack[row, 0] = up
 
-    # print(matrix_backtrack)
-    # print(matrix[0,0])
-    # print(diag[0,0])
-
-    for row in range(1, x):
+    def matrix_calculation_d(matrix, matrix_backtrack, x, y, east, south):
+        up = 1
+        left = -1
+        dig = 2
         for col in range(1, y):
-            matrix[row, col] = max(matrix[row - 1, col] + south[row - 1, col],
-                                   matrix[row, col - 1] + east[row, col - 1],
-                                   matrix[row - 1, col - 1] + diag[row - 1, col - 1])
-            if matrix[row - 1, col] + south[row - 1, col] > matrix[row, col - 1] + east[row, col - 1] and matrix[
-                row - 1, col] + south[row - 1, col] > matrix[row - 1, col - 1] + diag[row - 1, col - 1]:
-                matrix_backtrack[row, col] = up
-            if matrix[row - 1, col - 1] + diag[row - 1, col - 1] > matrix[row - 1, col] + south[row - 1, col] and \
-                    matrix[
-                        row - 1, col - 1] + diag[row - 1, col - 1] > matrix[row, col - 1] + east[row, col - 1]:
-                matrix_backtrack[row, col] = dig
-            if matrix[row, col - 1] + east[row, col - 1] > matrix[row - 1, col] + south[row - 1, col] and matrix[
-                row, col - 1] + east[row, col - 1] > matrix[row - 1, col - 1] + diag[row - 1, col - 1]:
-                matrix_backtrack[row, col] = left
-    m = "{:.2f}".format(matrix[-1][-1])
-    print(m)
+            matrix[0, col] = matrix[0, col - 1] + east[0, col - 1]
+            matrix_backtrack[0, col] = left
+
+        for row in range(1, x):
+            matrix[row, 0] = matrix[row - 1, 0] + south[row - 1, 0]
+            matrix_backtrack[row, 0] = up
+
+        for row in range(1, x):
+            for col in range(1, y):
+                matrix[row, col] = max(matrix[row - 1, col] + south[row - 1, col], matrix[row, col - 1] + east[row, col - 1], matrix[row - 1, col - 1] + diag[row - 1, col - 1])
+
+                if matrix[row - 1, col] + south[row - 1, col] > matrix[row, col - 1] + east[row, col - 1] and \
+                        matrix[row - 1, col] + south[row - 1, col] > matrix[row - 1, col - 1] + diag[row - 1, col - 1]:matrix_backtrack[row, col] = up
+                if matrix[row - 1, col - 1] + diag[row - 1, col - 1] > matrix[row - 1, col] + south[row - 1, col] and \
+                        matrix[row - 1, col - 1] + diag[row - 1, col - 1] > matrix[row, col - 1] + east[row, col - 1]:matrix_backtrack[row, col] = dig
+                if matrix[row, col - 1] + east[row, col - 1] > matrix[row - 1, col] + south[row - 1, col] and \
+                        matrix[row, col - 1] + east[row, col - 1] > matrix[row - 1, col - 1] + diag[row - 1, col - 1]:matrix_backtrack[row, col] = left
+
+        return matrix, matrix_backtrack
+
+
+    matrix, matrix_backtrack = matrix_calculation_d(matrix, matrix_backtrack, x, y, east, south)
+
+
+    m_2_dec = "{:.2f}".format(matrix[-1][-1])
+    is_it_int = str(float(m_2_dec) - int(float(m_2_dec)))[1:]
+
+    if is_it_int == ".0":
+        print(round(float(m_2_dec)))
+    else:
+        print(m_2_dec)
+
 
     if args.t_path:
-        path_backtrack = ""
-        row = x - 1
-        col = y - 1
+        def backtrack_path_d(matrix_backtrack, x, y):
+            up = 1
+            left = -1
+            dig = 2
+            path_backtrack = ""
+            row = x - 1
+            col = y - 1
+            while row > 0 or col > 0:
+                if matrix_backtrack[row, col] == up:
+                    path_backtrack = "S" + path_backtrack
+                    row = row - 1
+                if matrix_backtrack[row, col] == dig:
+                    path_backtrack = "D" + path_backtrack
+                    row = row - 1
+                    col = col - 1
+                if matrix_backtrack[row, col] == left:
+                    path_backtrack = "E" + path_backtrack
+                    col = col - 1
+            return path_backtrack
 
-        while row > 0 or col > 0:
-            if matrix_backtrack[row, col] == up:
-                path_backtrack = "S" + path_backtrack
-                row = row - 1
-            if matrix_backtrack[row, col] == dig:
-                path_backtrack = "D" + path_backtrack
-                row = row - 1
-                col = col - 1
-            if matrix_backtrack[row, col] == left:
-                path_backtrack = "E" + path_backtrack
-                col = col - 1
+        path_backtrack = backtrack_path_d(matrix_backtrack, x, y)
 
         print(path_backtrack)
 
