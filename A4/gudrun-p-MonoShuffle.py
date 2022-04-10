@@ -39,8 +39,8 @@ def countLetters(seqString):  # to check if code works correctly
 
 
 args = sys.argv
-assert len(args)==4, "Required program call format: gudrun-p-RollingDice.py -N 4 RollingDice-test1.in"
-assert args[1] == "-N", "Required program call format: gudrun-p-RollingDice.py -N 4 RollingDice-test1.in"
+assert len(args)==4, "Required program call format: gudrun-p-MonoShuffle.py -N 4 MonoShuffle-test1.in"
+assert args[1] == "-N", "Required program call format: gudrun-p-MonoShuffle.py -N 4 MonoShuffle-test1.in"
 N = int(args[-2])  # number of random sequences to be created
 f = open(args[-1], "r")
 sequence = f.read()
