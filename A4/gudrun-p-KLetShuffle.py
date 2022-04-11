@@ -12,9 +12,9 @@ class Node:
         self.neighbours = neighbours
         self.seen = seen
         self.nextNum = nextNum
-
     def printNode(self):  # useful for debugging
         print(self.sym, self.num, self.neighbours, self.seen, self.nextNum)
+
 
 def createAdjacencyDic(sequence, k):
     adjacencyDictionary = {}  # I want to create a 2D dictionary "matrix", aka a dictionary of dictionaries,
@@ -50,6 +50,7 @@ def createMultigraph(adjDict):  # creates the data structure from the slides fro
                     mulGraph[k].neighbours[p] = j
     return mulGraph
 
+
 def getNeighboursList(adjDict, subsequence):
     neighbours = []
     for subseq, number in adjDict[subsequence].items():
@@ -57,6 +58,7 @@ def getNeighboursList(adjDict, subsequence):
         # print("number = ", number)
         neighbours += [subseq] * number
     return neighbours
+
 
 def findSpanningTree(multiGraph):  # uses Wilson's algorithm
     mGraph = copy.deepcopy(multiGraph)  # I want to keep the original multigraph, in order to be able to find multiple different spanning trees of it
@@ -106,7 +108,32 @@ def findSpanningTree(multiGraph):  # uses Wilson's algorithm
     return mGraph
 
 
-    # must .copy() so i keep multigraph
+def shuffleList(theList, lastEntry):  # shuffle a list using Fisher-Yates shuffling, with a non-random chosen last entry
+    for i in range(0, len(theList)):  # put lastEntry at the end of the list
+        if theList[i] == lastEntry:
+            swapListElements(theList, i, -1)
+            break
+    for j in range(0, len(theList)-1):
+        randomInteger = rd.randrange(j, len(theList)-1)
+        swapListElements(theList, j, randomInteger)
+    return theList
+
+def swapListElements(theList, index1, index2):
+    temp = theList[index1]
+    theList[index1] = theList[index2]
+    theList[index2] = temp
+
+
+def generateSequence(sTree):  # takes a spanning tree multigraph where the neighbours have already been shuffled,
+    ## and returns a random sequence that preserves k-let frequencies of the original sequence
+    seq = [sTree[0].num]
+    while sTree[seq[-1]].neighbours != []:
+        seq = seq + [sTree[seq[-1]].neighbours[0]]
+        del sTree[seq[-2]].neighbours[0]
+        for eachNode in sTree:
+            eachNode.printNode()
+        print("")
+    return seq
 
 
 N = 0
@@ -128,51 +155,39 @@ f.close()
 if not sequence[-1].isalnum():  # remove the \n that is often at the end of the input files
     sequence = sequence[0:-1]
 
-sequence = "CUUUUGCUAG"  # for testing
-k = 3  # for testing
+#sequence = "CUUUUGCUAG"  # for testing
+#sequence2 = "CUUUUGCUAGCUGCCUUGCUUA"  # for testing
+#k = 3  # for testing
 
 adjDict = createAdjacencyDic(sequence, k)
-#
-print(adjDict)
-#print(getNeighboursList(adjDict, 'UA'))
+#print(adjDict)
 multigraph = createMultigraph(adjDict)
-#multigraph[2].printNode()
-
-#print(multigraph[0].nextNum is not None)
-#print("random direction = ", rd.choice(multigraph[1].neighbours))
 spanningTree = findSpanningTree(multigraph)
+"""
 print("")
 for node in multigraph:
     node.printNode()
 print("")
 for node in spanningTree:
     node.printNode()
+"""
+for i in range(0, len(spanningTree)):
+    shuffleList(spanningTree[i].neighbours, spanningTree[i].nextNum)  # shuffle all neighbours and make the 'next' subsequence the 'last' neighbour
+#print("")
+#for node in spanningTree:
+#    node.printNode()
+
+newSequence = generateSequence(spanningTree)
+#print(newSequence)
+for zahl in newSequence:
+    print(spanningTree[zahl].sym, end="")
+
+
 
 
 
 
 """
-adjacencyDictionary = {}  # I want to create a 2D dictionary "matrix", aka a dictionary of dictionaries,
-## so that I can call things like adjacentDictionary['UU']['UC'], and the result is the number of edges 'UU'->'UC'
-## I am using a dictionary and not an array or list because I need to be able to call it by key (subsequence-string, e.g. 'UC')
-i = 0
-while i < len(sequence)-(k-2):
-    print(sequence[i:i+k-1])
-    if sequence[i:i+(k-1)] not in adjacencyDictionary:
-        adjacencyDictionary[sequence[i:i+(k-1)]] = {}  # add subsequence to dictionary, initialize it as empty dictionary
-    j = i+1  # to make indices clearer: j is just the next (k-1)-let
-    if len(sequence[i:]) > (k-1):  # if another subsequence exists after i
-        if sequence[j:j+(k-1)] not in adjacencyDictionary[sequence[i:i+(k-1)]]:
-            adjacencyDictionary[sequence[i:i+(k-1)]][sequence[j:j+(k-1)]] = 0  # if subsequence j follows subsequence i, then I want to add j to i's sub-dictionary
-        adjacencyDictionary[sequence[i:i + (k - 1)]][sequence[j:j + (k - 1)]] = adjacencyDictionary[sequence[i:i+(k-1)]][sequence[j:j+(k-1)]] + 1
-    i = j
-print(adjacencyDictionary)
-
-
-adjDict = createAdjacencyDic(sequence, k)
-print(adjDict)
-
-
 #print(adjDict[0][0])
 #print(len(adjDict))
 #for se in adjDict:
@@ -204,4 +219,11 @@ print(testDict)
 print(testDict["UU"]["UU"])
 teststring = "CUAG"
 print(teststring[0:2] in testDict)
+
+testlist = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+print(testlist)
+shuffleList(testlist, 'B')
+del testlist[1]
+print(testlist)
+
 """
