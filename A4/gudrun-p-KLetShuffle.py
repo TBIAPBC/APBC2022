@@ -130,12 +130,13 @@ def generateSequence(sTree):  # takes a spanning tree multigraph where the neigh
     while sTree[seq[-1]].neighbours != []:
         seq = seq + [sTree[seq[-1]].neighbours[0]]
         del sTree[seq[-2]].neighbours[0]
-        for eachNode in sTree:
-            eachNode.printNode()
-        print("")
+        #for eachNode in sTree:
+        #    eachNode.printNode()
+        #print("")
     return seq
 
 
+rd.seed(1)  # random seed to make results reproducible
 N = 0
 k = 0
 args = sys.argv
@@ -157,73 +158,25 @@ if not sequence[-1].isalnum():  # remove the \n that is often at the end of the 
 
 #sequence = "CUUUUGCUAG"  # for testing
 #sequence2 = "CUUUUGCUAGCUGCCUUGCUUA"  # for testing
+#sequence1 = "ABCD"  # for testing
 #k = 3  # for testing
 
-adjDict = createAdjacencyDic(sequence, k)
-#print(adjDict)
-multigraph = createMultigraph(adjDict)
-spanningTree = findSpanningTree(multigraph)
-"""
-print("")
-for node in multigraph:
-    node.printNode()
-print("")
-for node in spanningTree:
-    node.printNode()
-"""
-for i in range(0, len(spanningTree)):
-    shuffleList(spanningTree[i].neighbours, spanningTree[i].nextNum)  # shuffle all neighbours and make the 'next' subsequence the 'last' neighbour
-#print("")
-#for node in spanningTree:
-#    node.printNode()
-
-newSequence = generateSequence(spanningTree)
-#print(newSequence)
-for zahl in newSequence:
-    print(spanningTree[zahl].sym, end="")
-
-
-
-
-
-
-"""
-#print(adjDict[0][0])
-#print(len(adjDict))
-#for se in adjDict:
-#    print(se)
-testlist = list(adjDict['UU'].keys())
-print(testlist)
-
-j=0
-tlist = [None]*len(adjDict['UU'])
-for neighbour in adjDict['UU']:
-    tlist[j] = neighbour
-    j = j + adjDict['UU'][neighbour]
-print("tlist = ", tlist)
-
-tlist = []
-for subseq, number in adjDict['UU'].items():
-    #print("subseq = ", subseq)
-    #print("number = ", number)
-    tlist += [subseq] * number
-
-print(tlist)
-
-
-testDict = {"CU": {"CU": 0, "UU": 1, "UG": 0},
-            "UU": {"CU": 0, "UU": 2, "UG": 1},
-            "UG": {"CU": 0, "UU": 0, "UG": 0}
-            }
-print(testDict)
-print(testDict["UU"]["UU"])
-teststring = "CUAG"
-print(teststring[0:2] in testDict)
-
-testlist = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
-print(testlist)
-shuffleList(testlist, 'B')
-del testlist[1]
-print(testlist)
-
-"""
+for q in range(0, N):
+    adjDict = createAdjacencyDic(sequence, k)
+    multigraph = createMultigraph(adjDict)
+    spanningTree = findSpanningTree(multigraph)
+    for i in range(0, len(spanningTree)):
+        shuffleList(spanningTree[i].neighbours, spanningTree[i].nextNum)  # shuffle all neighbours and make the 'next' subsequence the 'last' neighbour
+    """
+    print("spanning Tree:")
+    for node in spanningTree:
+        node.printNode()
+    print("end spanning Tree")
+    """
+    newSequence = generateSequence(spanningTree)
+    #print(newSequence)
+    print(spanningTree[0].sym, end="")
+    for zahl in newSequence[1:]:
+        print(spanningTree[zahl].sym[-1], end="")
+    print("")
+    #print(sequence)
