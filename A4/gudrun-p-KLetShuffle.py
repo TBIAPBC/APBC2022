@@ -3,6 +3,7 @@
 
 import random as rd
 import sys
+import copy
 
 class Node:
     def __init__(self, sym, num, neighbours, seen, nextNum):
@@ -40,7 +41,7 @@ def createMultigraph(adjDict):  # creates the data structure from the slides fro
     for km1let in adjDict:
         neighbours = getNeighboursList(adjDict, km1let)  # neighbours are symbols here, but I need numbers!
         ## But I only know the numbers after I have finished this for-loop to assign each subsequence-symbol a number
-        mulGraph[i] = Node(km1let, i, neighbours, 0, None)
+        mulGraph[i] = Node(km1let, i, neighbours, False, None)
         i = i+1
     for k in range(0, len(mulGraph)):  # replace symbols of neighbours for numbers (id's)
         for p in range(0, len(mulGraph[k].neighbours)):
@@ -57,11 +58,55 @@ def getNeighboursList(adjDict, subsequence):
         neighbours += [subseq] * number
     return neighbours
 
-def findSpanningTree(mGraph):  # uses Wilson's algorithm
-    root = mGraph[-1]  # root is the last subsequence
-    current = mGraph[0]  # starting vertext is the first subsequence
+def findSpanningTree(multiGraph):  # uses Wilson's algorithm
+    mGraph = copy.deepcopy(multiGraph)  # I want to keep the original multigraph, in order to be able to find multiple different spanning trees of it
+    mGraph[-1].seen = True  # root is the last subsequence
+    startNode = mGraph[0]  # starting vertext is the first subsequence
+    currentNode = startNode
+    unseenNodeExists = True
+    while unseenNodeExists:
+        while currentNode.seen == False:
+            # delete loop (if loop was created):
+            if currentNode.nextNum is not None:
+                loopNode = currentNode
+                currentNode = startNode
+                while currentNode.num != loopNode.num:  # go along path until I get to the node that is later visited a second time (loopNode)
+                    currentNode = mGraph[currentNode.nextNum]
+                nextNodeNumber = currentNode.nextNum  # now currentNode is the loopNode
+                currentNode.nextNum = None
+                currentNode = mGraph[nextNodeNumber]
+                while currentNode.num != loopNode.num:  # go along the loop until I visit loopNode a second time, and delete all next's
+                    nextNodeNumber = currentNode.nextNum
+                    currentNode.nextNum = None
+                    currentNode = mGraph[nextNodeNumber]
+            # Now loop is deleted, currentNode is loopNode again, and from here I again choose a random direction
+            nextNodeNumber = rd.choice(currentNode.neighbours)  # choose a random neighbour of the current node
+            currentNode.nextNum = nextNodeNumber
+            currentNode = mGraph[nextNodeNumber]
 
-    # if next is not None then erase loop
+        # if I have found a node that is already in the "seen" category: set all nodes on the path to "seen" as well
+        seenNode = currentNode
+        currentNode = startNode
+        while currentNode.num != seenNode.num:  # go along path and set all to seen
+            currentNode.seen = True
+            currentNode = mGraph[currentNode.nextNum]
+        # next start node:
+        ## according to wikipedia (https://en.wikipedia.org/wiki/Maze_generation_algorithm):
+        ## "This procedure remains unbiased no matter which method we use to arbitrarily choose starting cells.
+        ## So we could always choose the first unfilled cell in (say) left-to-right, top-to-bottom order for simplicity."
+        ## So I can just always choose the first unseen node in my multigraph datastructure
+        unseenNodeExists = False
+        for eachNode in mGraph:
+            if eachNode.seen == False:
+                eachNode.nextNum = None  # all nodes not on the path should not have a 'next'
+                if unseenNodeExists ==False:  # define new start node
+                    unseenNodeExists = True
+                    startNode = eachNode
+                    currentNode = startNode
+    return mGraph
+
+
+    # must .copy() so i keep multigraph
 
 
 N = 0
@@ -92,9 +137,16 @@ print(adjDict)
 #print(getNeighboursList(adjDict, 'UA'))
 multigraph = createMultigraph(adjDict)
 #multigraph[2].printNode()
+
+#print(multigraph[0].nextNum is not None)
+#print("random direction = ", rd.choice(multigraph[1].neighbours))
+spanningTree = findSpanningTree(multigraph)
+print("")
 for node in multigraph:
     node.printNode()
-print("random direction = ", rd.choice(multigraph[1].neighbours))
+print("")
+for node in spanningTree:
+    node.printNode()
 
 
 
