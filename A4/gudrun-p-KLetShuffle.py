@@ -127,16 +127,25 @@ def swapListElements(theList, index1, index2):
 def generateSequence(sTree):  # takes a spanning tree multigraph where the neighbours have already been shuffled,
     ## and returns a random sequence that preserves k-let frequencies of the original sequence
     seq = [sTree[0].num]
-    while sTree[seq[-1]].neighbours != []:
-        seq = seq + [sTree[seq[-1]].neighbours[0]]
-        del sTree[seq[-2]].neighbours[0]
-        #for eachNode in sTree:
-        #    eachNode.printNode()
-        #print("")
+    neighboursExist = True
+    while neighboursExist == True:
+        while sTree[seq[-1]].neighbours != []:  # until we get sent to a node that does not have any neighbours
+            seq = seq + [sTree[seq[-1]].neighbours[0]]  # add the neighbour of the previous node to the sequence
+            del sTree[seq[-2]].neighbours[0]  # delete the neighbour that was just added from the neighbours-list
+            #for eachNode in sTree:
+            #    eachNode.printNode()
+            #print("")
+        neighboursExist = False  # we got sent to a node without neighbours. 
+        for eachNode in sTree:  # Check if a different node still has neighbours
+            if eachNode.neighbours != []:
+                neighboursExist = True
+                seq = seq + [eachNode.neighbours[0]]  # if a node still has neighbours, we add the first neighbour to the sequence
+                del sTree[eachNode.num].neighbours[0]  # delete that neighbour from the list
+                break  # and go on with the algorithm, using this new node as a new starting point.
     return seq
 
 
-rd.seed(1)  # random seed to make results reproducible
+#rd.seed(42)  # random seed to make results reproducible
 N = 0
 k = 0
 args = sys.argv
@@ -156,10 +165,11 @@ f.close()
 if not sequence[-1].isalnum():  # remove the \n that is often at the end of the input files
     sequence = sequence[0:-1]
 
-#sequence = "CUUUUGCUAG"  # for testing
+#sequence3 = "CUUUUGCUAG"  # for testing
 #sequence2 = "CUUUUGCUAGCUGCCUUGCUUA"  # for testing
 #sequence1 = "ABCD"  # for testing
-#k = 3  # for testing
+#sequence = "ABDBJAD"  # ABDBJAD with seed(42)
+#k = 2  # for testing
 
 for q in range(0, N):
     adjDict = createAdjacencyDic(sequence, k)
@@ -175,8 +185,10 @@ for q in range(0, N):
     """
     newSequence = generateSequence(spanningTree)
     #print(newSequence)
+    #print(sequence)
+    
+    # print resulting sequence:
     print(spanningTree[0].sym, end="")
     for zahl in newSequence[1:]:
         print(spanningTree[zahl].sym[-1], end="")
     print("")
-    #print(sequence)
