@@ -1,3 +1,4 @@
+import random
 import sys
 
 
@@ -83,9 +84,9 @@ class Graph:
         self.vertices = [Vertex(kLet) for kLet in kLetList]
 
         # create adjacency list
-        for kLet in range(len(sequence) - k + 1):
-            subSeq = sequence[kLet:kLet + k - 1]
-            subSeq_ = sequence[kLet + k - 1:kLet + (2 * (k - 1))]
+        for i in range(len(sequence) - k + 1):
+            subSeq = sequence[i:i + k - 1]
+            subSeq_ = sequence[i + 1:i + k]
             if len(subSeq_) == k - 1:
                 vertex = [vertex for vertex in self.vertices if vertex.name == subSeq].pop()
                 vertex_ = [vertex for vertex in self.vertices if vertex.name == subSeq_].pop()
