@@ -11,9 +11,7 @@ def shuffleSequence(sequence, n):
         for i in range(length):
             # return a random int number n between [i, length-1]
             j = random.randint(i, length - 1)
-            temp = currentSequence[i]
-            currentSequence[i] = currentSequence[j]
-            currentSequence[j] = temp
+            (currentSequence[i], currentSequence[j]) = (currentSequence[j], currentSequence[i])
         randomSequences.append(''.join(map(str, currentSequence)))
         n -= 1
     return randomSequences
