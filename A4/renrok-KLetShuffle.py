@@ -1,3 +1,4 @@
+import copy
 import random
 import sys
 
@@ -13,12 +14,18 @@ class Vertex:
     def __init__(self, name):
         self.name = name
         self.edges = []
-
         self.inDegree = 0
         self.outDegree = 0
 
     def addEdge(self, v):
         self.edges.append(v)
+
+    def shuffleEdges(self):
+        length = len(self.edges)
+        for i in range(length - 1):
+            j = random.randint(i, length - 1)
+            (self.edges[i], self.edges[j]) = (self.edges[j], self.edges[i])
+        return self
 
 
 class Graph:
@@ -28,7 +35,7 @@ class Graph:
         self.sequences = []
         self.path = []
         self.visited = []
-        self.frequency = dict()
+        self.sumEdges = 0
 
     def addEdge(self, edge):
         self.edges.append(edge)
@@ -54,31 +61,20 @@ class Graph:
         if len(self.sequences) == n:
             return
 
-        if len(self.path) == len(self.edges):
-            seq = sequence(self.path)
-            if seq not in self.sequences:
-                self.sequences.append(seq)
+        if len(self.path) == self.sumEdges:
+            self.sequences.append(sequence(self.path))
 
-        for neighbour in v.edges:
-            for currentEdge in self.getEdges(v, neighbour):
-                if currentEdge not in self.visited:
-                    self.visited.append(currentEdge)
-                    self.path.append(currentEdge)
-                    self.findEulerianPath(neighbour, n)
-                    self.visited.remove(currentEdge)
-                    self.path.pop()
-
-    def getEdges(self, v, neighbour):
-        edgeList = []
-        for edge in self.edges:
-            if (edge.v1.name == v.name) & (
-                    edge.v2.name == neighbour.name):
-                edgeList.append(edge)
-        return edgeList
+        for edge in v.edges:
+            if edge not in self.visited:
+                self.visited.append(edge)
+                self.path.append(edge)
+                self.findEulerianPath(edge.v2, n)
+                self.visited.remove(edge)
+                self.path.pop()
 
     def createAdjacencyList(self, sequence, k):
-        # create distinct kLet set
-        kLetList = {sequence[i:i + k - 1] for i in range(len(sequence) - k + 2)}
+        # create distinct k-let set
+        kLetList = {sequence[i:i + k - 1] for i in range(len(sequence) - 1)}
 
         # create vertex list
         self.vertices = [Vertex(kLet) for kLet in kLetList]
@@ -90,13 +86,18 @@ class Graph:
             if len(subSeq_) == k - 1:
                 vertex = [vertex for vertex in self.vertices if vertex.name == subSeq].pop()
                 vertex_ = [vertex for vertex in self.vertices if vertex.name == subSeq_].pop()
-                vertex.addEdge(vertex_)
-                self.addEdge(Edge(subSeq + subSeq_, vertex, vertex_))
+                vertex.addEdge(Edge(subSeq + subSeq_[-1], vertex, vertex_))
+                self.sumEdges += 1
                 vertex.outDegree += 1
                 vertex_.inDegree += 1
         return self
 
+    def shuffleEdges(self):
+        for vertex in self.vertices:
+            vertex.shuffleEdges()
 
+
+# util method to get the sequence from an edge list
 def sequence(path):
     string = ''
     for i in range(len(path)):
@@ -105,23 +106,6 @@ def sequence(path):
         else:
             string += f'{path[i].name[-1]}'
     return string.strip()
-
-
-# util method to print the adjacency list
-def printAdjacencyList(verticesList):
-    for value in verticesList:
-        string = f'{value.name} -> '
-        for subject in value.edges:
-            string += f'{subject.name} '
-        print(string)
-
-
-# util method to print the vertices
-def printEdges(edgeList):
-    for value in edgeList:
-        string = f'{value.v1.name} '
-        string += f'{value.v2.name} '
-        print(string)
 
 
 def main():
@@ -139,17 +123,24 @@ def main():
 
     graph = Graph()
     graph.createAdjacencyList(inputSequence, k)
-    # printAdjacencyList(graph.vertices)
-    # printEdges(graph.edges)
-    # print(graph.hasEulerianPath())
 
-    if graph.hasEulerianPath():
-        sequenceList = []
-        for vertex in graph.vertices:
-            graph.sequences, graph.visited, graph.path = [], [], []
-            graph.findEulerianPath(vertex, n)
-            sequenceList.extend(graph.sequences)
-        print(*sequenceList, sep='\n')
+    sequenceCount = 0
+    sequenceList = []
+    while sequenceCount < n:
+        currentGraph = copy.deepcopy(graph)
+        # shuffle all edges of all vertices, since the dfs in findEulerianPath always starts with the first edge in
+        # the list
+        currentGraph.shuffleEdges()
+        if currentGraph.hasEulerianPath():
+            # start vertex should have odd degree and at least one out going edge
+            startVertices = [vertex for vertex in currentGraph.vertices if
+                             ((vertex.inDegree + vertex.outDegree) % 2 != 0) & (vertex.outDegree > 0)]
+            for vertex in startVertices:
+                currentGraph.visited, currentGraph.path = [], []
+                currentGraph.findEulerianPath(vertex, n)
+                sequenceList.extend(currentGraph.sequences)
+            sequenceCount = len(sequenceList)
+    print(*sequenceList[:n], sep='\n')
 
 
 if __name__ == '__main__':
