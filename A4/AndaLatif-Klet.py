@@ -1,4 +1,5 @@
 #AndaLatif 01046290
+from multiprocessing.dummy import Array
 import random
 import argparse
 from pathlib import Path
@@ -6,8 +7,6 @@ import pandas as pd
 import numpy as np
 import copy
 
-#This code still needs to be cleaned!
-# and only works for N=1, I surely have to work with copies more
 
 class KletGraph:
     def __init__(self,seq, k):
@@ -47,44 +46,40 @@ class KletGraph:
         return indeg, adj, df
     
     def findSpanningTree(self):
-        
-        
         start = self.seq[:self.k-1]
         self.dfcopy.loc[start  , 'seen'] = 1
         end = self.seq[len(self.seq)-self.k+1: ]
-        #dfext.loc[end, 'seen'] = 1 #last node is root, next none
+        self.dfcopy.loc[end, 'seen'] = 1
         self.dfcopy.loc[end, 'next'] =  None
-        current=end
-        self.dfcopy.loc[current  , 'seen'] = 1
+        current = start
+        #self.dfcopy.loc[current  , 'seen'] = 1
         while not (self.dfcopy['seen'] == 1).all():
-                if len(self.dfcopy.loc[current  , 'nbhd'])>1:
+                self.dfcopy.loc[current  , 'seen'] = 1
+                if len(self.dfcopy.loc[current  , 'nbhd'])>0:
                     index = random.randint(0, len(self.dfcopy.loc[current  , 'nbhd'])-1)
-                    prev = self.dfcopy.loc[current  , 'nbhd'][index]
-                    self.dfcopy.loc[prev  , 'seen'] = 1
-                    
-                    self.dfcopy.loc[prev  , 'next'] = current
-                    currnbhd= self.dfcopy.loc[prev  , 'nbhd']
-                    
-                    if current not in currnbhd:
-                        return
-                    currnbhd.pop(currnbhd.index(current))
-                    
+                    next = self.dfcopy.loc[current  , 'nbhd'][index]                    
+                    self.dfcopy.loc[current  , 'next'] = next
+                    currnbhd= self.dfcopy.loc[current  , 'nbhd']                    
+                    currnbhd.pop(currnbhd.index(next))                    
                     currnbhd = shuffle(currnbhd)
-                    currnbhd.append(current)
-                    
-                    self.dfcopy.loc[prev  , 'nbhd'].clear()
+                    currnbhd.append(next)
+                    self.dfcopy.loc[current  , 'nbhd'].clear()
                     for el in currnbhd: 
-                        self.dfcopy.loc[prev  , 'nbhd'].append(el)         
+                        self.dfcopy.loc[current  , 'nbhd'].append(el)         
                 
-                    current = prev
-                    self.dfcopy.loc[current  , 'seen'] = 1
+                    current = next
+                    if self.dfcopy.loc[next  , 'seen'] == 1:
+                        #pick a random unseen
+                        unseen = copy.deepcopy(self.dfcopy[self.dfcopy.seen.eq(0)])
+                        unseen = unseen.index.to_numpy()
+                        if len(unseen)>0:
+                            current= unseen[random.randint(0, len(unseen)-1)]
+                        else:
+                            return
+                    else:
+                        current = next
                     
-                    if(self.dfcopy['seen'] == 1).all():
-                        
-                        return
-                else:
-                    return
-             
+                    
              
         return 
         
