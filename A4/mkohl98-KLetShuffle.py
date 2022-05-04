@@ -67,7 +67,7 @@ class Graph:
         # main function to find euler path
         start_node = self.__get_start_node()
         if start_node is None:
-            start_node = self.nodes[random.randint(0, len(self.nodes))]
+            start_node = self.nodes[random.randint(0, len(self.nodes) - 1)]
         self.c_out = deepcopy(self.outdegree)
         self.c_adj = deepcopy(self.adj)
         self.current_path = []
@@ -87,7 +87,6 @@ class Graph:
 
     def __path_to_seq(self):
         # transform euler path to sequence and return to solution
-        self.current_path = self.current_path[::-1]
         path = self.current_path[0]
         for i in range(1, len(self.current_path)):
             path += self.current_path[i][-1]
