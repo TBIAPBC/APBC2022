@@ -16,6 +16,13 @@ def weight(dice_line):
 
 
 def main():
+    if len(sys.argv) < 4:
+        print("it needs flag -N with following int number as input\n")
+        print("Usage: %s -N [integer] rolling_dice_number.in" % sys.argv[0])
+        sys.exit(1)
+
+
+
     dice_line = ''
     with open(sys.argv[3], 'r') as f:
         for line in f:
@@ -34,6 +41,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
