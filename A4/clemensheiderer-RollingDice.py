@@ -2,9 +2,8 @@ import sys
 import random
 
 
-
-def weight(dice_line, split_letters):
-    len_dice = len(split_letters)
+def weight(dice_line):
+    len_dice = len(dice_line)
 
     dice_p_G = dice_line.count('G') / len_dice
     dice_p_C = dice_line.count('C') / len_dice
@@ -22,21 +21,21 @@ def main():
         for line in f:
             dice_line += line.rstrip()
 
-    split_letters = [d for d in dice_line]
 
-    weights, len_dice = weight(dice_line, split_letters)
+    weights, len_dice = weight(dice_line)
 
-    sys.argv[1] == "N"
-    n = int(sys.argv[2])
 
-    for _ in range(n):
-        rolling_dices = ''.join(random.choices('GCAU', weights, k=len_dice))
-        print(rolling_dices)
-
+    if sys.argv[1] == "-N":
+        n = int(sys.argv[2])
+        for _ in range(n):
+            rolling_dices = ''.join(random.choices('GCAU', weights, k=len_dice))
+            print(rolling_dices)
 
 
 if __name__ == '__main__':
     main()
+
+
 
 
 
