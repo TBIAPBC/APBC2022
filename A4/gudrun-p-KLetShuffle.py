@@ -60,8 +60,7 @@ def getNeighboursList(adjDict, subsequence):
     return neighbours
 
 
-def findSpanningTree(multiGraph):  # uses Wilson's algorithm
-    mGraph = copy.deepcopy(multiGraph)  # I want to keep the original multigraph, in order to be able to find multiple different spanning trees of it
+def findSpanningTree(mGraph):  # uses Wilson's algorithm
     mGraph[-1].seen = True  # root is the last subsequence
     startNode = mGraph[0]  # starting vertext is the first subsequence
     currentNode = startNode
@@ -101,7 +100,7 @@ def findSpanningTree(multiGraph):  # uses Wilson's algorithm
         for eachNode in mGraph:
             if eachNode.seen == False:
                 eachNode.nextNum = None  # all nodes not on the path should not have a 'next'
-                if unseenNodeExists ==False:  # define new start node
+                if unseenNodeExists == False:  # define new start node
                     unseenNodeExists = True
                     startNode = eachNode
                     currentNode = startNode
@@ -171,10 +170,11 @@ if not sequence[-1].isalnum():  # remove the \n that is often at the end of the 
 #sequence = "ABDBJAD"  # ABDBJAD with seed(42)
 #k = 2  # for testing
 
+adjDict = createAdjacencyDic(sequence, k)
+multigraph = createMultigraph(adjDict)
 for q in range(0, N):
-    adjDict = createAdjacencyDic(sequence, k)
-    multigraph = createMultigraph(adjDict)
-    spanningTree = findSpanningTree(multigraph)
+    mulGraph = copy.deepcopy(multigraph)  # I want to keep the original multigraph, in order to be able to find multiple different spanning trees of it
+    spanningTree = findSpanningTree(mulGraph)
     for i in range(0, len(spanningTree)):
         shuffleList(spanningTree[i].neighbours, spanningTree[i].nextNum)  # shuffle all neighbours and make the 'next' subsequence the 'last' neighbour
     """
