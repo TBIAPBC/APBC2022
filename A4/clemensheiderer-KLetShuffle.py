@@ -1,6 +1,6 @@
 
-import random
 from collections import defaultdict
+import random
 import argparse
 parser = argparse.ArgumentParser()
 
@@ -16,44 +16,55 @@ args = parser.parse_args()
 number = args.Number
 kmer = args.kmer
 
-def graph(sequence, k):
-    kmers_path = []
-    node = set()
 
-    for i in range(len(sequence) - k + 1):
-        kmers_path.append((sequence[i:i+k-1], sequence[i+1:i+k]))
-        node.add(sequence[i:i+k-1])
-        node.add(sequence[i+1:i+k])
-    return kmers_path, node
+class Graph_euler():
+    def __init__(self, sequence, k):
+        self.sequence = sequence
+        self.k = k
+        self.kmers_path = []
+        self.node = set()
 
 
-def kmers_outwards(kmers_path):
-    dict_outer_edges = defaultdict(list)
-    for i, j in kmers_path:
-        dict_outer_edges[i].append(j)
-    return dict_outer_edges
+    def nodes(self):
+
+        for i in range(len(self.sequence) - self.k + 1):
+            self.kmers_path.append((self.sequence[i:i + self.k - 1], self.sequence[i + 1:i + self.k]))
+            self.node.add(self.sequence[i:i + self.k - 1])
+            self.node.add(self.sequence[i + 1:i + self.k])
+        return self.kmers_path
+
+    def kmers_outwards(self):
+        self.kmers_path = self.nodes()
+
+        dict_outer_edges = defaultdict(list)
+        for i, j in self.kmers_path:
+            dict_outer_edges[i].append(j)
+        edges = dict(dict_outer_edges)
+
+        return edges
 
 
-def euler_walk_k_shuffle(start_kmer, edges):
+    def euler_walk_k_shuffle(self):
+        self.edges = self.kmers_outwards()
+        start_kmer = list(self.edges.keys())[0]
+        stack = [start_kmer]
+        path = []
 
-    stack = [start_kmer]
-    path = []
+        while len(stack) > 0:
+            node = stack[-1]
+            if node not in self.edges or len(self.edges[node]) == 0:
+                path.append(node)
 
-    while len(stack) > 0:
-        node = stack[-1]
-        if node not in edges or len(edges[node]) == 0:
-            path.append(node)
+                stack.pop()
+            else:
+                index = random.randint(0, len(self.edges[node]) - 1)
 
-            stack.pop()
-        else:
-            index = random.randint(0, len(edges[node]) - 1)
+                stack.append(self.edges[node][index])
+                self.edges[node].pop(index)
 
-            stack.append(edges[node][index])
-            edges[node].pop(index)
+        path.reverse()
 
-    path.reverse()
-
-    return path
+        return path
 
 
 def main():
@@ -64,34 +75,24 @@ def main():
 
     sequence = get_sequence(args.kletshufflefile)
 
-
-
     if args.Number:
 
         for i in range(number):
             args.kmer
             k = kmer
-
-            kmers_path, nodes = graph(sequence, k)
-
-            dict_outer_edges = kmers_outwards(kmers_path)
-
-            edges = dict(dict_outer_edges)
-
-            start_kmer = list(edges.keys())[0]
+            class_graph = Graph_euler(sequence, k)
+            euler_path_kmers = class_graph.euler_walk_k_shuffle()
 
 
-
-            euler_path_kmers = euler_walk_k_shuffle(start_kmer, edges)
-
-            klet_shuffled = "".join(kmer[0] for kmer in euler_path_kmers[0:len(euler_path_kmers) - 1]) + euler_path_kmers[-1]
+            klet_shuffled = "".join(kmer[0] for kmer in euler_path_kmers[0:len(euler_path_kmers) - 1]) + \
+                            euler_path_kmers[-1]
             print(klet_shuffled)
+
+
 
 
 if __name__ == '__main__':
     main()
-
-
 
 
 
