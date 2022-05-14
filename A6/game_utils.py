@@ -53,7 +53,7 @@ class MoveStatus(Enum):
 	OutOfHealth = 5
 	Cancelled = 6  # used for any move after something went wrong
 
-class TileStatus(Enum):
+class TileStatus(Enum):  # "ETerrain"
 	Unknown = 0
 	Empty = 1
 	Wall = 2
@@ -82,7 +82,7 @@ class TileStatus(Enum):
 		}[self]
 
 
-class TileObject(object):
+class TileObject(object):  # "point-of-interest" (player and gold)
 	@staticmethod
 	def makePlayer(i):
 		assert i >= 0
@@ -117,14 +117,15 @@ class TileObject(object):
 			sym = chr(ord('A') + self._i)
 		return '\033[91m'+'\033[1m'+sym+'\033[0m'
 
-class Tile(object):
+class Tile(object):  # "Field"
 	def __init__(self, status, obj=None):
 		if obj is not None and not isinstance(obj, TileObject):
 			raise TypeError("Tile.obj must be a TileObject or None.")
 		self.status = status
 		self.obj = obj
 		if obj is not None:
-			assert not is_blocked()
+			assert not self.is_blocked()  # if there is a TileObject on it, it cannot be blocked, since 
+			## TileObject is either player or gold (and players and gold cannot be on blocked tiles)
 
 	def is_blocked(self):
 		return self.status.is_blocked()
@@ -153,19 +154,19 @@ class Map(object):
 	def __str__(self):
 		return "\n".join(" ".join(str(tile) for tile in row) for row in reversed(self._data)) + "\n"
 
-	def __getitem__(self, coord):
+	def __getitem__(self, coord):  # overloads the []-operator
 		assert coord[0] >= 0
 		assert coord[1] >= 0
 		assert coord[0] < self.width
 		assert coord[1] < self.height
-		return self._data[coord[1]][coord[0]]
+		return self._data[coord[1]][coord[0]]  # "wrong way around" because we do not work with (i,j) but with (x,y)
 
 	def __setitem__(self, coord, val):
 		assert coord[0] >= 0
 		assert coord[1] >= 0
 		assert coord[0] < self.width
 		assert coord[1] < self.height
-		self._data[coord[1]][coord[0]] = val
+		self._data[coord[1]][coord[0]] = val  # coord[0]=x is the column and coord[1]=y is the row.
 
 	@staticmethod
 	def makeEmpty(width, height):
@@ -279,7 +280,7 @@ class GameParameters(object):
 		self.maxNumGoldPots = 1
 		self.initialGoldPotAmount = 100
 		self.initialGoldPerPlayer = 99
-		self.goldPerRound = 1
+		self.goldPerRound = 1  # (I think this is gold that each player gets every single round?)
 		self.goldPotTimeOut = 20 # after how many rounds the pot is emptied and replaced
 		self.goldDecrease = True #does the amount of gold in the pot(s) decrease after a certain time
 		self.goldDecreaseTime = self.goldPotTimeOut/2; #after which time does the amount of gold in the pot(s) decrease 

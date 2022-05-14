@@ -24,7 +24,6 @@ class MyRandomPlayer(Player):
 		"""
 		set mines for fun
 		"""
-
 		map = status.map
 		mines = []
 		for i in range(5):

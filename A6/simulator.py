@@ -56,9 +56,10 @@ class Simulator(object):
 		while True:
 			x = self.rng.randint(0, self.map.width - 1)
 			y = self.rng.randint(0, self.map.height - 1)
-			if self.map[x, y].status != TileStatus.Empty:
+			if self.map[x, y].status != TileStatus.Empty:  # TileStatus: Unknown,Empty,Wall,Mine
 				continue
 			if self.map[x, y].obj is not None:
+				# Map.Tile.obj is either None or TileObject (TileObject is either player or gold)
 				continue
 			break
 		return (x,y)
@@ -70,6 +71,7 @@ class Simulator(object):
 		self.map[x, y].obj = TileObject.makePlayer(pId)
 		self._status.append(Status(pId, x=x , y=y, health=self.params.maxHealth,
 					   gold=self.params.initialGoldPerPlayer))
+		# (by appending in this way, status is a vector with pId as the "key", even though it is not a dict. I think.)
 		self._pubStat.append(Status(pId, x=x, y=y, health=self.params.maxHealth,
 					    gold=self.params.initialGoldPerPlayer, params=self.params))
 
@@ -82,7 +84,7 @@ class Simulator(object):
 			# to avoid breaking the player interface,
 			# set number of rounds in the players status objects
 			self._pubStat[pId].params.rounds=rounds
-
+			# each player implements the .reset() method. It seems to basically initialize the players (why not init?)
 			self._players[pId].reset(pId, len(self._players), self.map.width, self.map.height)
 
 		self.illustrator._add_robots(self._players)
@@ -162,6 +164,7 @@ class Simulator(object):
 
 	def _increase_health(self, pId, amount):
 		self._status[pId].health = min(self.params.maxHealth, self._status[pId].health + amount)
+		# (see class Status in game utils)
 
 	def _decrease_health(self, pId, amount):
 		self._status[pId].health = max(0, self._status[pId].health - amount)
