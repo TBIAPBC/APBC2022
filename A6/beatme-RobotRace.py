@@ -30,6 +30,7 @@ class MyPathFindingPlayer(Player):
                 return None
 
         def _as_directions(self,curpos,path):
+				# (zip: list of tuples, in this case tuples of tuples ((x1, y1),(x2, y2)), ((x2,y2),(x3,y3)), ... ?)
                 return [self._as_direction(x,y) for x,y in zip([curpos]+path,path)]
 
         def move(self, status):
@@ -50,10 +51,22 @@ class MyPathFindingPlayer(Player):
                 curpos = (status.x,status.y)
 
                 assert len(status.goldPots) > 0
-                gLoc = next(iter(status.goldPots))
-
+                gLoc = next(iter(status.goldPots))  # (? what is going on here??)
                 goldInPot=list(status.goldPots.values())[0]
+				## (I think gLoc is the (x,y) tuple where the first gold pot is.
+				## try this in console to understand better:
+				## ---
+				## statusGoldPots = {(0,0): 1, (0,1): 2, (1,2): 3}
+				## gLocTest = next(iter(statusGoldPots))
+				## goldInPotList = list(statusGoldPots.values())
+				## goldInPotTest = list(statusGoldPots.values())[0]
+				## ---
+				## From this, I assume that gLoc is just the position of the first gold pot
+				## and goldInPot is the value of that gold pot.
+				## so this code assumes that only one gold pot exists.
+				## I think.)
 
+                
                 ## determine next move d based on shortest path finding
                 paths = AllShortestPaths(gLoc,ourMap)
 
@@ -62,8 +75,8 @@ class MyPathFindingPlayer(Player):
                 else:
                         bestpath = paths.shortestPathFrom(curpos)
 
-                bestpath = bestpath[1:]
-                bestpath.append( gLoc )
+                bestpath = bestpath[1:]  # (I think this is because we calculate the path from the gold to the 
+                bestpath.append( gLoc )  ## player instead of the other way round)
 
                 distance=len(bestpath)
 

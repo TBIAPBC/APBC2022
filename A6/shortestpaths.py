@@ -8,7 +8,7 @@ import random
 import numpy as np
 
 class AllShortestPaths:
-    def __init__(self,sink,map):
+    def __init__(self,sink,map):  # (?sink seems to be the position to which I want to calc the distances?)
         self.sink = sink
         self.map = map
 
@@ -49,7 +49,7 @@ class AllShortestPaths:
                     yield (x,y)
 
     def _calcDistances(self):
-        front = deque()
+        front = deque()  # (deque = doubly ended queue)
         front.append(self.sink)
 
         assert type(self.sink) == tuple

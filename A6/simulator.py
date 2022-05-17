@@ -172,12 +172,12 @@ class Simulator(object):
 	def _pay_for_task(self, pId):
 		# returns whether it could be payed for or not
 		s = self._status[pId]
-		cost = 1 + self._tasksThisRound[pId]
+		cost = 1 + self._tasksThisRound[pId]  # (each new task gets more expensive by 1 gold)
 		if s.gold < cost:
 			return False
-		s.gold -= cost
-		self._tasksThisRound[pId] += 1
-		for pos in self._goldPots:
+		s.gold -= cost  # (take 1 gold away from player s)
+		self._tasksThisRound[pId] += 1  # (each new task gets more expensive by 1 gold)
+		for pos in self._goldPots:  # (does this mean that if players do more tasks, there is more gold added?)
 			if self.params.goldDecrease and self.goldPotRemainingRounds <= self.params.goldDecreaseTime:
 				self._goldPots[pos] -= 1
 			else:
@@ -243,7 +243,7 @@ class Simulator(object):
 			q = multiprocessing.Queue()
 
 			def ask():
-				q.put( list(self._players[pId].move(self._pubStat[pId])) )
+				q.put( list(self._players[pId].move(self._pubStat[pId])) )  # (each robot returns a list of movements. One call of this function asks just one player.)
 
 			p = multiprocessing.Process(target=ask)
 			p.start()
@@ -262,7 +262,7 @@ class Simulator(object):
 			traceback.print_exc(file=sys.stdout)
 			moves = []
 
-		if p.is_alive():
+		if p.is_alive():  # (here, p stands for process, not for player. This is just a multiprocessing thing.)
 			p.terminate()
 		p.join()
 		return moves
@@ -294,17 +294,18 @@ class Simulator(object):
 			movesPerPlayer[pId] = moves
 
 		for moves in movesPerPlayer:
-			mStatus = [MoveStatus.Pending for m in moves]
+			mStatus = [MoveStatus.Pending for m in moves]  # (MoveStatus is an Enum in gameUtils)
 			moveStatusPerPlayer.append(mStatus)
 			if self._debugMoves:
 				print("Debug: %s; [%s]" % (nameFromPlayerId(pId), ", ".join(str(m) for m in moves)))
 
-		def cancelRest(pId, mId):
+		# (this function sets all moves of a player that come after the mId-th move to "cancelled".
+		def cancelRest(pId, mId):  # (mId is the how-many-eth move of this player this round this is.)
 			for i in range(mId + 1, len(movesPerPlayer[pId])):
 				moveStatusPerPlayer[pId][i] = MoveStatus.Cancelled
 
 		# do a move for each player in lock-step
-		maxNumMoves = max(len(ms) for ms in movesPerPlayer)
+		maxNumMoves = max(len(ms) for ms in movesPerPlayer)  # (number of moves sent by the player who sent the most moves)
 		for mId in range(maxNumMoves):
 			# collect all pairs of positions,
 			# and evaluate if the player is actually allowed to move
@@ -342,8 +343,8 @@ class Simulator(object):
 				moves[pId] = (now, then)
 			# check collisions
 			# - with walls or the boundary
-			for pId in range(len(moves)):
-				if mId >= len(movesPerPlayer[pId]):
+			for pId in range(len(moves)):  # (len(moves) is the amount of players, not the amount of moves)
+				if mId >= len(movesPerPlayer[pId]):  # (ignore players who already finished all their moves)
 					continue
 				ms = moveStatusPerPlayer[pId][mId]
 				if ms != MoveStatus.Done:
@@ -384,7 +385,7 @@ class Simulator(object):
 				for pId1,p1 in enumerate(self._players):
 					for pId2,p2 in enumerate(self._players):
 						if pId1==pId2: continue
-						if moves[pId1] == moves[pId2][::-1]:
+						if moves[pId1] == moves[pId2][::-1]:  # (if the prev position and the new position are swapped between the robots)
 							#print("Crossing paths of robots",
 							#      pId1,"and",pId2,"at",moves[pId1])
 							crashed.add(pId1)
@@ -431,7 +432,7 @@ class Simulator(object):
 					elif ms == MoveStatus.CrashPlayer:
 						print("Event: %s crashed into another player while trying to move %s." % (pStr, mStr))
 					elif ms == MoveStatus.OutOfGold:
-						print("Event: %s could not move %s. No enough gold." % (pStr, mStr))
+						print("Event: %s could not move %s. Not enough gold." % (pStr, mStr))
 					elif ms == MoveStatus.OutOfHealth:
 						print("Event: %s could not move %s. No health." % (pStr, mStr))
 					elif ms == MoveStatus.Cancelled:
@@ -471,7 +472,7 @@ class Simulator(object):
 				self._status[pId].x, self._status[pId].y = moves[pId][1]
 			#relocate other gold pots(starts new timer)
 			if numGoldPotsTaken>0:
-				if (self.params.maxNumGoldPots-numGoldPotsTaken)>0:
+				if (self.params.maxNumGoldPots-numGoldPotsTaken)>0:  # (? Shouldn't this always be true?)
 					self._empty_and_relocate_gold_pots()
 				else:
 					self.goldPotRemainingRounds = self.params.goldPotTimeOut

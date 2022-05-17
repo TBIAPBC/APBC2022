@@ -87,7 +87,7 @@ class MyRandomPlayer(Player):
 class MyNonRandomPlayer(Player):
 	def reset(self, player_id, max_players, width, height):
 		self.player_name = "NonRandom" # nameFromPlayerId(player_id)
-		self.ourMap = Map(width, height)
+		self.ourMap = Map(width, height)  # (locally saved map that will remember all Tiles we have already seen)
 
 	def round_begin(self, r):
 		pass
@@ -102,14 +102,14 @@ class MyNonRandomPlayer(Player):
 		# print(ourMap)
 		for x in range(ourMap.width):
 			for y in range(ourMap.height):
-				if status.map[x, y].status != TileStatus.Unknown:
+				if status.map[x, y].status != TileStatus.Unknown:  # (map[x,y].status is an enum: Unknown, Empty, Wall, Mine)
 					ourMap[x, y].status = status.map[x, y].status
 		# print("Our Map, after")
 		# print(ourMap)
 
 
 		neighbours = []
-		for d in D:
+		for d in D:  # (we imported Direction as D)
 			diff = d.as_xy()
 			coord = status.x + diff[0], status.y + diff[1]
 			if coord[0] < 0 or coord[0] >= status.map.width:

@@ -124,8 +124,8 @@ class Tile(object):  # "Field"
 		self.status = status
 		self.obj = obj
 		if obj is not None:
-			assert not self.is_blocked()  # if there is a TileObject on it, it cannot be blocked, since 
-			## TileObject is either player or gold (and players and gold cannot be on blocked tiles)
+			assert not self.is_blocked()  # (if there is a TileObject on it, it cannot be blocked, since 
+			## TileObject is either player or gold (and players and gold cannot be on blocked tiles))
 
 	def is_blocked(self):
 		return self.status.is_blocked()
@@ -154,7 +154,7 @@ class Map(object):
 	def __str__(self):
 		return "\n".join(" ".join(str(tile) for tile in row) for row in reversed(self._data)) + "\n"
 
-	def __getitem__(self, coord):  # overloads the []-operator
+	def __getitem__(self, coord):  # (overloads the []-operator)
 		assert coord[0] >= 0
 		assert coord[1] >= 0
 		assert coord[0] < self.width
