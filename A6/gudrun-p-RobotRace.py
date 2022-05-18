@@ -26,11 +26,11 @@ from shortestpaths import AllShortestPaths
 
 
 
-class MyFirstPlayer(Player): # TODO : give better name
+class FastPlayer(Player):
 	def reset(self, player_id, max_players, width, height):
-		self.player_name = "ToBeNamed" # nameFromPlayerId(player_id) # TODO give better name
+		self.player_name = "goGetter" # nameFromPlayerId(player_id) 
 		self.rememberedMap = Map(width, height)  # locally saved map that will remember all Tiles we have already seen
-		self.debugMessages = True
+		self.printDebugMessages = True
 	
 	def round_begin(self, r):
 		pass
@@ -44,6 +44,7 @@ class MyFirstPlayer(Player): # TODO : give better name
 		# - .map, a map of what we can see (see game_utils.Map)
 		#   The origin of the map is in the lower left corner.
 		# - .goldPots, a dict from positions to amounts
+		# - .goldPotRemainingRounds, how many rounds the gold pot(s) still has left before being removed
 		# print("-" * 80)
 		print("Status for %s" % self.player_name)
 		# # print the map as we can see it, along with health and gold
@@ -66,27 +67,34 @@ class MyFirstPlayer(Player): # TODO : give better name
 		goldCoords = next(iter(status.goldPots))  # the dictionary status.goldPots ( (x,y) -> amount) has 
 		## only one entry. Iter iterates over the keys (coordinates), but here I only have 1 pair of coordinates.
 		goldInPot = list(status.goldPots.values())[0]  # so this is a list with only one entry (?), and the entry is the amount of gold.
+		
 		paths = AllShortestPaths(goldCoords,rememberedMap)
 		chosenPath = paths.shortestPathFrom(currentPosition)  # TODO : maybe smartly choose among the shortest paths.
 		chosenPath = chosenPath[1:]  # (I think this is because we calculate the path from the gold to the 
 		chosenPath.append(goldCoords)  ## player instead of the other way round)
 		distance=len(chosenPath)
-		if self.debugMessages:
-			print("Gold is at: ", goldCoords)
-			print("shortest path to gold:\n", chosenPath)
+		self._debugMessage("Gold is at: " + str(goldCoords))
+		self._debugMessage("Shortest path to gold:\n" + str(chosenPath))
 		chosenPathOnKnownTiles = self._movesOnKnownTiles(status, chosenPath)
+		self._debugMessage("Part of shortest path that is on known tiles: " + str(chosenPathOnKnownTiles))
+		
+		numberOfMoves = len(chosenPathOnKnownTiles)
+		costOfMoves = self._costOfMoves(numberOfMoves)
+		if costOfMoves >= goldInPot:
+			self._debugMessage("Path on known Tiles would cost " + str(costOfMoves) + " gold, but the reward is only " + str(goldInPot) + " gold. Therefore I reduce the number of moves.")
+			chosenPathOnKnownTiles = self._reduceMoveAmount(chosenPath, chosenPathOnKnownTiles, goldInPot)
+			
+		
 		
 		maxMoves = 100 # TODO: write function depending on gold and cost, such that e.g. only 1/4 of remainaing gold can be spent
 		
 		# TODO : dont move if the pot is too far away
 		
 		if maxMoves < len(chosenPathOnKnownTiles):
-			if self.debugMessages:
-				print("Path I buy:\n", chosenPathOnKnownTiles[:maxMoves], "\n = ", self._as_directions(currentPosition, chosenPathOnKnownTiles[:maxMoves]))
+			self._debugMessage("Path I buy:\n" + str(chosenPathOnKnownTiles[:maxMoves]) + "\n = " + str(self._as_directions(currentPosition, chosenPathOnKnownTiles[:maxMoves])))
 			return self._as_directions(currentPosition, chosenPathOnKnownTiles[:maxMoves])
 		else:
-			if self.debugMessages:
-				print("Path I buy:\n", chosenPathOnKnownTiles, "\n = ", self._as_directions(currentPosition, chosenPathOnKnownTiles))
+			self._debugMessage("Path I buy:\n" + str(chosenPathOnKnownTiles) + "\n = " + str(self._as_directions(currentPosition, chosenPathOnKnownTiles)))
 			return self._as_directions(currentPosition, chosenPathOnKnownTiles)
 		
 
@@ -117,7 +125,29 @@ class MyFirstPlayer(Player): # TODO : give better name
 			else:
 				return knownPath  # as soon as the first Unknown Tile interrupts the path, stop the function.
 		return knownPath  # return list of (x,y) tuples that are the first few coordinates of the shortest path.
+	
+	def _costOfMoves(self, numMoves):
+		# Gauss summation of all numbers 0 to numMoves:
+		cost = (numMoves + 1) * numMoves/2.0
+		return cost
 
-		
+	def _reduceMoveAmount(self, wholePath, knownPath, goldInPot):
+		path = list()
+		safetyFraction = 0.5  # the smaller the fraction, the fewer moves the robot makes. If it is 1, the robot spends all the money it has.
+		if len(knownPath) >= goldInPot:  # reaching gold is always a loss
+			self._debugMessage("The Gold is too far away. I will wait.")
+			return path
+		else:
+			i = 0
+			while self._costOfMoves(len(path)) < goldInPot * safetyFraction:
+				path.append(knownPath[i])
+				i = i+1
+			return path
+		return path
 
-players = [MyFirstPlayer()] # TODO rename the player
+
+	def _debugMessage(self, message):
+		if self.printDebugMessages:
+			print(self.player_name, ": ", message)
+
+players = [FastPlayer()] # TODO rename the player
