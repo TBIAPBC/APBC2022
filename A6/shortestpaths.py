@@ -20,12 +20,33 @@ class AllShortestPaths:
         # for x in range(self.width):
         #     for y in range(self.height):
         #         self.wallmap[x,y] = self.map[x,y].status == TileStatus.Wall
+		
+		# original:
+        wm = [ [ self.map[x,y].status == TileStatus.Wall for y in range(self.height) ] for x in range(self.width) ]
 
-        wm = [ [ self.map[x,y].status == TileStatus.Wall for y in range(self.height) ]
-               for x in range(self.width) ]
-
+		# see players and mines as walls:
+        #wm = [ [ self.map[x,y].status.is_blocked() or (self.map[x,y].obj is not None and self.map[x,y].obj.is_player()) for y in range(self.height) ] for x in range(self.width) ]
+		
+        """
+        wm = list()
+        for x in range(self.width):
+            wmrow = list()
+            for y in range(self.height):
+                if self.map[x,y].status.is_blocked():
+                    wmrow.append(True)
+                elif self.map[x,y].obj is not None:
+                    print("There is an object at ", self.map[x,y])
+                    if self.map[x,y].obj.is_player():
+                        print("There is a player at ", self.map[x,y])
+                        wmrow.append(True)
+                else:
+                    wmrow.append(False)
+            wm.append(wmrow)
+        """
+		
         self.wallmap = np.array(wm,dtype='bool')
-
+        #print("wallmap : ")
+        #print(self.wallmap)
         self.dist = np.negative(np.ones((self.height, self.width), dtype='int'))
 
         self._calcDistances()
