@@ -27,16 +27,32 @@ from shortestpaths import AllShortestPaths
 
 
 class FastPlayer(Player):
+	
+	def __init__(self):
+		print("init called")
+		self.atest = 0  # TODO : delete (this is for debugging. atest keeps being reset??)
+	
 	def reset(self, player_id, max_players, width, height):
-		self.player_name = "goGetter" # nameFromPlayerId(player_id) 
-		self.rememberedMap = Map(width, height)  # locally saved map that will remember all Tiles we have already seen
+		self.player_name = "goGetter" # nameFromPlayerId(player_id)
+		self.player_id = player_id
 		self.printDebugMessages = True
+		self.rememberedMap = Map(width, height)  # locally saved map that will remember all Tiles we have already seen
+		self.minFractionOfGoldToKeep = 0.2  # try to not spend more than 0.8 of your remaining gold in one round
+		self.safetyFraction = 0.5 # Weight for if it is "worth it" to go after the amount of gold in the goldPot.
+		## Should be between 0 and 1. The smaller the fraction, the fewer moves the robot makes.
+		#self.atest = 0 # TODO delete
+		
 	
 	def round_begin(self, r):
-		pass
+		self._debugMessage("New round: Round " + str(r) + ". I am player " + str(self.player_id) + ".")
+		#pass
 	
 	
 	def move(self, status):
+		self._debugMessage("old atest = " + str(self.atest))
+		self.atest = 3#self.atest + 1
+		self._debugMessage("new atest = " + str(self.atest))
+		#self._debugMessage("OLD remembered Map:\n" + str(self.rememberedMap))
 		# the status object (see game_utils.Status) contains:
 		# - .player, our id, if we should have forgotten it
 		# - .x and .y, our position
@@ -44,62 +60,85 @@ class FastPlayer(Player):
 		# - .map, a map of what we can see (see game_utils.Map)
 		#   The origin of the map is in the lower left corner.
 		# - .goldPots, a dict from positions to amounts
-		# - .goldPotRemainingRounds, how many rounds the gold pot(s) still has left before being removed
+		# - (? .params all the GameParamenters?)
+		# - (?.params.goldPotRemainingRounds, how many rounds the gold pot(s) still has left before being removed?)
 		# print("-" * 80)
-		print("Status for %s" % self.player_name)
-		# # print the map as we can see it, along with health and gold
-		print(status)
 		
-		# update the map that the robot saves with information from the server:
-		rememberedMap = self.rememberedMap
-		for x in range(rememberedMap.width):
-			for y in range(rememberedMap.height):
+		# -- print the map as we can see it, along with health and gold: --
+		#self._debugMessage("\n" + str(status))
+		#print("Status for %s" % self.player_name)
+		#print(status)
+		
+		# -- update the map that the robot saves with information from the server: --
+		#self.rememberedMap = self.rememberedMap
+		for x in range(self.rememberedMap.width):
+			for y in range(self.rememberedMap.height):
 				if status.map[x, y].status != TileStatus.Unknown:  # map[x,y].status is an enum: Unknown, Empty, Wall, Mine
-					rememberedMap[x, y].status = status.map[x, y].status
+					self.rememberedMap[x, y].status = status.map[x, y].status
+				#if status.map[x, y].obj is not None:
+				#	rememberedMap[x, y].obj = status.map[x, y].obj
+				#else:
+				#	rememberedMap[x, y].obj = None
+		
+		#self._debugMessage("Remembered Map:\n" + str(self.rememberedMap))
+		
 		
 		#strategy: 
 		## Pretend all unknown fields are empty. Calculate shortest path to gold under this assumption.
 		## Walk along this path as far as it is within the visible portion of the map.
 		## I call this the lavish strategy because the robot is just throwing around money and is not stingy.
-
+		
+		
+		# -- Do not move if you are too weak to move (that would only waste money since you still pay) --
+		if status.health < status.params.minMoveHealth:
+			self._debugMessage("Health is too low to move so no movements sent.")
+			return list()
+		
+		# -- Set some useful variables: --
 		currentPosition = (status.x,status.y)
 		assert len(status.goldPots) > 0
 		goldCoords = next(iter(status.goldPots))  # the dictionary status.goldPots ( (x,y) -> amount) has 
 		## only one entry. Iter iterates over the keys (coordinates), but here I only have 1 pair of coordinates.
 		goldInPot = list(status.goldPots.values())[0]  # so this is a list with only one entry (?), and the entry is the amount of gold.
 		
-		paths = AllShortestPaths(goldCoords,rememberedMap)
+		# -- calculate desired path: --
+		paths = AllShortestPaths(goldCoords, self.rememberedMap)
 		chosenPath = paths.shortestPathFrom(currentPosition)  # TODO : maybe smartly choose among the shortest paths.
 		chosenPath = chosenPath[1:]  # (I think this is because we calculate the path from the gold to the 
 		chosenPath.append(goldCoords)  ## player instead of the other way round)
-		distance=len(chosenPath)
 		self._debugMessage("Gold is at: " + str(goldCoords))
 		self._debugMessage("Shortest path to gold:\n" + str(chosenPath))
 		chosenPathOnKnownTiles = self._movesOnKnownTiles(status, chosenPath)
 		self._debugMessage("Part of shortest path that is on known tiles: " + str(chosenPathOnKnownTiles))
 		
+		# -- check if the gold reward is worth it: --
 		numberOfMoves = len(chosenPathOnKnownTiles)
 		costOfMoves = self._costOfMoves(numberOfMoves)
 		if costOfMoves >= goldInPot:
 			self._debugMessage("Path on known Tiles would cost " + str(costOfMoves) + " gold, but the reward is only " + str(goldInPot) + " gold. Therefore I reduce the number of moves.")
 			chosenPathOnKnownTiles = self._reduceMoveAmount(chosenPath, chosenPathOnKnownTiles, goldInPot)
+		
+		# -- do try not to spend ALL your money: --
+		minFractionOfGoldToKeep = self.minFractionOfGoldToKeep  # used only if goldpot is not reached in THIS ROUND
+		if chosenPathOnKnownTiles[-1] != goldCoords:
+			self._debugMessage("Gold will not be reached in this round.")
+			chosenPathOnKnownTiles = self._saveSomeGold(chosenPathOnKnownTiles, minFractionOfGoldToKeep, status)
 			
+		maxMoves = 1000 # TODO : delete this
 		
+		# TODO : take into account rounds that gold will still be on map
 		
-		maxMoves = 100 # TODO: write function depending on gold and cost, such that e.g. only 1/4 of remainaing gold can be spent
-		
-		# TODO : dont move if the pot is too far away
-		
+		# -- send moves to simulator: --
 		if maxMoves < len(chosenPathOnKnownTiles):
-			self._debugMessage("Path I buy:\n" + str(chosenPathOnKnownTiles[:maxMoves]) + "\n = " + str(self._as_directions(currentPosition, chosenPathOnKnownTiles[:maxMoves])))
+			self._debugMessage("Path I buy: " + str(chosenPathOnKnownTiles[:maxMoves]) + "\n = " + str(self._as_directions(currentPosition, chosenPathOnKnownTiles[:maxMoves])))
 			return self._as_directions(currentPosition, chosenPathOnKnownTiles[:maxMoves])
 		else:
-			self._debugMessage("Path I buy:\n" + str(chosenPathOnKnownTiles) + "\n = " + str(self._as_directions(currentPosition, chosenPathOnKnownTiles)))
+			self._debugMessage("Path I buy: " + str(chosenPathOnKnownTiles) + "\n = " + str(self._as_directions(currentPosition, chosenPathOnKnownTiles)))
 			return self._as_directions(currentPosition, chosenPathOnKnownTiles)
 		
 
 
-	# --- Helper Functions: ---
+	# ----- Helper Functions: -----
 	
 	def _as_direction(self,curpos,nextpos):
 		#print("curpos = ", curpos)
@@ -133,21 +172,152 @@ class FastPlayer(Player):
 
 	def _reduceMoveAmount(self, wholePath, knownPath, goldInPot):
 		path = list()
-		safetyFraction = 0.5  # the smaller the fraction, the fewer moves the robot makes. If it is 1, the robot spends all the money it has.
 		if len(knownPath) >= goldInPot:  # reaching gold is always a loss
 			self._debugMessage("The Gold is too far away. I will wait.")
 			return path
 		else:
 			i = 0
-			while self._costOfMoves(len(path)) < goldInPot * safetyFraction:
+			while self._costOfMoves(len(path)) < goldInPot * self.safetyFraction and i < len(knownPath):
 				path.append(knownPath[i])
 				i = i+1
 			return path
 		return path
+	
+	def _saveSomeGold(self, path, fraction, status):
+		newPath = list()
+		i = 0
+		while i < len(path) and status.gold - self._costOfMoves(len(newPath)+1) >= status.gold * 0.2:  # len + 1 because then I append
+			newPath.append(path[i])
+			i = i + 1
+		self._debugMessage("_saveSomeGold: new path is " + str(newPath)) #TODO delete
+		return newPath
 
 
 	def _debugMessage(self, message):
 		if self.printDebugMessages:
 			print(self.player_name, ": ", message)
+			
 
-players = [FastPlayer()] # TODO rename the player
+
+# --------------------------------------------------------------------------
+
+
+
+class WaitingPlayer(Player):
+	
+	def reset(self, player_id, max_players, width, height):
+		self.player_name = "waitingWalter" # nameFromPlayerId(player_id)
+		self.player_id = player_id
+		self.rememberedMap = Map(width, height)  # locally saved map that will remember all Tiles we have already seen
+		self.printDebugMessages = True
+	
+	def round_begin(self, r):
+		self._debugMessage("New round: Round " + str(r) + ". I am player " + str(self.player_id) + ".")
+		pass
+	
+	
+	def move(self, status):
+		self.maxGoldDistance = status.params.visibility  # change this to a lower number to move less often
+		## cannot set this earlier since I need status to do it (if I want the value to be visibility)
+		
+		# -- print the map as we can see it, along with health and gold: --
+		self._debugMessage("\n" + str(status))
+		
+		# -- update the map that the robot saves with information from the server: --
+		rememberedMap = self.rememberedMap
+		for x in range(rememberedMap.width):
+			for y in range(rememberedMap.height):
+				if status.map[x, y].status != TileStatus.Unknown:  # map[x,y].status is an enum: Unknown, Empty, Wall, Mine
+					rememberedMap[x, y].status = status.map[x, y].status
+		
+		
+		
+		# strategy: 
+		## Wait until gold is close Robot. Then go get it. Otherwise don't move.
+		## This strategy does not work very well, because the Server always puts the gold away from the player
+		## So in the end this robot really just. Does Not Move. But still slowly accumulates gold!
+		
+		# -- Do not move if you are too weak to move (that would only waste money since you still pay) --
+		if status.health < status.params.minMoveHealth:
+			self._debugMessage("Health is too low to move so no movements sent.")
+			return list()
+		
+		# -- Set some useful variables: --
+		currentPosition = (status.x,status.y)
+		assert len(status.goldPots) > 0
+		goldCoords = next(iter(status.goldPots))
+		goldInPot = list(status.goldPots.values())[0]  # so this is a list with only one entry (?), and the entry is the amount of gold.
+		
+		# -- if gold not within defined range, then do not move
+		if self._isGoldInRange(status, goldCoords) == False:
+			return list()
+		
+		
+		# if we do want to get the gold:
+		
+		# -- calculate desired path: --
+		paths = AllShortestPaths(goldCoords,rememberedMap)
+		chosenPath = paths.shortestPathFrom(currentPosition)
+		chosenPath = chosenPath[1:]  # (I think this is because we calculate the path from the gold to the 
+		chosenPath.append(goldCoords)  ## player instead of the other way round)
+		self._debugMessage("Gold is at: " + str(goldCoords))
+		self._debugMessage("Shortest path to gold:\n" + str(chosenPath))
+		
+		# -- check if the gold reward is worth it: --
+		numberOfMoves = len(chosenPath)
+		costOfMoves = self._costOfMoves(numberOfMoves)
+		if costOfMoves >= goldInPot:
+			self._debugMessage("Path on known Tiles would cost " + str(costOfMoves) + " gold, but the reward is only " + str(goldInPot) + " gold. Therefore I do not move.")
+			return list()
+		# if gold reward is worth it, go get it:
+		else:
+			return self._as_directions(currentPosition, chosenPath)
+		
+	
+	# ---- Helper Functions: ----
+	
+	
+	def _isGoldInRange(self, status, goldCoords):
+		xmin = max(0, status.x - self.maxGoldDistance)
+		xmax = min(status.map.width, status.x + self.maxGoldDistance)
+		ymin = max(0, status.y - self.maxGoldDistance)
+		ymax = min(status.map.height, status.y + self.maxGoldDistance)
+		for x in range(xmin, xmax):
+			for y in range(ymin, ymax):
+				if (x,y) == goldCoords:
+					self._debugMessage("Gold is in range!")
+					return True
+		return False
+	
+		
+		
+	# -- from FastPlayer: --
+	
+	def _debugMessage(self, message):
+		if self.printDebugMessages:
+			print(self.player_name, ": ", message)
+	
+	def _as_direction(self,curpos,nextpos):
+		#print("curpos = ", curpos)
+		#print("nextpos = ", nextpos)
+		for d in D:
+			diff = d.as_xy()
+			#print("for d = ", d, "aka diff = ", diff)
+			#print("curpos[0] + diff[0], curpos[1] + diff[1] = " , curpos[0] + diff[0], curpos[1] + diff[1])
+			if (curpos[0] + diff[0], curpos[1] + diff[1]) ==  nextpos:
+				return d
+		return None
+
+	def _as_directions(self,curpos,path):
+		# (zip: list of tuples, in this case tuples of tuples ((x1, y1),(x2, y2)), ((x2,y2),(x3,y3)), ... ?)
+		return [self._as_direction(x,y) for x,y in zip([curpos]+path,path)]
+	
+	def _costOfMoves(self, numMoves):
+		# Gauss summation of all numbers 0 to numMoves:
+		cost = (numMoves + 1) * numMoves/2.0
+		return cost
+		
+		
+#players = [FastPlayer()]
+#players = [WaitingPlayer()]
+players = [FastPlayer(), WaitingPlayer()]
