@@ -110,12 +110,16 @@ class TileObject(object):  # "point-of-interest" (player and gold)
 		return self._i
 
 	def __str__(self):
+		printInColor = False
 		sym="."
 		if self.is_gold():
 			sym = "$"
 		elif self.is_player():
 			sym = chr(ord('A') + self._i)
-		return '\033[91m'+'\033[1m'+sym+'\033[0m'
+		if printInColor:
+			return '\033[91m'+'\033[1m'+sym+'\033[0m'  # with colour
+		else:
+			return sym  # without colour
 
 class Tile(object):  # "Field"
 	def __init__(self, status, obj=None):
