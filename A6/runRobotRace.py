@@ -7,7 +7,7 @@ from game_utils import Direction as D, MoveStatus
 from game_utils import Tile, TileStatus, TileObject
 from game_utils import Map, Status
 from simulator import Simulator
-from player_base import Player
+from gudrun_p_player_base import Player
 
 parser = argparse.ArgumentParser(description="Robot Race Simulator 7000")
 parser.add_argument('--viz', help="filename for the visualization of the race", type=str)

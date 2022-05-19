@@ -6,7 +6,7 @@ from game_utils import Direction as D, MoveStatus
 from game_utils import Tile, TileStatus, TileObject
 from game_utils import Map, Status
 from simulator import Simulator
-from player_base import Player
+from gudrun_p_player_base import Player
 
 class MyRandomPlayer(Player):
 	def reset(self, player_id, max_players, width, height):

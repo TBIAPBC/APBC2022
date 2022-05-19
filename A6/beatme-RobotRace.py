@@ -6,9 +6,9 @@ from game_utils import Direction as D, MoveStatus
 from game_utils import Tile, TileStatus, TileObject
 from game_utils import Map, Status
 from simulator import Simulator
-from player_base import Player
+from gudrun_p_player_base import Player
 
-from shortestpaths import AllShortestPaths
+from gudrun_p_shortestpaths import AllShortestPaths
 
 class MyPathFindingPlayer(Player):
 

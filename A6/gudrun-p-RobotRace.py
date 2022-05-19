@@ -10,8 +10,9 @@ from game_utils import Direction as D, MoveStatus
 from game_utils import Tile, TileStatus, TileObject
 from game_utils import Map, Status
 from simulator import Simulator
-from player_base import Player
-from shortestpaths import AllShortestPaths
+from gudrun_p_player_base import Player
+from gudrun_p_shortestpaths import AllShortestPaths
+import time  # sleep before print to avoid caching issues
 
 
 ## Future Ideas:
@@ -33,9 +34,9 @@ class FastPlayer(Player):
 		self.atest = 0  # TODO : delete (this is for debugging. atest keeps being reset??)
 	
 	def reset(self, player_id, max_players, width, height):
+		self.printDebugMessages = True  # set to true to get a lot of print statements from this robot
 		self.player_name = "goGetter" # nameFromPlayerId(player_id)
 		self.player_id = player_id
-		self.printDebugMessages = True
 		self.rememberedMap = Map(width, height)  # locally saved map that will remember all Tiles we have already seen
 		self.minFractionOfGoldToKeep = 0.2  # try to not spend more than 0.8 of your remaining gold in one round
 		self.safetyFraction = 0.5 # Weight for if it is "worth it" to go after the amount of gold in the goldPot.
@@ -50,7 +51,7 @@ class FastPlayer(Player):
 	
 	def move(self, status):
 		self._debugMessage("old atest = " + str(self.atest))
-		self.atest = 3#self.atest + 1
+		self.atest = self.atest + 1
 		self._debugMessage("new atest = " + str(self.atest))
 		#self._debugMessage("OLD remembered Map:\n" + str(self.rememberedMap))
 		# the status object (see game_utils.Status) contains:
@@ -181,7 +182,6 @@ class FastPlayer(Player):
 				path.append(knownPath[i])
 				i = i+1
 			return path
-		return path
 	
 	def _saveSomeGold(self, path, fraction, status):
 		newPath = list()
@@ -209,7 +209,7 @@ class WaitingPlayer(Player):
 		self.player_name = "waitingWalter" # nameFromPlayerId(player_id)
 		self.player_id = player_id
 		self.rememberedMap = Map(width, height)  # locally saved map that will remember all Tiles we have already seen
-		self.printDebugMessages = True
+		self.printDebugMessages = True # set to true to get a lot of print statements from this robot
 	
 	def round_begin(self, r):
 		self._debugMessage("New round: Round " + str(r) + ". I am player " + str(self.player_id) + ".")
