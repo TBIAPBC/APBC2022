@@ -245,7 +245,7 @@ class Simulator(object):
 			def ask():
 				q.put( list(self._players[pId].move(self._pubStat[pId])) )  # (each robot returns a list of movements. One call of this function asks just one player.)
 
-			p = multiprocessing.Process(target=ask)
+			p = multiprocessing.Process(target=ask())
 			p.start()
 			moves = q.get(timeout = self.params.moveTimeout)
 
