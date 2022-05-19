@@ -12,3 +12,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     runRobotRace.main(map_=args.map, density = args.density, viz = args.viz, fps=args.framerate, number=args.number)
+
+    ###
+    # call ui stuff here

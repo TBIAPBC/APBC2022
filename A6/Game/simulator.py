@@ -71,7 +71,7 @@ class Simulator(object):
 		self._status.append(Status(pId, x=x , y=y, health=self.params.maxHealth,
 					   gold=self.params.initialGoldPerPlayer))
 		self._pubStat.append(Status(pId, x=x, y=y, health=self.params.maxHealth,
-					    gold=self.params.initialGoldPerPlayer, params=self.params))
+						gold=self.params.initialGoldPerPlayer, params=self.params))
 
 		# duplicate the public status object in the player object
 		p.status = self._pubStat[-1]
@@ -114,7 +114,7 @@ class Simulator(object):
 	def _empty_and_relocate_gold_pots(self):
 		for coord, amount in self._goldPots.items():
 			print("Gold pot at ({:>3}, {:>3}) with {} coints emtpied and relocated\n".
-			      format(coord[0], coord[1], amount))
+				  format(coord[0], coord[1], amount))
 			self.map[coord].obj = None
 
 		self._goldPots = {}
@@ -208,7 +208,7 @@ class Simulator(object):
 						raise ValueError("Mine coordinates not on the map")
 
 			except NotImplementedError as e:
-			    	# if not implemented, simply pass w/o
+				# if not implemented, simply pass w/o
 				# making some fuzz about it
 				mines = []
 				pass
@@ -279,7 +279,7 @@ class Simulator(object):
 			q.put( (pId, moves) )
 			print("Player {} returns moves after {:3.1f}s: {}"
 				.format( pId, time.time()-startTime,
-			                 list(map(str,moves)) ))
+							 list(map(str,moves)) ))
 
 		threads = [ threading.Thread( target=askPlayer, args=(pId,time.time()) ) for pId in range(numPlayers) ]
 		for t in threads: t.start()
@@ -516,7 +516,7 @@ class Simulator(object):
 		Return the minimum distance of xy to any of the players
 		"""
 		return min( self._distance(xy, (self._status[pId].x,self._status[pId].y))
-			    for pId in range(len(self._players)) )
+				for pId in range(len(self._players)) )
 
 	def _add_gold_pot(self):
 		# find a spot nicely remote from the robots
