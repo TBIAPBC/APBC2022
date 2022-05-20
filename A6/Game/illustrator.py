@@ -5,6 +5,10 @@ import numpy as np
 
 class Illustrator:
     def __init__(self, m, vizfile, framerate):
+        """
+
+        :rtype: object
+        """
         self.robotspos = []
         self.robotshealth = []
         self.robotsmoney = []
@@ -144,3 +148,4 @@ class Illustrator:
         for trail, offset in zip(self.trails, offsets):
             x, y = pivot(list(offset))
             trail.set_data(list(x), list(y))
+

@@ -3,6 +3,7 @@ import random
 from collections import deque
 import copy
 
+
 def nameFromPlayerId(i):
 	assert i >= 0
 	assert i <= ord("z") - ord("a") + 1
@@ -124,7 +125,7 @@ class Tile(object):
 		self.status = status
 		self.obj = obj
 		if obj is not None:
-			assert not is_blocked()
+			assert not self.is_blocked()
 
 	def is_blocked(self):
 		return self.status.is_blocked()
@@ -151,6 +152,7 @@ class Map(object):
 			self._data.append(row)
 
 	def __str__(self):
+		print
 		return "\n".join(" ".join(str(tile) for tile in row) for row in reversed(self._data)) + "\n"
 
 	def __getitem__(self, coord):
