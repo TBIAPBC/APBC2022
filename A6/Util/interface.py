@@ -2,8 +2,7 @@
 Interface Models to Game
 """
 from matplotlib import pyplot as plt
-from Game import illustrator
-import numpy as np
+
 
 class RoundData:
     def __init__(self, round_, map_, colors):
@@ -92,5 +91,35 @@ class RoundData:
         fig.savefig(title, bbox_inches="tight", pad_inches=0.02)
 
 
-class ImageHandler: ...
-class StatsHandler: ...
+class ImageHandler:
+    def __init__(self):
+        pass
+
+    def show_next(self):
+        pass
+
+    def delete_old(self):
+        pass
+
+
+class StatsHandler:
+    def __init__(self):
+        pass
+
+    def add_player(self):
+        pass
+
+    def add_stats(self):
+        pass
+
+    def show_current_scoreboard(self):
+        pass
+
+    def translate_player(self):
+        pass
+
+    def rank_player(self):
+        pass
+
+    def get_winner(self):
+        pass
