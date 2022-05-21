@@ -24,6 +24,9 @@ class AllShortestPaths:
 		# original:
         wm = [ [ self.map[x,y].status == TileStatus.Wall for y in range(self.height) ] for x in range(self.width) ]
 
+        # include mines as walls:
+        #wm = [[self.map[x, y].status == TileStatus.is_blocked() for y in range(self.height)] for x in range(self.width)]
+
 		# see players and mines as walls:
         #wm = [ [ self.map[x,y].status.is_blocked() or (self.map[x,y].obj is not None and self.map[x,y].obj.is_player()) for y in range(self.height) ] for x in range(self.width) ]
 		
@@ -43,7 +46,7 @@ class AllShortestPaths:
                     wmrow.append(False)
             wm.append(wmrow)
         """
-		
+
         self.wallmap = np.array(wm,dtype='bool')
         #print("wallmap : ")
         #print(self.wallmap)
