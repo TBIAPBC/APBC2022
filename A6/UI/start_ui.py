@@ -4,7 +4,7 @@ UI for start screen
 from UI.misc_widgets import *
 
 
-class Start_UI(DarkQML):
+class StartUI(DarkQML):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
@@ -40,6 +40,7 @@ class Start_UI(DarkQML):
         # top spacer
         spacer_top = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Minimum)
 
+        """placeholder for title image"""
         # label title
         self.label_title = QLabel(self.main_widget)
         self.label_title.setAlignment(Qt.AlignCenter)

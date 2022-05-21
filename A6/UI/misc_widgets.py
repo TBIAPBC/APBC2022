@@ -266,6 +266,8 @@ class AntiScrollQComboBox(QComboBox):
         event.ignore()
 
 
+
+
 class DarkQML:
     def __init__(self):
         ####################################################################
@@ -298,7 +300,7 @@ class DarkQML:
         # titles
         self.font_4 = QFont()
         self.font_4.setFamily("Segoe UI")
-        self.font_4.setPointSize(30)
+        self.font_4.setPointSize(60)
         self.font_4.setBold(True)
 
         ####################################################################

@@ -2,19 +2,26 @@
 Main Windows
 """
 from UI.misc_widgets import *
-from UI.start_ui import Start_UI
+from UI.start_ui import StartUI
+from UI.main_ui import MainUI
 
 
-class MainWindow(QMainWindow, DarkQML):
-    def __init__(self):
+class MainWindow(QMainWindow):
+    def __init__(self, app):
         QMainWindow.__init__(self)
-        # self.ui = Ui_MainWindow()
-        # self.ui.setupUi(self)
+
+        # init ui
+        self.main_ui = MainUI(self)
+
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
         # self.setWindowIcon(QtGui.QIcon("./main.ico"))
 
+        # show window
         self.show()
+
+        # params
+        self.app = app
         self.pressing = False
         self.start = QPoint(0, 0)
         self.center()
@@ -25,19 +32,20 @@ class MainWindow(QMainWindow, DarkQML):
         self.shadow.setBlurRadius(20)
         self.shadow.setXOffset(0)
         self.shadow.setYOffset(0)
-        self.setGraphicsEffect(self.shadow)
+        self.shadow.setColor(QColor(0, 0, 0, 100))
+        self.main_ui.frame_shadow.setGraphicsEffect(self.shadow)
 
     def mouseReleaseEvent(self, QMouseEvent):
-        if self.ui.is_maximized is False:
+        if self.main_ui.is_maximized is False:
             self.pressing = False
 
     def mousePressEvent(self, event):
-        if self.ui.is_maximized is False:
+        if self.main_ui.is_maximized is False:
             self.oldPos = event.globalPos()
 
     def mouseMoveEvent(self, event):
-        if self.ui.is_maximized is False:
-            if event.pos().y() > 25:
+        if self.main_ui.is_maximized is False:
+            if event.pos().y() > 34:
                 return
             delta = QPoint(event.globalPos() - self.oldPos)
             self.move(self.x() + delta.x(), self.y() + delta.y())
@@ -51,11 +59,11 @@ class MainWindow(QMainWindow, DarkQML):
 
 
 class StartWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, app):
         QMainWindow.__init__(self)
 
         # init ui
-        self.start_ui = Start_UI(self)
+        self.start_ui = StartUI(self)
 
         # remove title bar
         self.setWindowFlags(Qt.FramelessWindowHint)
@@ -72,7 +80,10 @@ class StartWindow(QMainWindow):
         # show
         self.show()
 
+        # executed app:
+        self.app = app
+
     def play(self):
-        self.main = MainWindow()
+        self.main = MainWindow(self.app)
         self.close()
 
