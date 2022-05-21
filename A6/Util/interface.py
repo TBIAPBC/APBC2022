@@ -80,6 +80,8 @@ class RoundData:
         title = f"./Tmp//sim_{self.round}.png"
         fig, self.ax = plt.subplots(nrows=1, ncols=1, figsize=(8, 8))
 
+        # modify image style
+
         # fill plot
         self.__img_find_walls()
         self.__img_plot()
