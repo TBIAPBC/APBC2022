@@ -31,7 +31,7 @@ class FastPlayer(Player):
 		self.player_name = "goGetter" # nameFromPlayerId(player_id)
 		self.player_id = player_id
 		self.rememberedMap = Map(width, height)  # locally saved map that will remember all Tiles we have already seen
-		#self.wasPlayerInMyWay = False  # to walk around a player who doesnt move
+		self.wasPlayerInMyWay = False  # to walk around a player who doesnt move
 		self.minFractionOfGoldToKeep = 0.2  # try to not spend more than 0.8 of your remaining gold in one round
 		self.safetyFraction = 0.5 # Weight for if it is "worth it" to go after the amount of gold in the goldPot.
 		## Should be between 0 and 1. The smaller the fraction, the fewer moves the robot makes.
@@ -93,22 +93,33 @@ class FastPlayer(Player):
 			goldInPot = list(status.goldPots.values())[0]  # so this is a list with only one entry (?), and the entry is the amount of gold.
 
 			# -- calculate desired path: --
-			paths = AllShortestPaths(goldCoords, self.rememberedMap, self.player_id)
-			chosenPath = paths.randomShortestPathFrom(currentPosition)
-			chosenPath = chosenPath[1:]  # (I think this is because we calculate the path from the gold to the
-			chosenPath.append(goldCoords)  ## player instead of the other way round)
+			paths = AllShortestPaths(goldCoords, self.rememberedMap, self.player_id, withPlayersAsWalls = False)
+			fullPath = paths.randomShortestPathFrom(currentPosition)
+			fullPath = fullPath[1:]  # (I think this is because we calculate the path from the gold to the
+			fullPath.append(goldCoords)  ## player instead of the other way round)
 			self._debugMessage("Gold is at: " + str(goldCoords))
-			self._debugMessage("Shortest path to gold:\n" + str(chosenPath))
-			chosenPath = self._movesOnKnownTiles(status, chosenPath)
+			self._debugMessage("Shortest path to gold:\n" + str(fullPath))
+			chosenPath = self._movesOnKnownTiles(status, fullPath)
 			self._debugMessage("Part of shortest path that is on known tiles: " + str(chosenPath))
 
 			# -- check that I dont run into other players: --
 			chosenPath = self._avoidPlayerCollisions(chosenPath)
 			if chosenPath == []:
-				#self.wasPlayerInMyWay = True  # remember for next round, so I can go around if other player doesnt move
-				self._debugMessage("There is another player blocking the path. No movements sent.")
-				# TODO : add function that lets me go around the other player
-				return []
+				if self.wasPlayerInMyWay == False:
+					self.wasPlayerInMyWay = True  # remember for next round, so I can go around if other player doesnt move
+					self._debugMessage("There is another player blocking the path. No movements sent.")
+					return []
+				if self.wasPlayerInMyWay == True: #player was already in my was last round
+					self.wasPlayerInMyWay = False
+					self._debugMessage("There is another player blocking the path AGAIN. I will go around it.")
+					paths = AllShortestPaths(goldCoords, self.rememberedMap, self.player_id, withPlayersAsWalls=True)  # go around other player
+					chosenPath = paths.randomShortestPathFrom(currentPosition)
+					chosenPath = chosenPath[1:]
+					chosenPath.append(goldCoords)
+					self._debugMessage("Gold is at: " + str(goldCoords))
+					self._debugMessage("Shortest path to gold:\n" + str(chosenPath))
+					chosenPath = self._movesOnKnownTiles(status, chosenPath)
+					self._debugMessage("Part of shortest path that is on known tiles: " + str(chosenPath))
 
 			# -- check if the gold reward is worth it: --
 			numberOfMoves = len(chosenPath)
@@ -123,16 +134,25 @@ class FastPlayer(Player):
 				self._debugMessage("Gold will not be reached in this round.")
 				chosenPath = self._saveSomeGold(chosenPath, minFractionOfGoldToKeep, status)
 
-			maxMoves = 1000 # TODO : delete this
+			# -- Take into account rounds that gold will still be on map --
+			if len(chosenPath) > 0 and len(fullPath)/len(chosenPath) > status.goldPotRemainingRounds:
+				self._debugMessage("The gold will be gone in " + str(status.goldPotRemainingRounds) +", I probably won't reach it in time, so I wait instead.")
+				return []
 
-			# TODO : take into account rounds that gold will still be on map
+			# -- only move if I have enough gold for all my movements --
+			# This seems to actually make the robot worse! Do not use it!
+			#if self._costOfMoves(len(chosenPath)) > status.gold:
+			#	self._debugMessage("Not enough gold to execute all my moves (would cost " + str(self._costOfMoves(len(chosenPath))) + " gold), so I'll rather wait.")
+			#	return []
+
 
 			# -- send moves to simulator: --
+			maxMoves = 1000  # just for safety in case something goes wrong: avoid endless loop or something like that
 			if maxMoves < len(chosenPath):
-				self._debugMessage("Path I buy: " + str(chosenPath[:maxMoves]) + "\n = " + str(self._as_directions(currentPosition, chosenPath[:maxMoves])))
+				self._debugMessage("Path I buy for " + str(self._costOfMoves(len(chosenPath[:maxMoves]))) + " gold: " + str(chosenPath[:maxMoves]) + "\n = " + str(self._as_directions(currentPosition, chosenPath[:maxMoves])))
 				return self._as_directions(currentPosition, chosenPath[:maxMoves])
 			else:
-				self._debugMessage("Path I buy: " + str(chosenPath) + "\n = " + str(self._as_directions(currentPosition, chosenPath)))
+				self._debugMessage("Path I buy for " + str(self._costOfMoves(len(chosenPath))) + " gold: " + str(chosenPath) + "\n = " + str(self._as_directions(currentPosition, chosenPath)))
 				return self._as_directions(currentPosition, chosenPath)
 		except Exception as e:
 			self._debugMessage("Exception: " + str(e))
@@ -247,14 +267,18 @@ class WaitingPlayer(Player):
 			## cannot set this earlier since I need status to do it (if I want the value to be visibility)
 
 			# -- print the map as we can see it, along with health and gold: --
-			self._debugMessage("\n" + str(status))
+			#self._debugMessage("\n" + str(status))
 
 			# -- update the map that the robot saves with information from the server: --
-			rememberedMap = self.rememberedMap
-			for x in range(rememberedMap.width):
-				for y in range(rememberedMap.height):
+			for x in range(self.rememberedMap.width):
+				for y in range(self.rememberedMap.height):
 					if status.map[x, y].status != TileStatus.Unknown:  # map[x,y].status is an enum: Unknown, Empty, Wall, Mine
-						rememberedMap[x, y].status = status.map[x, y].status
+						self.rememberedMap[x, y].status = status.map[x, y].status
+					if status.map[x, y].obj is not None:
+						self.rememberedMap[x, y].obj = status.map[x, y].obj
+					else:
+						self.rememberedMap[x, y].obj = None
+			self._debugMessage("Remembered Map:\n" + str(self.rememberedMap))
 
 
 
@@ -282,7 +306,7 @@ class WaitingPlayer(Player):
 			# if we do want to get the gold:
 
 			# -- calculate desired path: --
-			paths = AllShortestPaths(goldCoords,rememberedMap, self.player_id)
+			paths = AllShortestPaths(goldCoords,self.rememberedMap, self.player_id, withPlayersAsWalls=False)
 			chosenPath = paths.shortestPathFrom(currentPosition)
 			chosenPath = chosenPath[1:]  # (I think this is because we calculate the path from the gold to the
 			chosenPath.append(goldCoords)  ## player instead of the other way round)
@@ -302,13 +326,19 @@ class WaitingPlayer(Player):
 				return list()
 			# if gold reward is worth it, go get it:
 			else:
+				self._debugMessage("Path I buy for " + str(self._costOfMoves(len(chosenPath))) + " gold: " + str(chosenPath) + "\n = " + str(self._as_directions(currentPosition, chosenPath)))
 				return self._as_directions(currentPosition, chosenPath)
 
 		except Exception as e:
 			self._debugMessage("Exception: " + str(e))
 			return []
-	
-	# ---- Helper Functions: ----
+
+
+
+
+	# ------------------- Helper Functions: -------------------------------------
+
+
 	
 	
 	def _isGoldInRange(self, status, goldCoords):
