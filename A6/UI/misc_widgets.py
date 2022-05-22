@@ -367,7 +367,7 @@ class SizeGripTop(QWidget):
             return
 
         if self.main_window.minimumHeight() == self.main_window.geometry().height():
-            if self.main_window.geometry().y() + self.main_window.height() < event.globalPos().y():
+            if self.main_window.geometry().y() < event.globalPos().y():
                 return
 
         # resize
@@ -405,7 +405,8 @@ class SizeGripLeft(QWidget):
             return
 
         if self.main_window.minimumWidth() == self.main_window.geometry().width():
-            if self.main_window.geometry().x() + self.main_window.width() < event.globalPos().x():
+            print(self.main_window.geometry().x(), self.main_window.width(), event.globalPos().x())
+            if self.main_window.geometry().x() < event.globalPos().x():
                 return
 
         # resize
