@@ -11,7 +11,7 @@ from UI.finish_widget import WidgetFinish
 from UI.tools_widget import WidgetTools
 
 
-class MainUI(DarkQML):
+class MainUI(DarkQSS):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
@@ -39,51 +39,51 @@ class MainUI(DarkQML):
 
         ### resize widget
         self.resize_TR = QSizeGrip(self.centralwidget)
-        self.resize_TR.setMinimumSize(QSize(4, 4))
-        self.resize_TR.setMaximumSize(QSize(4, 4))
+        self.resize_TR.setMinimumSize(QSize(5, 5))
+        self.resize_TR.setMaximumSize(QSize(5, 5))
         self.resize_TR.setCursor(QCursor(Qt.SizeBDiagCursor))
         self.resize_TR.setStyleSheet(self.disableStyleSheet)
 
-        self.resize_R = QWidget(self.centralwidget)
-        self.resize_R.setMinimumSize(QSize(4, 0))
-        self.resize_R.setMaximumSize(QSize(4, 16777215))
+        self.resize_R = SizeGripRight(self.parent)
+        self.resize_R.setMinimumSize(QSize(5, 0))
+        self.resize_R.setMaximumSize(QSize(5, 16777215))
         self.resize_R.setCursor(QCursor(Qt.SizeHorCursor))
         self.resize_R.setStyleSheet(self.disableStyleSheet)
 
         self.resize_TL = QSizeGrip(self.centralwidget)
-        self.resize_TL.setMinimumSize(QSize(4, 4))
-        self.resize_TL.setMaximumSize(QSize(4, 4))
+        self.resize_TL.setMinimumSize(QSize(5, 5))
+        self.resize_TL.setMaximumSize(QSize(5, 5))
         self.resize_TL.setCursor(QCursor(Qt.SizeFDiagCursor))
         self.resize_TL.setStyleSheet(self.disableStyleSheet)
 
-        self.resize_L = QWidget(self.centralwidget)
-        self.resize_L.setMinimumSize(QSize(4, 0))
-        self.resize_L.setMaximumSize(QSize(4, 16777215))
+        self.resize_L = SizeGripLeft(self.parent)
+        self.resize_L.setMinimumSize(QSize(5, 0))
+        self.resize_L.setMaximumSize(QSize(5, 16777215))
         self.resize_L.setCursor(QCursor(Qt.SizeHorCursor))
         self.resize_L.setStyleSheet(self.disableStyleSheet)
 
-        self.resize_T = QWidget(self.centralwidget)
-        self.resize_T.setMinimumSize(QSize(0, 4))
-        self.resize_T.setMaximumSize(QSize(16777215, 4))
+        self.resize_T = SizeGripTop(self.parent)
+        self.resize_T.setMinimumSize(QSize(0, 5))
+        self.resize_T.setMaximumSize(QSize(16777215, 5))
         self.resize_T.setCursor(QCursor(Qt.SizeVerCursor))
         self.resize_T.setStyleSheet(self.disableStyleSheet)
 
-        self.resize_B = QWidget(self.centralwidget)
-        self.resize_B.setMinimumSize(QSize(0, 4))
-        self.resize_B.setMaximumSize(QSize(16777215, 4))
+        self.resize_B = SizeGripBottom(self.parent)
+        self.resize_B.setMinimumSize(QSize(0, 5))
+        self.resize_B.setMaximumSize(QSize(16777215, 5))
         self.resize_B.setCursor(QCursor(Qt.SizeVerCursor))
         self.resize_B.setStyleSheet(self.disableStyleSheet)
 
         self.resize_BR = QSizeGrip(self.centralwidget)
-        self.resize_BR.setMinimumSize(QSize(4, 4))
-        self.resize_BR.setMaximumSize(QSize(4, 4))
+        self.resize_BR.setMinimumSize(QSize(5, 5))
+        self.resize_BR.setMaximumSize(QSize(5, 5))
         self.resize_BR.setCursor(QCursor(Qt.SizeFDiagCursor))
         self.resize_BR.setFocusPolicy(Qt.TabFocus)
         self.resize_BR.setStyleSheet(self.disableStyleSheet)
 
         self.resize_BL = QSizeGrip(self.centralwidget)
-        self.resize_BL.setMinimumSize(QSize(4, 4))
-        self.resize_BL.setMaximumSize(QSize(4, 4))
+        self.resize_BL.setMinimumSize(QSize(5, 5))
+        self.resize_BL.setMaximumSize(QSize(5, 5))
         self.resize_BL.setCursor(QCursor(Qt.SizeBDiagCursor))
         self.resize_BL.setStyleSheet(self.disableStyleSheet)
 
@@ -99,11 +99,11 @@ class MainUI(DarkQML):
 
         ### shadow frame
         self.frame_shadow = QFrame(self.centralwidget)
-        self.frame_shadow.setStyleSheet(self.disableStyleSheet)
+        self.frame_shadow.setStyleSheet(self.mainUIStyleSheet)
         self.frame_shadow.setFrameShape(QFrame.StyledPanel)
         self.frame_shadow.setFrameShadow(QFrame.Raised)
         self.lay_shadow_frame = QVBoxLayout(self.frame_shadow)
-        self.lay_shadow_frame.setContentsMargins(1, 1, 1, 1)
+        self.lay_shadow_frame.setContentsMargins(0, 0, 0, 0)
         self.lay_shadow_frame.setSpacing(0)
 
         ### main widget
@@ -186,11 +186,36 @@ class MainUI(DarkQML):
         if self.is_maximized is False:
             self.parent.showMaximized()
             self.is_maximized = True
+            self.__hide_resize()
         else:
             self.parent.showNormal()
             self.is_maximized = False
+            self.__show_resize()
 
     def btn_minimize(self):
         self.parent.showMinimized()
 
+    def __show_resize(self):
+        self.lay_central_grid.setContentsMargins(5, 5, 5, 5)
+
+        self.resize_BR.show()
+        self.resize_B.show()
+        self.resize_L.show()
+        self.resize_R.show()
+        self.resize_T.show()
+        self.resize_BL.show()
+        self.resize_TL.show()
+        self.resize_TR.show()
+
+    def __hide_resize(self):
+        self.lay_central_grid.setContentsMargins(0, 0, 0, 0)
+
+        self.resize_BR.hide()
+        self.resize_B.hide()
+        self.resize_L.hide()
+        self.resize_R.hide()
+        self.resize_T.hide()
+        self.resize_BL.hide()
+        self.resize_TL.hide()
+        self.resize_TR.hide()
 

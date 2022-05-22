@@ -266,9 +266,158 @@ class AntiScrollQComboBox(QComboBox):
         event.ignore()
 
 
+class SizeGripRight(QWidget):
+    def __init__(self, window):
+        super(SizeGripRight, self).__init__()
+
+        self.main_window = window
+        self.resizing = False
+        self.init_geo = self.main_window.geometry()
+        self.point_init = None
+
+    def mousePressEvent(self, event):
+        if not self.resizing:
+            self.resizing = True
+            self.point_init = event.globalPos()
+            self.init_geo = self.main_window.geometry()
+
+    def mouseReleaseEvent(self, event):
+        if not self.resizing:
+            return
+        self.resizing = False
+
+    def mouseMoveEvent(self, event):
+        if not self.resizing:
+            return
+
+        if self.main_window.minimumWidth() == self.main_window.geometry().width():
+            if self.main_window.geometry().x() + self.main_window.width() > event.globalPos().x():
+                return
+
+        # resize
+        current_pos = event.globalPos()
+        distance = current_pos.x() - self.point_init.x()
+        self.main_window.resize(self.main_window.width() + distance, self.main_window.height())
+
+        # init new reference position
+        self.point_init = event.globalPos()
 
 
-class DarkQML:
+class SizeGripBottom(QWidget):
+    def __init__(self, window):
+        super(SizeGripBottom, self).__init__()
+
+        self.main_window = window
+        self.resizing = False
+        self.point_init = QPoint(0, 0)
+        self.init_geo = self.main_window.geometry()
+
+    def mousePressEvent(self, event):
+        if not self.resizing:
+            self.resizing = True
+            self.point_init = event.globalPos()
+            self.init_geo = self.main_window.geometry()
+        else:
+            self.point_init = QPoint(0, 0)
+
+    def mouseReleaseEvent(self, event):
+        if not self.resizing:
+            return
+        self.resizing = False
+
+    def mouseMoveEvent(self, event):
+        if not self.resizing:
+            return
+
+        if self.main_window.minimumHeight() == self.main_window.geometry().height():
+            if self.main_window.geometry().y() + self.main_window.height() > event.globalPos().y():
+                return
+
+        # resize
+        current_pos = event.globalPos()
+        distance = current_pos.y() - self.point_init.y()
+        self.main_window.resize(self.main_window.width(), self.main_window.height() + distance)
+
+        # init new reference position
+        self.point_init = event.globalPos()
+
+
+class SizeGripTop(QWidget):
+    def __init__(self, window):
+        super(SizeGripTop, self).__init__()
+
+        self.main_window = window
+        self.resizing = False
+        self.point_init = None
+        self.init_geo = self.main_window.geometry()
+
+    def mousePressEvent(self, event):
+        if not self.resizing:
+            self.resizing = True
+            self.point_init = event.globalPos()
+            self.init_geo = self.main_window.geometry()
+
+    def mouseReleaseEvent(self, event):
+        if not self.resizing:
+            return
+        self.resizing = False
+
+    def mouseMoveEvent(self, event):
+        if not self.resizing:
+            return
+
+        if self.main_window.minimumHeight() == self.main_window.geometry().height():
+            if self.main_window.geometry().y() + self.main_window.height() < event.globalPos().y():
+                return
+
+        # resize
+        current_pos = event.globalPos()
+        distance = current_pos.y() - self.point_init.y()
+        print(distance)
+        self.main_window.setGeometry(self.main_window.geometry().adjusted(0, distance, 0, 0))
+
+        # init new reference position
+        self.point_init = event.globalPos()
+
+
+class SizeGripLeft(QWidget):
+    def __init__(self, window):
+        super(SizeGripLeft, self).__init__()
+
+        self.main_window = window
+        self.resizing = False
+        self.point_init = None
+        self.init_geo = self.main_window.geometry()
+
+    def mousePressEvent(self, event):
+        if not self.resizing:
+            self.resizing = True
+            self.point_init = event.globalPos()
+            self.init_geo = self.main_window.geometry()
+
+    def mouseReleaseEvent(self, event):
+        if not self.resizing:
+            return
+        self.resizing = False
+
+    def mouseMoveEvent(self, event):
+        if not self.resizing:
+            return
+
+        if self.main_window.minimumWidth() == self.main_window.geometry().width():
+            if self.main_window.geometry().x() + self.main_window.width() < event.globalPos().x():
+                return
+
+        # resize
+        current_pos = event.globalPos()
+        distance = current_pos.x() - self.point_init.x()
+        self.main_window.setGeometry(self.main_window.geometry().adjusted(distance, 0, 0, 0))
+
+        # init new reference position
+        self.point_init = event.globalPos()
+
+
+class DarkQSS:
     def __init__(self):
         ####################################################################
         # font
@@ -296,8 +445,7 @@ class DarkQML:
         self.font_3.setFamily("Segoe UI")
         self.font_3.setPointSize(16)
         self.font_3.setBold(True)
-
-        # titles
+        # big title
         self.font_4 = QFont()
         self.font_4.setFamily("Segoe UI")
         self.font_4.setPointSize(60)
@@ -483,3 +631,5 @@ class DarkQML:
 
         self.creditsStyleSheet = "QWidget{color: rgb(22, 22, 22);padding-left: 9px; border-radius: 0px;}" \
                                  "QWidget:hover{color: rgb(39, 39, 39);}"
+
+        self.qss_debug = "QWidget{background-color: rgb(255, 0, 0);}"

@@ -4,7 +4,7 @@ UI for start screen
 from UI.misc_widgets import *
 
 
-class StartUI(DarkQML):
+class StartUI(DarkQSS):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
