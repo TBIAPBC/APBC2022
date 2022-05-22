@@ -8,7 +8,7 @@ from game_utils import Map, Status
 from simulator import Simulator
 from gudrun_p_player_base import Player
 
-from gudrun_p_shortestpaths import AllShortestPaths
+from shortestpaths import AllShortestPaths
 
 class MyPathFindingPlayer(Player):
 

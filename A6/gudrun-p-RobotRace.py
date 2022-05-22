@@ -12,7 +12,7 @@ from game_utils import Map, Status
 from simulator import Simulator
 from gudrun_p_player_base import Player
 from gudrun_p_shortestpaths import AllShortestPaths
-import time  # sleep before print to avoid caching issues
+#import time  # sleep before print to avoid caching issues
 
 
 ## Future Ideas:
@@ -20,26 +20,21 @@ import time  # sleep before print to avoid caching issues
 ## Later: Out of all the shortest paths, I could choose it such that unknown fields are twice as "long" as 
 ## known empty fields (since there might be walls i dont know about, these fields are not as "good" as 
 ## known empty fields)
-## Later: if path to gold has no unknown tiles, calculate if it might be worth it to walk all the way in one round - DONE
 ## Later: if otherPlayer in similar distance to gold, then go faster?
 
 
 
 class FastPlayer(Player):
 	
-	#def __init__(self):
-	#	print("init called")
-	#	self.atest = 0  # TODO : delete (this is for debugging. atest keeps being reset?? -> solved: ask() in simulator multithreading)
-	
 	def reset(self, player_id, max_players, width, height):
 		self.printDebugMessages = True  # set to true to get a lot of print statements from this robot
 		self.player_name = "goGetter" # nameFromPlayerId(player_id)
 		self.player_id = player_id
 		self.rememberedMap = Map(width, height)  # locally saved map that will remember all Tiles we have already seen
+		#self.wasPlayerInMyWay = False  # to walk around a player who doesnt move
 		self.minFractionOfGoldToKeep = 0.2  # try to not spend more than 0.8 of your remaining gold in one round
 		self.safetyFraction = 0.5 # Weight for if it is "worth it" to go after the amount of gold in the goldPot.
 		## Should be between 0 and 1. The smaller the fraction, the fewer moves the robot makes.
-		#self.atest = 0 # TODO delete
 		
 	
 	def round_begin(self, r):
@@ -48,10 +43,6 @@ class FastPlayer(Player):
 	
 	
 	def move(self, status):
-		#self._debugMessage("old atest = " + str(self.atest))
-		#self.atest = self.atest + 1
-		#self._debugMessage("new atest = " + str(self.atest))
-		#self._debugMessage("OLD remembered Map:\n" + str(self.rememberedMap))
 		# the status object (see game_utils.Status) contains:
 		# - .player, our id, if we should have forgotten it
 		# - .x and .y, our position
@@ -64,7 +55,6 @@ class FastPlayer(Player):
 		# print("-" * 80)
 
 		try:
-
 			# -- print the map as we can see it, along with health and gold: --
 			#self._debugMessage("\n" + str(status))
 			#print("Status for %s" % self.player_name)
@@ -103,8 +93,8 @@ class FastPlayer(Player):
 			goldInPot = list(status.goldPots.values())[0]  # so this is a list with only one entry (?), and the entry is the amount of gold.
 
 			# -- calculate desired path: --
-			paths = AllShortestPaths(goldCoords, self.rememberedMap)
-			chosenPath = paths.shortestPathFrom(currentPosition)  # TODO : maybe smartly choose among the shortest paths.
+			paths = AllShortestPaths(goldCoords, self.rememberedMap, self.player_id)
+			chosenPath = paths.randomShortestPathFrom(currentPosition)
 			chosenPath = chosenPath[1:]  # (I think this is because we calculate the path from the gold to the
 			chosenPath.append(goldCoords)  ## player instead of the other way round)
 			self._debugMessage("Gold is at: " + str(goldCoords))
@@ -115,6 +105,7 @@ class FastPlayer(Player):
 			# -- check that I dont run into other players: --
 			chosenPath = self._avoidPlayerCollisions(chosenPath)
 			if chosenPath == []:
+				#self.wasPlayerInMyWay = True  # remember for next round, so I can go around if other player doesnt move
 				self._debugMessage("There is another player blocking the path. No movements sent.")
 				# TODO : add function that lets me go around the other player
 				return []
@@ -208,7 +199,7 @@ class FastPlayer(Player):
 		while i < len(path) and status.gold - self._costOfMoves(len(newPath)+1) >= status.gold * 0.2:  # len + 1 because then I append
 			newPath.append(path[i])
 			i = i + 1
-		self._debugMessage("_saveSomeGold: new path is " + str(newPath)) #TODO delete
+		#self._debugMessage("_saveSomeGold: new path is " + str(newPath))
 		return newPath
 
 	def _avoidPlayerCollisions(self, oldPath):
@@ -291,7 +282,7 @@ class WaitingPlayer(Player):
 			# if we do want to get the gold:
 
 			# -- calculate desired path: --
-			paths = AllShortestPaths(goldCoords,rememberedMap)
+			paths = AllShortestPaths(goldCoords,rememberedMap, self.player_id)
 			chosenPath = paths.shortestPathFrom(currentPosition)
 			chosenPath = chosenPath[1:]  # (I think this is because we calculate the path from the gold to the
 			chosenPath.append(goldCoords)  ## player instead of the other way round)
