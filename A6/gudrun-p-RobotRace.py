@@ -26,7 +26,7 @@ from gudrun_p_shortestpaths import AllShortestPaths
 class FastPlayer(Player):
 	
 	def reset(self, player_id, max_players, width, height):
-		self.printDebugMessages = True  # set to true to get a lot of print statements from this robot
+		self.printDebugMessages = False  # set to true to get a lot of print statements from this robot
 		self.player_name = "goGetter" # nameFromPlayerId(player_id)
 		self.player_id = player_id
 		self.rememberedMap = Map(width, height)  # locally saved map that will remember all Tiles we have already seen
@@ -121,7 +121,7 @@ class FastPlayer(Player):
 					fullPath.append(goldCoords)
 					self._debugMessage("Gold is at: " + str(goldCoords))
 					self._debugMessage("Shortest path to gold:\n" + str(fullPath))
-					chosenPath = self._movesOnKnownTiles(status, chosenPath)
+					chosenPath = self._movesOnKnownTiles(status, fullPath)
 					self._debugMessage("Part of shortest path that is on known tiles: " + str(chosenPath))
 
 			# -- check if the gold reward is worth it: --
