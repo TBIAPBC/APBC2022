@@ -139,12 +139,6 @@ class FastPlayer(Player):
 				self._debugMessage("The gold will be gone in " + str(status.goldPotRemainingRounds) +", I probably won't reach it in time, so I wait instead.")
 				return []
 
-			# -- only move if I have enough gold for all my movements --
-			# This seems to actually make the robot worse! Do not use it!
-			#if self._costOfMoves(len(chosenPath)) > status.gold:
-			#	self._debugMessage("Not enough gold to execute all my moves (would cost " + str(self._costOfMoves(len(chosenPath))) + " gold), so I'll rather wait.")
-			#	return []
-
 
 			# -- send moves to simulator: --
 			maxMoves = 1000  # just for safety in case something goes wrong: avoid endless loop or something like that
@@ -345,6 +339,7 @@ class CleverPlayer(Player):
 		self.rememberedMap = Map(width, height)  # locally saved map that will remember all Tiles we have already seen
 		self.winMargin = 50  # how much gold-profit is required for it to be worth it to go after the gold
 		self.printDebugMessages = True  # set to true to get a lot of print statements from this robot
+		self.wasPlayerInMyWay = False  # to go around a player that doesnt move
 
 	def round_begin(self, r):
 		self._debugMessage("RBegin " + str(r) + ". I am player " + str(self.player_id) + ".")
@@ -385,6 +380,21 @@ class CleverPlayer(Player):
 			self._debugMessage("Shortest path to gold: " + str(fullPath))
 			self._debugMessage("Length of shortest path to gold: " + str(len(fullPath)))
 
+			# -- go around player who doesnt move: --
+			if self.wasPlayerInMyWay == True:
+				if self.rememberedMap[fullPath[0]].obj is not None:  # empty fields can be one the path
+					if self.rememberedMap[fullPath[0]].obj.is_player():
+						if not self.rememberedMap[fullPath[0]].obj.is_player(self.player_id):  # my own player is not an obstacle
+							self._debugMessage("Another robot ( " + str(self.rememberedMap[fullPath[0]]) + " is in my way AGAIN. I will go around it.")
+							self.wasPlayerInMyWay = False
+							paths = AllShortestPaths(goldCoords, self.rememberedMap, self.player_id, withPlayersAsWalls=True)
+							fullPath = paths.randomShortestPathFrom(currentPosition)
+							fullPath = fullPath[1:]  # (I think this is because we calculate the path from the gold to the
+							fullPath.append(goldCoords)  ## player instead of the other way round)
+							self._debugMessage(str(goldInPot) + " gold is at: " + str(goldCoords))
+							self._debugMessage("Shortest path to gold if other players are walls: " + str(fullPath))
+							self._debugMessage("Length of shortest path to gold: " + str(len(fullPath)))
+
 			# -- how many moves should I make this round to reach my winMargin? Split path into sections of same length to minimize cost: --
 			fullPathLength = len(fullPath)
 			if fullPathLength > status.gold - self.winMargin:
@@ -411,15 +421,26 @@ class CleverPlayer(Player):
 
 
 			# -- Take into account rounds that gold will still be on map --
-			if len(chosenPath) > 0 and (len(fullPath) / len(chosenPath)) + 1 >= status.goldPotRemainingRounds:
+			if len(chosenPath) > 0 and (len(fullPath) / len(chosenPath)) + 2 >= status.goldPotRemainingRounds:
 				self._debugMessage("The gold will be gone in " + str(status.goldPotRemainingRounds) + ", I probably won't reach it in time, so I wait instead.")
 				return []
 
 			# -- check that I dont run into other players: --
 			chosenPath = self._avoidPlayerCollisions(chosenPath)
 			if chosenPath == []:
+				self.wasPlayerInMyWay = True  # remember for next round, so I can go around if other player doesnt move
 				self._debugMessage("There is another player blocking the path. No movements sent.")
 				return []
+
+
+			if chosenPath == []:
+				if self.wasPlayerInMyWay == False:
+					self.wasPlayerInMyWay = True  # remember for next round, so I can go around if other player doesnt move
+					self._debugMessage("There is another player blocking the path. No movements sent.")
+					return []
+				if self.wasPlayerInMyWay == True: #player was already in my was last round
+					self._debugMessage("There is another player blocking the path AGAIN. This should not happen. No movements sent.")
+					return []
 
 
 			# -- return moves to simulator: --
