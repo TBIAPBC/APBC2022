@@ -26,7 +26,7 @@ from gudrun_p_shortestpaths import AllShortestPaths
 class FastPlayer(Player):
 	
 	def reset(self, player_id, max_players, width, height):
-		self.printDebugMessages = False  # set to true to get a lot of print statements from this robot
+		self.printDebugMessages = True  # set to true to get a lot of print statements from this robot
 		self.player_name = "goGetter" # nameFromPlayerId(player_id)
 		self.player_id = player_id
 		self.rememberedMap = Map(width, height)  # locally saved map that will remember all Tiles we have already seen
@@ -113,11 +113,14 @@ class FastPlayer(Player):
 					self.wasPlayerInMyWay = False
 					self._debugMessage("There is another player blocking the path AGAIN. I will go around it.")
 					paths = AllShortestPaths(goldCoords, self.rememberedMap, self.player_id, withPlayersAsWalls=True)  # go around other player
-					chosenPath = paths.randomShortestPathFrom(currentPosition)
-					chosenPath = chosenPath[1:]
-					chosenPath.append(goldCoords)
+					fullPath = paths.randomShortestPathFrom(currentPosition)
+					if fullPath == []:  # if other player are walls, it is possible that no path exists.
+						self._debugMessage("There is no path to the gold. No movement sent.")
+						return []
+					fullPath = fullPath[1:]
+					fullPath.append(goldCoords)
 					self._debugMessage("Gold is at: " + str(goldCoords))
-					self._debugMessage("Shortest path to gold:\n" + str(chosenPath))
+					self._debugMessage("Shortest path to gold:\n" + str(fullPath))
 					chosenPath = self._movesOnKnownTiles(status, chosenPath)
 					self._debugMessage("Part of shortest path that is on known tiles: " + str(chosenPath))
 
@@ -337,7 +340,7 @@ class CleverPlayer(Player):
 		self.player_name = "CarefulCarla"  # nameFromPlayerId(player_id)
 		self.player_id = player_id
 		self.rememberedMap = Map(width, height)  # locally saved map that will remember all Tiles we have already seen
-		self.winMargin = 50  # how much gold-profit is required for it to be worth it to go after the gold
+		self.winMargin = 70  # how much gold-profit is required for it to be worth it to go after the gold
 		self.wasPlayerInMyWay = False  # to go around a player that doesnt move
 		self.printDebugMessages = False  # set to true to get a lot of print statements from this robot
 
@@ -386,10 +389,13 @@ class CleverPlayer(Player):
 				if self.rememberedMap[fullPath[0]].obj is not None:  # empty fields can be one the path
 					if self.rememberedMap[fullPath[0]].obj.is_player():
 						if not self.rememberedMap[fullPath[0]].obj.is_player(self.player_id):  # my own player is not an obstacle
-							self._debugMessage("Another robot ( " + str(self.rememberedMap[fullPath[0]]) + " is in my way AGAIN. I will go around it.")
+							self._debugMessage("Another robot (" + str(self.rememberedMap[fullPath[0]]) + ") is in my way AGAIN. I will go around it.")
 							self.wasPlayerInMyWay = False
 							paths = AllShortestPaths(goldCoords, self.rememberedMap, self.player_id, withPlayersAsWalls=True)
 							fullPath = paths.randomShortestPathFrom(currentPosition)
+							if fullPath == []:  # if other player are walls, it is possible that no path exists.
+								self._debugMessage("There is no path to the gold. No movement sent.")
+								return []
 							fullPath = fullPath[1:]  # (I think this is because we calculate the path from the gold to the
 							fullPath.append(goldCoords)  ## player instead of the other way round)
 							self._debugMessage(str(goldInPot) + " gold is at: " + str(goldCoords))
@@ -410,12 +416,12 @@ class CleverPlayer(Player):
 				lastPathSegmentCost = self._costOfMoves(lastPathSegmentLength)
 				totalCost = partialPathCost * numberOfSegments + lastPathSegmentCost
 				if goldInPot - totalCost >= self.winMargin:
-					if totalCost < status.gold + numberOfSegments:  # check if I have enough gold for the whole path (add number of segments since I get one gold each round)
+					if totalCost < status.gold + numberOfSegments*status.params.goldPerRound:  # check if I have enough gold for the whole path
 						chosenPath = fullPath[0:partialPathLength]
-						self._debugMessage("Going to gold is worth it if I split path into " + str(numberOfSegments) + " segments. (total cost: " + str(totalCost) + " )")
+						self._debugMessage("Going to gold is worth it if I split path into at least " + str(numberOfSegments) + " segments. (total cost: " + str(totalCost) + " )")
 						break
 					else:
-						self._debugMessage("Not enough gold to split the path into " + str(numberOfSegments) + " segments. (total cost would be: " + str(totalCost) + " )")
+						self._debugMessage("Not enough gold to split the path into at least " + str(numberOfSegments) + " segments. (total cost would be: " + str(totalCost) + " )")
 			if chosenPath == []:
 				self._debugMessage("The gold is too far away to be worth getting. (Length of shortest path = " + str(len(fullPath)) + ")")
 				return []
