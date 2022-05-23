@@ -84,7 +84,7 @@ class Simulator(object):
 			# to avoid breaking the player interface,
 			# set number of rounds in the players status objects
 			self._pubStat[pId].params.rounds=rounds
-			# each player implements the .reset() method. It seems to basically initialize the players (why not init?)
+			# (each player implements the .reset() method. It seems to basically initialize the players (why not init?))
 			self._players[pId].reset(pId, len(self._players), self.map.width, self.map.height)
 
 		self.illustrator._add_robots(self._players)

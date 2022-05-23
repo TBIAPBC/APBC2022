@@ -15,8 +15,7 @@ from gudrun_p_shortestpaths import AllShortestPaths
 #import time  # sleep before print to avoid caching issues
 
 
-## Future Ideas:
-## Later: I might implement a check if the treasure is too far away, and just wait in this case.
+# Future Ideas:
 ## Later: Out of all the shortest paths, I could choose it such that unknown fields are twice as "long" as 
 ## known empty fields (since there might be walls i dont know about, these fields are not as "good" as 
 ## known empty fields)
@@ -27,7 +26,7 @@ from gudrun_p_shortestpaths import AllShortestPaths
 class FastPlayer(Player):
 	
 	def reset(self, player_id, max_players, width, height):
-		self.printDebugMessages = True  # set to true to get a lot of print statements from this robot
+		self.printDebugMessages = False  # set to true to get a lot of print statements from this robot
 		self.player_name = "goGetter" # nameFromPlayerId(player_id)
 		self.player_id = player_id
 		self.rememberedMap = Map(width, height)  # locally saved map that will remember all Tiles we have already seen
@@ -97,8 +96,9 @@ class FastPlayer(Player):
 			fullPath = paths.randomShortestPathFrom(currentPosition)
 			fullPath = fullPath[1:]  # (I think this is because we calculate the path from the gold to the
 			fullPath.append(goldCoords)  ## player instead of the other way round)
-			self._debugMessage("Gold is at: " + str(goldCoords))
-			self._debugMessage("Shortest path to gold:\n" + str(fullPath))
+			self._debugMessage(str(goldInPot) + " gold is at: " + str(goldCoords))
+			self._debugMessage("Shortest path to gold: " + str(fullPath))
+			self._debugMessage("Length of shortest path to gold: " + str(len(fullPath)))
 			chosenPath = self._movesOnKnownTiles(status, fullPath)
 			self._debugMessage("Part of shortest path that is on known tiles: " + str(chosenPath))
 
@@ -156,40 +156,13 @@ class FastPlayer(Player):
 				return self._as_directions(currentPosition, chosenPath)
 		except Exception as e:
 			self._debugMessage("Exception: " + str(e))
+			print(self.player_name, " threw an Exception: ", str(e))
 			return []
 		
 
 
 	# ----- Helper Functions: -----
 
-	"""
-
-	def _as_direction(self,curpos,nextpos):
-		#print("curpos = ", curpos)
-		#print("nextpos = ", nextpos)
-		for d in D:
-			diff = d.as_xy()
-			#print("for d = ", d, "aka diff = ", diff)
-			#print("curpos[0] + diff[0], curpos[1] + diff[1] = " , curpos[0] + diff[0], curpos[1] + diff[1])
-			if (curpos[0] + diff[0], curpos[1] + diff[1]) ==  nextpos:
-				return d
-		return None
-
-	def _as_directions(self,curpos,path):
-		# (zip: list of tuples, in this case tuples of tuples ((x1, y1),(x2, y2)), ((x2,y2),(x3,y3)), ... ?)
-		return [self._as_direction(x,y) for x,y in zip([curpos]+path,path)]
-
-	def _costOfMoves(self, numMoves):
-		# Gauss summation of all numbers 0 to numMoves:
-		cost = (numMoves + 1) * numMoves/2.0
-		return cost
-		
-	def _debugMessage(self, message):
-		if self.printDebugMessages:
-			time.sleep(0.00000001)
-			print(self.player_name, ": ", message)
-			
-	"""
 
 	
 	def _movesOnKnownTiles(self, status, coordinatePath):
@@ -222,21 +195,6 @@ class FastPlayer(Player):
 		#self._debugMessage("_saveSomeGold: new path is " + str(newPath))
 		return newPath
 
-	def _avoidPlayerCollisions(self, oldPath):
-		newPath = list()
-		for coords in oldPath:
-			if self.rememberedMap[coords].obj is None:  # empty fields can be one the path
-				newPath.append(coords)
-			elif self.rememberedMap[coords].obj.is_player():
-				if self.rememberedMap[coords].obj.is_player(self.player_id):  # my own player is not an obstacle
-					newPath.append(coords)
-				else :  # other players should not be appended to path
-					self._debugMessage("There is another player in my way: Player " + str(self.rememberedMap[coords].obj) + " is at coordinates " + str(coords))
-					return newPath
-			else: # non-empty fields with no players on them, i.e. gold
-				newPath.append(coords)
-		return newPath
-
 
 
 
@@ -253,11 +211,11 @@ class WaitingPlayer(Player):
 		self.player_name = "waitingWalter" # nameFromPlayerId(player_id)
 		self.player_id = player_id
 		self.rememberedMap = Map(width, height)  # locally saved map that will remember all Tiles we have already seen
-		self.printDebugMessages = True # set to true to get a lot of print statements from this robot
+		self.printDebugMessages = False # set to true to get a lot of print statements from this robot
 	
 	def round_begin(self, r):
 		self._debugMessage("RBegin " + str(r) + ". I am player " + str(self.player_id) + ".")
-		pass
+		#pass
 	
 	
 	def move(self, status):
@@ -310,8 +268,9 @@ class WaitingPlayer(Player):
 			chosenPath = paths.shortestPathFrom(currentPosition)
 			chosenPath = chosenPath[1:]  # (I think this is because we calculate the path from the gold to the
 			chosenPath.append(goldCoords)  ## player instead of the other way round)
-			self._debugMessage("Gold is at: " + str(goldCoords))
-			self._debugMessage("Shortest path to gold:\n" + str(chosenPath))
+			self._debugMessage(str(goldInPot) + " gold is at: " + str(goldCoords))
+			self._debugMessage("Shortest path to gold: " + str(chosenPath))
+			self._debugMessage("Length of shortest path to gold: " + str(len(chosenPath)))
 
 			# -- check if a player is in my way: --
 			if self._isPathClear(chosenPath) == False:
@@ -331,6 +290,7 @@ class WaitingPlayer(Player):
 
 		except Exception as e:
 			self._debugMessage("Exception: " + str(e))
+			print(self.player_name, " threw an Exception: ", str(e))
 			return []
 
 
@@ -369,36 +329,112 @@ class WaitingPlayer(Player):
 		return isPathClear
 
 
-		
-	# -- from FastPlayer: --
 
-"""
 
-	def _debugMessage(self, message):
-		if self.printDebugMessages:
-			print(self.player_name, ": ", message)
-	
-	def _as_direction(self,curpos,nextpos):
-		#print("curpos = ", curpos)
-		#print("nextpos = ", nextpos)
-		for d in D:
-			diff = d.as_xy()
-			#print("for d = ", d, "aka diff = ", diff)
-			#print("curpos[0] + diff[0], curpos[1] + diff[1] = " , curpos[0] + diff[0], curpos[1] + diff[1])
-			if (curpos[0] + diff[0], curpos[1] + diff[1]) ==  nextpos:
-				return d
-		return None
+# --------------------------------------------------------------------------
 
-	def _as_directions(self,curpos,path):
-		# (zip: list of tuples, in this case tuples of tuples ((x1, y1),(x2, y2)), ((x2,y2),(x3,y3)), ... ?)
-		return [self._as_direction(x,y) for x,y in zip([curpos]+path,path)]
-	
-	def _costOfMoves(self, numMoves):
-		# Gauss summation of all numbers 0 to numMoves:
-		cost = (numMoves + 1) * numMoves/2.0
-		return cost
-"""
+
+
+
+
+class CleverPlayer(Player):
+
+	def reset(self, player_id, max_players, width, height):
+		self.player_name = "CarefulCarla"  # nameFromPlayerId(player_id)
+		self.player_id = player_id
+		self.rememberedMap = Map(width, height)  # locally saved map that will remember all Tiles we have already seen
+		self.winMargin = 50  # how much gold-profit is required for it to be worth it to go after the gold
+		self.printDebugMessages = True  # set to true to get a lot of print statements from this robot
+
+	def round_begin(self, r):
+		self._debugMessage("RBegin " + str(r) + ". I am player " + str(self.player_id) + ".")
+		# pass
+
+	def move(self, status):
+		try:
+
+			# -- update the map that the robot saves with information from the server: --
+			for x in range(self.rememberedMap.width):
+				for y in range(self.rememberedMap.height):
+					if status.map[x, y].status != TileStatus.Unknown:  # map[x,y].status is an enum: Unknown, Empty, Wall, Mine
+						self.rememberedMap[x, y].status = status.map[x, y].status
+					if status.map[x, y].obj is not None:
+						self.rememberedMap[x, y].obj = status.map[x, y].obj
+					else:
+						self.rememberedMap[x, y].obj = None
+			self._debugMessage("Remembered Map:\n" + str(self.rememberedMap))
+
+			# -- Do not move if you are too weak to move (that would only waste money since you still pay) --
+			if status.health < status.params.minMoveHealth:
+				self._debugMessage("Health is too low to move so no movements sent.")
+				return list()
+
+			# -- Set some useful variables: --
+			currentPosition = (status.x, status.y)
+			assert len(status.goldPots) > 0
+			goldCoords = next(iter(status.goldPots))  # the dictionary status.goldPots ( (x,y) -> amount) has
+			## only one entry. Iter iterates over the keys (coordinates), but here I only have 1 pair of coordinates.
+			goldInPot = list(status.goldPots.values())[0]  # so this is a list with only one entry (?), and the entry is the amount of gold.
+
+			# -- calculate desired path: --
+			paths = AllShortestPaths(goldCoords, self.rememberedMap, self.player_id, withPlayersAsWalls=False)
+			fullPath = paths.randomShortestPathFrom(currentPosition)
+			fullPath = fullPath[1:]  # (I think this is because we calculate the path from the gold to the
+			fullPath.append(goldCoords)  ## player instead of the other way round)
+			self._debugMessage(str(goldInPot) + " gold is at: " + str(goldCoords))
+			self._debugMessage("Shortest path to gold: " + str(fullPath))
+			self._debugMessage("Length of shortest path to gold: " + str(len(fullPath)))
+
+			# -- how many moves should I make this round to reach my winMargin? Split path into sections of same length to minimize cost: --
+			fullPathLength = len(fullPath)
+			if fullPathLength > status.gold - self.winMargin:
+				self._debugMessage("The gold is too far away to be worth getting even if I only move one field per round. (Length of shortest path = " + str(len(fullPath)) + ")")
+				return []
+			chosenPath = list()
+			for numberOfSegments in range(1, fullPathLength+1):  # numberOfSegments is usually actually the number of segments minus one,
+				## since the last segment which might be a bit shorter must still be added (if not exactly divisible)
+				partialPathLength = fullPathLength // numberOfSegments
+				partialPathCost = self._costOfMoves(partialPathLength)
+				lastPathSegmentLength = fullPathLength % numberOfSegments
+				lastPathSegmentCost = self._costOfMoves(lastPathSegmentLength)
+				totalCost = partialPathCost * numberOfSegments + lastPathSegmentCost
+				if goldInPot - totalCost >= self.winMargin:
+					if totalCost < status.gold + numberOfSegments:  # check if I have enough gold for the whole path (add number of segments since I get one gold each round)
+						chosenPath = fullPath[0:partialPathLength]
+						self._debugMessage("Going to gold is worth it if I split path into " + str(numberOfSegments) + " segments. (total cost: " + str(totalCost) + " )")
+						break
+					else:
+						self._debugMessage("Not enough gold to split the path into " + str(numberOfSegments) + " segments. (total cost would be: " + str(totalCost) + " )")
+			if chosenPath == []:
+				self._debugMessage("The gold is too far away to be worth getting. (Length of shortest path = " + str(len(fullPath)) + ")")
+				return []
+
+
+			# -- Take into account rounds that gold will still be on map --
+			if len(chosenPath) > 0 and (len(fullPath) / len(chosenPath)) + 1 >= status.goldPotRemainingRounds:
+				self._debugMessage("The gold will be gone in " + str(status.goldPotRemainingRounds) + ", I probably won't reach it in time, so I wait instead.")
+				return []
+
+			# -- check that I dont run into other players: --
+			chosenPath = self._avoidPlayerCollisions(chosenPath)
+			if chosenPath == []:
+				self._debugMessage("There is another player blocking the path. No movements sent.")
+				return []
+
+
+			# -- return moves to simulator: --
+			self._debugMessage("Path I buy for " + str(self._costOfMoves(len(chosenPath))) + " gold: " + str(chosenPath) + "\n = " + str(self._as_directions(currentPosition, chosenPath)))
+			return self._as_directions(currentPosition, chosenPath)
+
+		except Exception as e:
+			print(self.player_name, " threw an Exception: ", str(e))
+			self._debugMessage("Exception: " + str(e))
+			return []
+
+
+
+
 		
 #players = [FastPlayer()]
 #players = [WaitingPlayer()]
-players = [FastPlayer(), WaitingPlayer()]
+players = [FastPlayer(), WaitingPlayer(), CleverPlayer()]

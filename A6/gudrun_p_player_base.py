@@ -63,3 +63,20 @@ class Player(object):
 		# Gauss summation of all numbers 0 to numMoves:
 		cost = (numMoves + 1) * numMoves / 2.0
 		return cost
+
+
+	def _avoidPlayerCollisions(self, oldPath):  # If there is another player exactly on my path,
+		## this function returns a new path that stops just before the field where the other player is.
+		newPath = list()
+		for coords in oldPath:
+			if self.rememberedMap[coords].obj is None:  # empty fields can be one the path
+				newPath.append(coords)
+			elif self.rememberedMap[coords].obj.is_player():
+				if self.rememberedMap[coords].obj.is_player(self.player_id):  # my own player is not an obstacle
+					newPath.append(coords)
+				else :  # other players should not be appended to path
+					self._debugMessage("There is another player in my way: Player " + str(self.rememberedMap[coords].obj) + " is at coordinates " + str(coords))
+					return newPath
+			else: # non-empty fields with no players on them, i.e. gold
+				newPath.append(coords)
+		return newPath
