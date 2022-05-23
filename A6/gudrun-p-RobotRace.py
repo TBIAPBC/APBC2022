@@ -338,8 +338,9 @@ class CleverPlayer(Player):
 		self.player_id = player_id
 		self.rememberedMap = Map(width, height)  # locally saved map that will remember all Tiles we have already seen
 		self.winMargin = 50  # how much gold-profit is required for it to be worth it to go after the gold
-		self.printDebugMessages = True  # set to true to get a lot of print statements from this robot
 		self.wasPlayerInMyWay = False  # to go around a player that doesnt move
+		self.printDebugMessages = False  # set to true to get a lot of print statements from this robot
+
 
 	def round_begin(self, r):
 		self._debugMessage("RBegin " + str(r) + ". I am player " + str(self.player_id) + ".")
