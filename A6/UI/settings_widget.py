@@ -66,14 +66,28 @@ class WidgetSettings(QWidget, DarkQSS):
         # set seed -> label - line edit
         """planned"""
 
+
+        # button play
+        self.button_play = QPushButton()
+        self.button_play.setText("Play")
+        self.button_play.setFont(self.font_1)
+        self.button_play.setStyleSheet(self.craftStyleSheet)
+        self.button_play.setMinimumSize(120, 60)
+        self.button_play.setMaximumSize(120, 60)
+        self.button_play.setCursor(QCursor(Qt.PointingHandCursor))
+
         # spacer
-        self.spacer = QSpacerItem(0, 20, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.spacer_1 = QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.spacer_2 = QSpacerItem(0, 40, QSizePolicy.Minimum, QSizePolicy.Minimum)
 
         # add to layout
         self.lay_gb.addRow(self.label_robots, self.widget_robots)
         self.lay_gb.addRow(self.label_map, self.widget_map)
         self.lay_gb.addRow(self.label_rounds, self.line_rounds)
-        self.lay_gb.addItem(self.spacer)
+        self.lay_gb.addItem(self.spacer_1)
+
+        self.main_lay.addWidget(self.button_play, 0, Qt.AlignHCenter)
+        self.main_lay.addItem(self.spacer_2)
 
     def validate_input(self):
         pass
