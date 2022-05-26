@@ -373,7 +373,6 @@ class SizeGripTop(QWidget):
         # resize
         current_pos = event.globalPos()
         distance = current_pos.y() - self.point_init.y()
-        print(distance)
         self.main_window.setGeometry(self.main_window.geometry().adjusted(0, distance, 0, 0))
 
         # init new reference position
@@ -405,7 +404,6 @@ class SizeGripLeft(QWidget):
             return
 
         if self.main_window.minimumWidth() == self.main_window.geometry().width():
-            print(self.main_window.geometry().x(), self.main_window.width(), event.globalPos().x())
             if self.main_window.geometry().x() < event.globalPos().x():
                 return
 
@@ -474,7 +472,7 @@ class DarkQSS:
                                 "QPushButton:pressed{background-color: rgb(211, 175, 255);color: rgb(0, 0, 0);" \
                                 "border: 2px solid rgb(22, 22, 22);border-radius: 2px;}"
 
-        self.mainStyleSheet = "QWidget{background-color: rgb(39, 39, 39);color: rgb(230, 230, 230); " \
+        self.mainStyleSheet = "QWidget{background-color: rgb(31, 31, 32);color: rgb(230, 230, 230); " \
                               "border-radius: 0px;}"
 
         self.basicWidgetStyleSheet = "QWidget{background-color: rgb(39, 39, 39);color: rgb(230, 230, 230);" \
@@ -511,13 +509,13 @@ class DarkQSS:
 
         self.checkBoxStyleSheet = "QCheckBox::indicator {width: 13px;height: 13px; border-radius: 0px;}" \
                                   "QCheckBox::indicator:unchecked {image: " \
-                                  "url(./resources/images/checkbox/empty_nohover.png);}" \
+                                  "url(./UI/resources/images/checkbox/empty_nohover.png);}" \
                                   "QCheckBox::indicator:unchecked:hover " \
-                                  "{image: url(./resources/images/checkbox/empty_hover.png);}" \
+                                  "{image: url(./UI/resources/images/checkbox/empty_hover.png);}" \
                                   "QCheckBox::indicator:checked {image: " \
-                                  "url(./resources/images/checkbox/filled_nohover.png);}" \
+                                  "url(./UI/resources/images/checkbox/filled_nohover.png);}" \
                                   "QCheckBox::indicator:checked:hover {image: " \
-                                  "url(./resources/images/checkbox/filled_hover2.png);}"
+                                  "url(./UI/resources/images/checkbox/filled_hover2.png);}"
 
         self.scrollStyleSheet = "QWidget{border-top: 1px solid rgb(230, 230, 230);" \
                                 "border-bottom: 1px solid rgb(230, 230, 230);}" \
@@ -569,13 +567,13 @@ class DarkQSS:
                              "border-right: 0px solid rgb(230, 230, 230);border-top: 0px solid rgb(230, 230, 230);" \
                              "border-bottom: 0px solid rgb(230, 230, 230);" \
                              "background: rgb(69,69,69);height: 15px;subcontrol-position: bottom;" \
-                             "subcontrol-origin: margin;image: url(./resources/images/misc/arrow_downs.png);}" \
+                             "subcontrol-origin: margin;image: url(./UI/resources/images/misc/arrow_downs.png);}" \
  \
                              "QScrollBar::sub-line:vertical {border-left: 0px solid rgb(230, 230, 230);" \
                              "border-top: 0px solid rgb(230, 230, 230);border-right: 0px solid rgb(230, 230, 230);" \
                              "border-bottom: 0px solid rgb(230, 230, 230);" \
                              "background: rgb(69,69,69);height: 15px;subcontrol-position: top;" \
-                             "subcontrol-origin: margin;image: url(./resources/images/misc/arrow_ups.png);}" \
+                             "subcontrol-origin: margin;image: url(./UI/resources/images/misc/arrow_ups.png);}" \
  \
                              "QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {background: none;}"
 
@@ -608,7 +606,7 @@ class DarkQSS:
                                   "border: 2px solid rgb(69,69,69); border-radius: 0px;}" \
                                   "QWidget:hover{background-color: rgb(54, 54, 54);color: rgb(230, 230, 230);" \
                                   "border: 2px solid rgb(76,76,76);}" \
-                                  "QComboBox::down-arrow {image: url(./resources/images/misc/arrow_downs.png);}" \
+                                  "QComboBox::down-arrow {image: url(./UI/resources/images/misc/arrow_downs.png);}" \
                                   "QComboBox::drop-down {border: 0px solid black;subcontrol-origin: padding;" \
                                   "subcontrol-position: top right;width: 20px;}"
 

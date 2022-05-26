@@ -165,10 +165,26 @@ class MainUI(DarkQSS):
         self.lay_title_bar.addWidget(self.button_title_bar_exit)
 
         ### content widget
+        # setup
         self.content_widget = QWidget(self.widget_main)
         self.lay_main.addWidget(self.content_widget)
         self.lay_shadow_frame.addWidget(self.widget_main)
         self.lay_central_grid.addWidget(self.frame_shadow, 1, 3, 1, 1)
+        # create layout
+        self.lay_content = QVBoxLayout()
+        self.lay_content.setContentsMargins(0, 0, 0, 0)
+        self.lay_content.setSpacing(0)
+        self.content_widget.setLayout(self.lay_content)
+
+        self.content_widget.setStyleSheet(self.mainStyleSheet)
+
+        ### content widgets
+        # settings
+        self.widget_settings = WidgetSettings(self)
+        self.lay_content.addWidget(self.widget_settings)
+
+
+
 
         self.parent.setCentralWidget(self.centralwidget)
         QMetaObject.connectSlotsByName(self.parent)

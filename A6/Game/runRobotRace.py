@@ -9,14 +9,12 @@ from Game.game_utils import Tile, TileStatus, TileObject
 from Game.game_utils import Map, Status
 from Game.simulator import Simulator
 from Game.player_base import Player
+from Game.register_robots import robot_module_names
 
 
 def main(map_, density, viz, fps, number):
 
-    robot_module_names = {"Test":"Game.test-RobotRace",
-                  "Beatme": "Game.beatme-RobotRace"}
-
-    robotmodules = { m:import_module(m) for m in robot_module_names.values() }
+    robotmodules = {m: import_module(m) for m in robot_module_names.values()}
 
     if map_ is not None:
        m = Map.read(map_)
