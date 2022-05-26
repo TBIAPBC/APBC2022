@@ -66,7 +66,6 @@ class WidgetSettings(QWidget, DarkQSS):
         # set seed -> label - line edit
         """planned"""
 
-
         # button play
         self.button_play = QPushButton()
         self.button_play.setText("Play")

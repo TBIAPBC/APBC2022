@@ -5,6 +5,7 @@ import sys
 
 from UI.misc_widgets import *
 from UI.settings_widget import WidgetSettings
+from UI.game_widget import WidgetGame
 from UI.scoreboard_widget import WidgetScoreboard
 from UI.map_widget import WidgetMap
 from UI.finish_widget import WidgetFinish
@@ -16,13 +17,6 @@ class MainUI(DarkQSS):
         super().__init__()
         self.parent = parent
         self.setup_ui()
-
-        ### save widgets in ui
-        self.widget_settings = None
-        self.widget_map = None
-        self.widget_finish = None
-        self.widget_tools = None
-        self.widget_scoreboard = None
 
         # stuff
         self.is_maximized = False
@@ -178,22 +172,30 @@ class MainUI(DarkQSS):
 
         self.content_widget.setStyleSheet(self.mainStyleSheet)
 
-        ### content widgets
+        ##### content widgets #####
         # settings
         self.widget_settings = WidgetSettings(self)
         self.lay_content.addWidget(self.widget_settings)
 
-
-
+        # game
+        self.widget_game = WidgetGame(self)
+        self.lay_content.addWidget(self.widget_game)
+        self.widget_game.hide()
 
         self.parent.setCentralWidget(self.centralwidget)
         QMetaObject.connectSlotsByName(self.parent)
 
-        ##################################
+        ####################################################################################
         # connect buttons
+        ####################################################################################
+        # title bar
         self.button_title_bar_minimize.clicked.connect(self.btn_minimize)
         self.button_title_bar_exit.clicked.connect(self.btn_exit)
         self.button_title_bar_maximize.clicked.connect(self.btn_maximize)
+
+        # widgets
+        self.widget_settings.button_play.clicked.connect(self.__wdgt_settings_play)
+
 
     def btn_exit(self):
         sys.exit(self.parent.app.exec_())
@@ -234,4 +236,8 @@ class MainUI(DarkQSS):
         self.resize_BL.hide()
         self.resize_TL.hide()
         self.resize_TR.hide()
+
+    def __wdgt_settings_play(self):
+        self.widget_settings.hide()
+        self.widget_game.show()
 

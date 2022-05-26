@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import random
-import argparse
 from importlib import import_module
 
 from Game.game_utils import nameFromPlayerId
