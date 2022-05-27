@@ -173,15 +173,19 @@ class MainUI(DarkQSS):
         self.content_widget.setStyleSheet(self.mainStyleSheet)
 
         ##### content widgets #####
-        # settings
+        ### settings
         self.widget_settings = WidgetSettings(self)
         self.lay_content.addWidget(self.widget_settings)
 
-        # game
+        ### game
         self.widget_game = WidgetGame(self)
         self.lay_content.addWidget(self.widget_game)
         self.widget_game.hide()
 
+        ### Map
+        """Map widget here"""
+
+        ##### window-ui / signal-slot connections #####
         self.parent.setCentralWidget(self.centralwidget)
         QMetaObject.connectSlotsByName(self.parent)
 
@@ -194,8 +198,7 @@ class MainUI(DarkQSS):
         self.button_title_bar_maximize.clicked.connect(self.btn_maximize)
 
         # widgets
-        self.widget_settings.button_play.clicked.connect(self.__wdgt_settings_play)
-
+        self.widget_settings.button_play.clicked.connect(self.__btn_wdgt_settings_play)
 
     def btn_exit(self):
         sys.exit(self.parent.app.exec_())
@@ -237,7 +240,11 @@ class MainUI(DarkQSS):
         self.resize_TL.hide()
         self.resize_TR.hide()
 
-    def __wdgt_settings_play(self):
+    def __btn_wdgt_settings_play(self):
+        if self.widget_settings.validator() is False:
+            return
+        self.settings = self.widget_settings.get_settings()
+
         self.widget_settings.hide()
         self.widget_game.show()
 

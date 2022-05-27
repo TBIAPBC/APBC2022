@@ -93,6 +93,30 @@ class RoundData:
         fig.savefig(title, bbox_inches="tight", pad_inches=0.02)
 
 
+class Settings:
+    def __init__(self):
+        # map
+        self.random_map = True
+        self.random_width = None
+        self.random_height = None
+        self.random_density = None
+        self.preset_map = None
+
+        # robots
+        self.robots = []
+
+        # rounds
+        self.rounds = 1000
+
+    def __str__(self):
+        if self.random_map is True:
+            s = f"width: {self.random_width}, y: {self.random_height}, d: {self.random_density}, " \
+                f"robots: {self.robots}, rounds: {self.rounds}"
+        else:
+            s = f"preset: {self.preset_map}, robots: {self.robots}, rounds: {self.rounds}"
+        return s
+
+
 class ImageHandler:
     def __init__(self):
         pass

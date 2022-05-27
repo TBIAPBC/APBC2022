@@ -4,6 +4,7 @@ Widget to set up game
 import os
 from UI.misc_widgets import *
 from Game.register_robots import robot_module_names
+from Util.interface import Settings
 
 
 class WidgetSettings(QWidget, DarkQSS):
@@ -88,8 +89,81 @@ class WidgetSettings(QWidget, DarkQSS):
         self.main_lay.addWidget(self.button_play, 0, Qt.AlignHCenter)
         self.main_lay.addItem(self.spacer_2)
 
-    def validate_input(self):
-        pass
+    def validator(self):
+        # no robots selected
+        count = 0
+        for cbox in self.widget_robots.check_bots:
+            if cbox.isChecked():
+               count += 1
+        if count < 2:
+            # show error message here
+            return False
+
+        # wrong random values
+        if self.widget_map.random_map:
+            w = self.widget_map.line_width.text()
+            h = self.widget_map.line_height.text()
+            d = self.widget_map.line_density.text()
+            # width
+            if not w.isnumeric() and not w == "":
+                # show error message
+                return False
+            # height
+            if not h.isnumeric() and not h == "":
+                # show error message
+                return False
+            # density
+            if not d == "":
+                try:
+                    float(d)
+                except ValueError:
+                    # show error mesage
+                    return False
+
+        # rounds
+        rounds = self.line_rounds.text()
+        if not rounds == "" and not rounds.isdigit():
+            return False
+
+        return True
+
+    def get_settings(self):
+        # fill settings calsss to return settings condensed
+        settings = Settings()
+        ### robots
+        for cbox in self.widget_robots.check_bots:
+            if cbox.isChecked():
+                settings.robots.append(cbox.text())
+
+        ### map
+        if self.widget_map.random_map is True:
+            w = self.widget_map.line_width.text()
+            h = self.widget_map.line_height.text()
+            d = self.widget_map.line_density.text()
+
+            # width
+            if w.isdigit():
+                settings.random_width = int(w)
+
+            # height
+            if h.isdigit():
+                settings.random_height = int(h)
+
+            # density
+            if not d == "":
+                settings.random_density = float(d)
+
+        else:
+            settings.random_map = False
+            i_map = self.widget_map.swidget_preset.currentIndex()
+            settings.preset_map = self.widget_map.options_map[i_map]
+
+        ### rounds
+        rounds = self.line_rounds.text()
+        if rounds.isdigit():
+            settings.rounds = rounds
+
+        return settings
 
 
 class WidgetRobots(QScrollArea, DarkQSS):
@@ -137,10 +211,11 @@ class MapWidget(QWidget, DarkQSS):
         super().__init__()
         self.random_map = True
         self.chosen_map = None
-        self.random_x_y_d = []
 
         self.options_select = ["Random Map", "Preset Map"]
         self.options_map = []
+
+        self.random_params = []
 
         self.__read_maps()
         self.__setup()
