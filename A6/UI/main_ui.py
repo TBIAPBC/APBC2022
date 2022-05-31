@@ -183,7 +183,11 @@ class MainUI(DarkQSS):
         self.widget_game.hide()
 
         ### Map
-        """Map widget here"""
+        self.map_widget = WidgetMap(self)
+        self.widget_game.lay_left.addWidget(self.map_widget)
+
+        """TEST"""
+        self.map_widget.display_img_round(1)
 
         ##### window-ui / signal-slot connections #####
         self.parent.setCentralWidget(self.centralwidget)
