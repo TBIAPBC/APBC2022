@@ -242,7 +242,7 @@ class Simulator(object):
 			def ask():
 				q.put( list(self._players[pId].move(self._pubStat[pId])) )
 
-			p = multiprocessing.Process(target=ask)
+			p = multiprocessing.Process(target=ask())
 			p.start()
 			moves = q.get(timeout = self.params.moveTimeout)
 
