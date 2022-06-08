@@ -24,7 +24,6 @@ class WidgetGame(QWidget, DarkQSS):
         ### left widget
         # widget
         self.widget_left = QWidget()
-        self.widget_left.setStyleSheet(self.basicWidgetStyleSheet)  # only to debug!!!
 
         # layout
         self.lay_left = QVBoxLayout()
@@ -35,7 +34,6 @@ class WidgetGame(QWidget, DarkQSS):
         ### right widget
         # widget
         self.widget_right = QWidget()
-        self.widget_right.setStyleSheet(self.basicWidgetStyleSheet)  # only to debug!!!
 
         # layout
         self.lay_right = QVBoxLayout()

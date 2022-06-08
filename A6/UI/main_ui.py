@@ -186,6 +186,10 @@ class MainUI(DarkQSS):
         self.map_widget = WidgetMap(self)
         self.widget_game.lay_left.addWidget(self.map_widget)
 
+        ### tools and scoreboard
+        self.tools = WidgetTools()
+        self.widget_game.lay_right.addWidget(self.tools)
+
         """TEST"""
         self.map_widget.display_img_round(1)
 
@@ -203,7 +207,11 @@ class MainUI(DarkQSS):
 
         # widgets
         self.widget_settings.button_play.clicked.connect(self.__btn_wdgt_settings_play)
+        self.tools.button_play.clicked.connect(self.__btn_tools_play)
+        self.tools.button_break.clicked.connect(self.__btn_tools_break)
+        self.tools.button_reset.clicked.connect(self.__btn_tools_reset)
 
+    ### button functions
     def btn_exit(self):
         sys.exit(self.parent.app.exec_())
 
@@ -219,6 +227,15 @@ class MainUI(DarkQSS):
 
     def btn_minimize(self):
         self.parent.showMinimized()
+
+    def __btn_tools_play(self):
+        self.tools.change_play_pause()
+
+    def __btn_tools_break(self):
+        pass
+
+    def __btn_tools_reset(self):
+        pass
 
     def __show_resize(self):
         self.lay_central_grid.setContentsMargins(5, 5, 5, 5)

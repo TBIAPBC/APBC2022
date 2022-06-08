@@ -26,3 +26,4 @@ class WidgetMap(QWidget, DarkQSS):
         pixmap = QPixmap(f"./Tmp/sim_{round_no}.png")
         self.label_img.setPixmap(pixmap)
 
+

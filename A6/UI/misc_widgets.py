@@ -632,3 +632,19 @@ class DarkQSS:
                                  "QWidget:hover{color: rgb(39, 39, 39);}"
 
         self.qss_debug = "QWidget{background-color: rgb(255, 0, 0);}"
+
+        self.qss_button_play = "QPushButton{ background-image: url(./UI/resources/images/button/play_idle.png);}" \
+                               "QPushButton::hover{ background-image: url(./UI/resources/images/button/play_hover.png);}" \
+                               "QPushButton::pressed{ background-image: url(./UI/resources/images/button/play_press.png);}"
+
+        self.qss_button_pause = "QPushButton{ background-image: url(./UI/resources/images/button/pause_idle.png);}" \
+                                "QPushButton::hover{ background-image: url(./UI/resources/images/button/pause_hover.png);}" \
+                                "QPushButton::pressed{ background-image: url(./UI/resources/images/button/pause_press.png);}"
+
+        self.qss_button_break = "QPushButton{ background-image: url(./UI/resources/images/button/break_idle.png);}" \
+                                "QPushButton::hover{ background-image: url(./UI/resources/images/button/break_hover.png);}" \
+                                "QPushButton::pressed{ background-image: url(./UI/resources/images/button/break_press.png);}"
+
+        self.qss_button_reset = "QPushButton{ background-image: url(./UI/resources/images/button/reset_idle.png);}" \
+                                "QPushButton::hover{ background-image: url(./UI/resources/images/button/reset_hover_pressed.png);}" \
+                                "QPushButton::pressed{ background-image: url(./UI/resources/images/button/reset_hover_pressed.png);}"
