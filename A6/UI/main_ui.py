@@ -183,7 +183,7 @@ class MainUI(DarkQSS):
         self.widget_game.hide()
 
         ### Map
-        self.map_widget = WidgetMap(self)
+        self.map_widget = WidgetMap(self, self.widget_game.widget_left)
         self.widget_game.lay_left.addWidget(self.map_widget)
 
         ### tools and scoreboard

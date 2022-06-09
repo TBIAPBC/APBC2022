@@ -24,6 +24,7 @@ class WidgetGame(QWidget, DarkQSS):
         ### left widget
         # widget
         self.widget_left = QWidget()
+        self.widget_left.setMinimumSize(550, 550)
 
         # layout
         self.lay_left = QVBoxLayout()
