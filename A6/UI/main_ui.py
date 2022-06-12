@@ -185,13 +185,24 @@ class MainUI(DarkQSS):
         ### Map
         self.map_widget = WidgetMap(self, self.widget_game.widget_left)
         self.widget_game.lay_left.addWidget(self.map_widget)
+        self.map_widget.hide()
 
-        ### tools and scoreboard
+        ### scoreboard
+        self.widget_scoreboard = WidgetScoreboard(self, player_count=4)
+        self.widget_game.lay_right.addWidget(self.widget_scoreboard)
+
+        # spacer
+        self.spacer_right = QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.widget_game.lay_right.addItem(self.spacer_right)
+
+        ### tools
         self.tools = WidgetTools()
         self.widget_game.lay_right.addWidget(self.tools)
 
-        """TEST"""
-        self.map_widget.display_img_round(1)
+        ### finish screen widget
+        self.widget_finish = WidgetFinish(self)
+        self.widget_game.lay_left.addWidget(self.widget_finish)
+        #self.widget_finish.hide()
 
         ##### window-ui / signal-slot connections #####
         self.parent.setCentralWidget(self.centralwidget)
@@ -210,6 +221,24 @@ class MainUI(DarkQSS):
         self.tools.button_play.clicked.connect(self.__btn_tools_play)
         self.tools.button_break.clicked.connect(self.__btn_tools_break)
         self.tools.button_reset.clicked.connect(self.__btn_tools_reset)
+        self.widget_finish.button_again.clicked.connect(self.__btn_wdgt_finish_play_again)
+        self.widget_finish.button_back.clicked.connect(self.__btn_wdgt_finish_change_settings)
+
+        #####################################################################################
+        # main game loop
+        #####################################################################################
+        ### start...
+
+        """TEST"""
+        round_ = 1
+        score_list = [
+            ["GodBot", 120030],
+            ["DeepBot", 14842],
+            ["SmartBot", 9387],
+            ["DumBot", 1]
+        ]
+        self.widget_scoreboard.update_scoreboard(score_list, round_)
+        self.map_widget.display_img_round(round_)
 
     ### button functions
     def btn_exit(self):
@@ -232,10 +261,10 @@ class MainUI(DarkQSS):
         self.tools.change_play_pause()
 
     def __btn_tools_break(self):
-        pass
+        print("-----------------------\nBREAK\n-----------------------")
 
     def __btn_tools_reset(self):
-        pass
+        print("-----------------------\nRESET\n-----------------------")
 
     def __show_resize(self):
         self.lay_central_grid.setContentsMargins(5, 5, 5, 5)
@@ -269,3 +298,11 @@ class MainUI(DarkQSS):
         self.widget_settings.hide()
         self.widget_game.show()
 
+    def __btn_wdgt_finish_play_again(self):
+        print("-----------------------\nPLAY AGAIN\n-----------------------")
+
+    def __btn_wdgt_finish_change_settings(self):
+        print("-----------------------\nBACK TO SETTINGS\n-----------------------")
+
+    def __block_tools(self): ...
+    def __unblock_tools(self): ...
