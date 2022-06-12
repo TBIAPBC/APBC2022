@@ -2,7 +2,7 @@
 import random
 from importlib import import_module
 
-from Game.game_utils import Map, Status
+from Game.game_utils import Map
 from Game.simulator import Simulator
 from Game.register_robots import robot_module_names
 

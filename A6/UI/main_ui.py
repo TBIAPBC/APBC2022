@@ -234,6 +234,7 @@ class MainUI(DarkQSS):
     # BUTTONS and METHODS
     ####################################################################################
     def btn_exit(self):
+        self.__del_images()
         sys.exit(self.parent.app.exec_())
 
     def btn_maximize(self):
@@ -254,9 +255,11 @@ class MainUI(DarkQSS):
 
     def __btn_tools_break(self):
         print("-----------------------\nBREAK\n-----------------------")
+        self.break_game()
 
     def __btn_tools_reset(self):
         print("-----------------------\nRESET\n-----------------------")
+        self.reset_game()
 
     def __show_resize(self):
         self.lay_central_grid.setContentsMargins(5, 5, 5, 5)
@@ -294,9 +297,11 @@ class MainUI(DarkQSS):
 
     def __btn_wdgt_finish_play_again(self):
         print("-----------------------\nPLAY AGAIN\n-----------------------")
+        self.play_again()
 
     def __btn_wdgt_finish_change_settings(self):
         print("-----------------------\nBACK TO SETTINGS\n-----------------------")
+        self.back_settings()
 
     def __block_tools(self):
         self.tools.button_play.blockSignals(True)
@@ -322,7 +327,7 @@ class MainUI(DarkQSS):
 
         # get settings for game
         round_numbers = int(self.settings.rounds)
-        fps = 8
+        fps = 6
 
         # display game
         for round_no in range(1, round_numbers + 1):
@@ -339,9 +344,14 @@ class MainUI(DarkQSS):
 
             # display internals !!!
             self.widget_scoreboard.update_scoreboard(score_list, round_no)
+
+            while not os.path.exists(f"./Tmp/sim_{round_no}.png"):
+                # trap here until img of current round exists
+                QCoreApplication.processEvents()
             self.map_widget.display_img_round(round_no)
 
             while len(self.stats) < round_no:
+                # trap here to wait for stats from game thread
                 QCoreApplication.processEvents()
 
             print(self.stats[round_no - 1])
@@ -368,9 +378,12 @@ class MainUI(DarkQSS):
 
     def game_play(self):
         ### run game internally, get stats and imgs
-        # setup map
 
         print(self.settings)
+
+        self.stats = []
+
+        # setup map
         if self.settings.random_map is True:
             game_map = game_utils.Map.makeRandom(width=self.settings.random_width, height=self.settings.random_height,
                                                  p=self.settings.random_density)
@@ -388,29 +401,40 @@ class MainUI(DarkQSS):
                 p.player_modname = name
                 self.thread_simulator.add_player(p)
 
-
-
-
         self.thread_simulator.start()
         self.thread_simulator.stats_round.connect(self.slot_append_stats)
 
+        QCoreApplication.processEvents()
+        time.sleep(1)
+        self.map_widget.label_img.show()
         self.game_show()
 
     def play_again(self):
         # after finish: delete stats, restart with same settings
-        pass
+        self.__unblock_tools()
+        self.widget_finish.hide()
+        self.map_widget.label_img.hide()
+        self.map_widget.show()
+        self.game_play()
 
     def back_settings(self):
         # after finish: delete stats, go back to settings
-        pass
+        self.__unblock_tools()
+        self.widget_finish.hide()
+        self.map_widget.label_img.hide()
+        self.map_widget.show()
+        self.widget_game.hide()
+        self.widget_settings.show()
 
     def reset_game(self):
         # stop game, delete stats and imgs, restart with same settings
-        pass
+        self.__del_images()
+        self.play_again()
 
     def break_game(self):
         # stop game, delete stats and imgs, go back to settings
-        pass
+        self.__del_images()
+        self.back_settings()
 
     def __del_image(self, round_):
         # del specific image in Tmp

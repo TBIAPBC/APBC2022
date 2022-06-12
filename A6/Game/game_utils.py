@@ -152,7 +152,7 @@ class Map(object):
 			self._data.append(row)
 
 	def __str__(self):
-		print
+		print()
 		return "\n".join(" ".join(str(tile) for tile in row) for row in reversed(self._data)) + "\n"
 
 	def __getitem__(self, coord):
@@ -234,7 +234,7 @@ class Map(object):
 		## assume that p is not too large; otherwise
 		## resampling is very uneffective
 
-		assert p<=0.4
+		assert p<=0.5
 
 		while True:
 			m = Map(width, height)
@@ -293,7 +293,7 @@ class GameParameters(object):
 		self.healthPerPlayerCrash = 15
 		self.healthPerPlayerCrashRandom = 5
 
-		self.moveTimeout = 2 # players get at most moveTimeout seconds to answer each move request
+		self.moveTimeout = 1/8 # players get at most moveTimeout seconds to answer each move request
 
 		self.mineExpiryTime = 3 # how many rounds do mines exist
 

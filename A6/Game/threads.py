@@ -190,7 +190,6 @@ class BackgroundGameThread(QThread):
             for i in range(len(self._players)):
                 temp = [nameFromPlayerId(i), self._status[i].gold]
                 stats.append(temp)
-            print(stats)
             self.stats_round.emit(stats)
 
             """###########################################################################################"""
