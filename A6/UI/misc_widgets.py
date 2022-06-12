@@ -646,5 +646,5 @@ class DarkQSS:
                                 "QPushButton::pressed{ background-image: url(./UI/resources/images/button/break_press.png);}"
 
         self.qss_button_reset = "QPushButton{ background-image: url(./UI/resources/images/button/reset_idle.png);}" \
-                                "QPushButton::hover{ background-image: url(./UI/resources/images/button/reset_hover_pressed.png);}" \
-                                "QPushButton::pressed{ background-image: url(./UI/resources/images/button/reset_hover_pressed.png);}"
+                                "QPushButton::hover{ background-image: url(./UI/resources/images/button/reset_hover.png);}" \
+                                "QPushButton::pressed{ background-image: url(./UI/resources/images/button/reset_pressed.png);}"
