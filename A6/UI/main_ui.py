@@ -27,6 +27,7 @@ class MainUI(DarkQSS):
         # stuff
         self.is_maximized = False
         self.stats = []
+        self.robots = []
 
     def setup_ui(self):
         self.parent.resize(900, 600)
@@ -194,7 +195,7 @@ class MainUI(DarkQSS):
         self.widget_game.lay_left.addWidget(self.map_widget)
 
         ### scoreboard
-        self.widget_scoreboard = WidgetScoreboard(self, player_count=4)
+        self.widget_scoreboard = WidgetScoreboard(self)
         self.widget_game.lay_right.addWidget(self.widget_scoreboard)
 
         # spacer
@@ -318,16 +319,18 @@ class MainUI(DarkQSS):
     ###########################################################################################
     def game_show(self):
         ##### testing:
-        score_list = [
-            ["GodBot", 120030],
-            ["DeepBot", 14842],
-            ["SmartBot", 9387],
-            ["DumBot", 1]
-        ]
 
         # get settings for game
         round_numbers = int(self.settings.rounds)
         fps = 6
+
+        # init and reset scoreboard widgets
+        QCoreApplication.processEvents()
+        for widget in self.widget_scoreboard.score_widgets:
+            widget.close()
+        for widget in self.widget_scoreboard.place_widgets:
+            widget.close()
+        self.widget_scoreboard.build_scoreboard(len(self.robots))
 
         # display game
         for round_no in range(1, round_numbers + 1):
@@ -343,8 +346,6 @@ class MainUI(DarkQSS):
             time_round_start = time.time()
 
             # display internals !!!
-            self.widget_scoreboard.update_scoreboard(score_list, round_no)
-
             while not os.path.exists(f"./Tmp/sim_{round_no}.png"):
                 # trap here until img of current round exists
                 QCoreApplication.processEvents()
@@ -354,7 +355,8 @@ class MainUI(DarkQSS):
                 # trap here to wait for stats from game thread
                 QCoreApplication.processEvents()
 
-            print(self.stats[round_no - 1])
+            stats_updated = sorted(self.stats[round_no - 1], key=lambda x: -x[1])
+            self.widget_scoreboard.update_scoreboard(stats_updated, self.robots, round_no)
 
             # remove old image
             if round_no > 1:
@@ -367,6 +369,10 @@ class MainUI(DarkQSS):
             if time_to_sleep > 0:
                 time.sleep(time_to_sleep)
 
+            # while time_to_sleep > 0:
+            #     time.sleep(0.1)
+            #     time_to_sleep -= 0.1
+
         # end of game
         self.__del_image(round_numbers + 1)  # delete last image
         self.__block_tools()  # block tools to avoid unintended behavior
@@ -378,9 +384,6 @@ class MainUI(DarkQSS):
 
     def game_play(self):
         ### run game internally, get stats and imgs
-
-        print(self.settings)
-
         self.stats = []
 
         # setup map
@@ -388,7 +391,7 @@ class MainUI(DarkQSS):
             game_map = game_utils.Map.makeRandom(width=self.settings.random_width, height=self.settings.random_height,
                                                  p=self.settings.random_density)
         else:
-            game_map = game_utils.Map.read(self.settings.preset_map)
+            game_map = game_utils.Map.read(f"./Maps/{self.settings.preset_map}")
 
         # run
         self.thread_simulator = threads.BackgroundGameThread(map_=game_map, fps=16, rounds=self.settings.rounds)
@@ -403,9 +406,10 @@ class MainUI(DarkQSS):
 
         self.thread_simulator.start()
         self.thread_simulator.stats_round.connect(self.slot_append_stats)
+        self.thread_simulator.robot_list.connect(self.slot_set_robots)
 
         QCoreApplication.processEvents()
-        time.sleep(1)
+        time.sleep(2.5)
         self.map_widget.label_img.show()
         self.game_show()
 
@@ -452,3 +456,6 @@ class MainUI(DarkQSS):
 
     def slot_append_stats(self, val):
         self.stats.append(val)
+
+    def slot_set_robots(self, val):
+        self.robots = val

@@ -5,12 +5,12 @@ from UI.misc_widgets import *
 
 
 class WidgetScoreboard(QWidget, DarkQSS):
-    def __init__(self, parent_ui,  player_count):
+    def __init__(self, parent_ui):
         super().__init__()
         self.parent_ui = parent_ui
-        self.player_count = player_count
 
         self.score_widgets = []
+        self.place_widgets = []
 
         self.qss_first = "QWidget{background-color: rgba(0, 0, 0, 0);border: 2px solid rgba(0, 0, 0, 0); " \
                          "border-radius: 0px; color: rgb(3, 255, 233);}"
@@ -73,6 +73,10 @@ class WidgetScoreboard(QWidget, DarkQSS):
         self.lay_gb.setContentsMargins(9, 9, 9, 9)
         self.gb_scoreboard.setLayout(self.lay_gb)
 
+    def build_scoreboard(self, player_count):
+        self.score_widgets = []
+        self.place_widgets = []
+        self.player_count = player_count
         for i in range(self.player_count):
             label_place = QLabel()
 
@@ -90,9 +94,10 @@ class WidgetScoreboard(QWidget, DarkQSS):
             label_place.setText(f"{i + 1}")
 
             self.score_widgets.append(label_score)
+            self.place_widgets.append(label_place)
             self.lay_gb.addRow(label_place, label_score)
 
-    def update_scoreboard(self, scores, round_nr):
+    def update_scoreboard(self, scores, robot_names, round_nr):
         """
         sorted scores dummy input
         scores = [
@@ -103,8 +108,8 @@ class WidgetScoreboard(QWidget, DarkQSS):
         ]
         """
         self.label_number.setText(str(round_nr))
-        for i in range(len(self.score_widgets)):
-            name = scores[i][0]
+        for i in range(len(scores)):
+            name = robot_names[scores[i][0]]
             score = str(scores[i][1])
             self.score_widgets[i].update_score(name, score)
 

@@ -20,6 +20,7 @@ from UI.misc_widgets import *
 
 class BackgroundGameThread(QThread):
     stats_round = pyqtSignal(list)
+    robot_list = pyqtSignal(list)
 
     def __init__(self, map_, rounds, seed=None, vizfile=None, fps=16, printing=False):
         super(BackgroundGameThread, self).__init__()
@@ -102,6 +103,10 @@ class BackgroundGameThread(QThread):
 
             self._players[pId].reset(pId, len(self._players), self.map.width, self.map.height)
 
+        robot_names_signal = [self._players[id].player_name for id in range(len(self._players))]
+        print(robot_names_signal)
+        self.robot_list.emit(robot_names_signal)
+
         self.illustrator._add_robots(self._players)
         self.illustrator._add_nrounds(rounds)
 
@@ -112,7 +117,7 @@ class BackgroundGameThread(QThread):
         for r in range(1, rounds + 1):
             self._begin_round(r, printing=self.printing)
             self._handle_shooting(r)
-            self._handle_setting_mines(r)
+            # self._handle_setting_mines(r)  # not implemented in gui
             self._handle_moving(r, printing=self.printing)
             self._handle_healing(r)
 
@@ -188,7 +193,7 @@ class BackgroundGameThread(QThread):
             # submit stats
             stats = []
             for i in range(len(self._players)):
-                temp = [nameFromPlayerId(i), self._status[i].gold]
+                temp = [i, self._status[i].gold]
                 stats.append(temp)
             self.stats_round.emit(stats)
 
@@ -288,6 +293,10 @@ class BackgroundGameThread(QThread):
             for m in moves:
                 if not isinstance(m, Direction):
                     raise TypeError("Players must return moves as list of directions")
+
+            if p.is_alive():
+                p.terminate()
+            p.join()
         except queue.Empty as e:
             print("ERROR: player %d didn't answer in time." % (pId))
             moves = []
@@ -296,9 +305,9 @@ class BackgroundGameThread(QThread):
             traceback.print_exc(file=sys.stdout)
             moves = []
 
-        if p.is_alive():
-            p.terminate()
-        p.join()
+        # if p.is_alive():
+        #     p.terminate()
+        # p.join()
         return moves
 
     # @param r round index

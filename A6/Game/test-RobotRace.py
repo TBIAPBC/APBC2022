@@ -17,7 +17,7 @@ class MyRandomPlayer(Player):
 		#print("Hi there! We are playing ",self.status.params.rounds," rounds.")
 
 	def round_begin(self, r):
-		print("Welcome to round ",r,"---",self.status.params.rounds-r+1," to go.")
+		#print("Welcome to round ",r,"---",self.status.params.rounds-r+1," to go.")
 		pass
 
 	def set_mines(self, status):

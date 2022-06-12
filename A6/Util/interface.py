@@ -115,37 +115,3 @@ class Settings:
         else:
             s = f"preset: {self.preset_map}, robots: {self.robots}, rounds: {self.rounds}"
         return s
-
-
-class ImageHandler:
-    def __init__(self):
-        pass
-
-    def show_next(self):
-        pass
-
-    def delete_old(self):
-        pass
-
-
-class StatsHandler:
-    def __init__(self):
-        pass
-
-    def add_player(self):
-        pass
-
-    def add_stats(self):
-        pass
-
-    def show_current_scoreboard(self):
-        pass
-
-    def translate_player(self):
-        pass
-
-    def rank_player(self):
-        pass
-
-    def get_winner(self):
-        pass
