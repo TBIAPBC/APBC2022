@@ -255,11 +255,9 @@ class MainUI(DarkQSS):
         self.tools.change_play_pause()
 
     def __btn_tools_break(self):
-        print("-----------------------\nBREAK\n-----------------------")
         self.break_game()
 
     def __btn_tools_reset(self):
-        print("-----------------------\nRESET\n-----------------------")
         self.reset_game()
 
     def __show_resize(self):
@@ -297,11 +295,9 @@ class MainUI(DarkQSS):
         self.game_play()
 
     def __btn_wdgt_finish_play_again(self):
-        print("-----------------------\nPLAY AGAIN\n-----------------------")
         self.play_again()
 
     def __btn_wdgt_finish_change_settings(self):
-        print("-----------------------\nBACK TO SETTINGS\n-----------------------")
         self.back_settings()
 
     def __block_tools(self):
@@ -318,8 +314,6 @@ class MainUI(DarkQSS):
     # Game Methods
     ###########################################################################################
     def game_show(self):
-        ##### testing:
-
         # get settings for game
         round_numbers = int(self.settings.rounds)
         fps = 6
@@ -346,9 +340,6 @@ class MainUI(DarkQSS):
             time_round_start = time.time()
 
             # display internals !!!
-            while not os.path.exists(f"./Tmp/sim_{round_no}.png"):
-                # trap here until img of current round exists
-                QCoreApplication.processEvents()
             self.map_widget.display_img_round(round_no)
 
             while len(self.stats) < round_no:
@@ -380,7 +371,7 @@ class MainUI(DarkQSS):
         self.widget_finish.show()
 
         # get winner and display
-        self.widget_finish.display_winner("Marcel")
+        self.widget_finish.display_winner(self.get_winner())
 
     def game_play(self):
         ### run game internally, get stats and imgs
@@ -451,8 +442,14 @@ class MainUI(DarkQSS):
         for file in os.listdir("./Tmp/"):
             os.remove(f"./Tmp/{file}")
 
-    def __create_scoreboard(self, round_):
-        pass
+    def get_winner(self):
+        stats = self.stats[-1]
+        max_v, max_i = 0, 0
+        for i in range(len(stats)):
+            if stats[i][1] > max_v:
+                max_v = stats[i][1]
+                max_i = stats[i][0]
+        return self.robots[max_i]
 
     def slot_append_stats(self, val):
         self.stats.append(val)
