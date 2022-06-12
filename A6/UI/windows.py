@@ -20,8 +20,9 @@ class MainWindow(QMainWindow):
         # show window
         self.show()
 
-        # params
         self.app = app
+
+        # params
         self.pressing = False
         self.start = QPoint(0, 0)
         self.center()

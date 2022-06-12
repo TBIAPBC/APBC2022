@@ -2,6 +2,9 @@
 UI for main screen
 """
 import sys
+import time
+import os
+from importlib import import_module
 
 from UI.misc_widgets import *
 from UI.settings_widget import WidgetSettings
@@ -10,6 +13,9 @@ from UI.scoreboard_widget import WidgetScoreboard
 from UI.map_widget import WidgetMap
 from UI.finish_widget import WidgetFinish
 from UI.tools_widget import WidgetTools
+from Game import game_utils
+from Game.register_robots import robot_module_names
+from Game import threads
 
 
 class MainUI(DarkQSS):
@@ -20,6 +26,7 @@ class MainUI(DarkQSS):
 
         # stuff
         self.is_maximized = False
+        self.stats = []
 
     def setup_ui(self):
         self.parent.resize(900, 600)
@@ -185,7 +192,6 @@ class MainUI(DarkQSS):
         ### Map
         self.map_widget = WidgetMap(self, self.widget_game.widget_left)
         self.widget_game.lay_left.addWidget(self.map_widget)
-        self.map_widget.hide()
 
         ### scoreboard
         self.widget_scoreboard = WidgetScoreboard(self, player_count=4)
@@ -202,7 +208,7 @@ class MainUI(DarkQSS):
         ### finish screen widget
         self.widget_finish = WidgetFinish(self)
         self.widget_game.lay_left.addWidget(self.widget_finish)
-        #self.widget_finish.hide()
+        self.widget_finish.hide()
 
         ##### window-ui / signal-slot connections #####
         self.parent.setCentralWidget(self.centralwidget)
@@ -224,23 +230,9 @@ class MainUI(DarkQSS):
         self.widget_finish.button_again.clicked.connect(self.__btn_wdgt_finish_play_again)
         self.widget_finish.button_back.clicked.connect(self.__btn_wdgt_finish_change_settings)
 
-        #####################################################################################
-        # main game loop
-        #####################################################################################
-        ### start...
-
-        """TEST"""
-        round_ = 1
-        score_list = [
-            ["GodBot", 120030],
-            ["DeepBot", 14842],
-            ["SmartBot", 9387],
-            ["DumBot", 1]
-        ]
-        self.widget_scoreboard.update_scoreboard(score_list, round_)
-        self.map_widget.display_img_round(round_)
-
-    ### button functions
+    ####################################################################################
+    # BUTTONS and METHODS
+    ####################################################################################
     def btn_exit(self):
         sys.exit(self.parent.app.exec_())
 
@@ -298,11 +290,141 @@ class MainUI(DarkQSS):
         self.widget_settings.hide()
         self.widget_game.show()
 
+        self.game_play()
+
     def __btn_wdgt_finish_play_again(self):
         print("-----------------------\nPLAY AGAIN\n-----------------------")
 
     def __btn_wdgt_finish_change_settings(self):
         print("-----------------------\nBACK TO SETTINGS\n-----------------------")
 
-    def __block_tools(self): ...
-    def __unblock_tools(self): ...
+    def __block_tools(self):
+        self.tools.button_play.blockSignals(True)
+        self.tools.button_break.blockSignals(True)
+        self.tools.button_reset.blockSignals(True)
+
+    def __unblock_tools(self):
+        self.tools.button_reset.blockSignals(False)
+        self.tools.button_play.blockSignals(False)
+        self.tools.button_break.blockSignals(False)
+
+    ###########################################################################################
+    # Game Methods
+    ###########################################################################################
+    def game_show(self):
+        ##### testing:
+        score_list = [
+            ["GodBot", 120030],
+            ["DeepBot", 14842],
+            ["SmartBot", 9387],
+            ["DumBot", 1]
+        ]
+
+        # get settings for game
+        round_numbers = int(self.settings.rounds)
+        fps = 8
+
+        # display game
+        for round_no in range(1, round_numbers + 1):
+            QCoreApplication.processEvents()
+
+            # check if paused
+            paused = self.tools.paused
+            while paused is True:
+                QCoreApplication.processEvents()
+                paused = self.tools.paused
+
+            # set time to get exact
+            time_round_start = time.time()
+
+            # display internals !!!
+            self.widget_scoreboard.update_scoreboard(score_list, round_no)
+            self.map_widget.display_img_round(round_no)
+
+            while len(self.stats) < round_no:
+                QCoreApplication.processEvents()
+
+            print(self.stats[round_no - 1])
+
+            # remove old image
+            if round_no > 1:
+                self.__del_image(round_no - 1)
+
+            # end time and fps calculation
+            time_round_end = time.time()
+            time_used = time_round_end - time_round_start
+            time_to_sleep = (1/fps) - time_used
+            if time_to_sleep > 0:
+                time.sleep(time_to_sleep)
+
+        # end of game
+        self.__del_image(round_numbers + 1)  # delete last image
+        self.__block_tools()  # block tools to avoid unintended behavior
+        self.map_widget.hide()
+        self.widget_finish.show()
+
+        # get winner and display
+        self.widget_finish.display_winner("Marcel")
+
+    def game_play(self):
+        ### run game internally, get stats and imgs
+        # setup map
+
+        print(self.settings)
+        if self.settings.random_map is True:
+            game_map = game_utils.Map.makeRandom(width=self.settings.random_width, height=self.settings.random_height,
+                                                 p=self.settings.random_density)
+        else:
+            game_map = game_utils.Map.read(self.settings.preset_map)
+
+        # run
+        self.thread_simulator = threads.BackgroundGameThread(map_=game_map, fps=16, rounds=self.settings.rounds)
+
+        robots_for_game = {robot: robot_module_names[robot] for robot in self.settings.robots}
+
+        robot_modules = {m: import_module(m) for m in robots_for_game.values()}
+        for name, module_name in robot_module_names.items():
+            for p in robot_modules[module_name].players:
+                p.player_modname = name
+                self.thread_simulator.add_player(p)
+
+
+
+
+        self.thread_simulator.start()
+        self.thread_simulator.stats_round.connect(self.slot_append_stats)
+
+        self.game_show()
+
+    def play_again(self):
+        # after finish: delete stats, restart with same settings
+        pass
+
+    def back_settings(self):
+        # after finish: delete stats, go back to settings
+        pass
+
+    def reset_game(self):
+        # stop game, delete stats and imgs, restart with same settings
+        pass
+
+    def break_game(self):
+        # stop game, delete stats and imgs, go back to settings
+        pass
+
+    def __del_image(self, round_):
+        # del specific image in Tmp
+        img = f"./Tmp/sim_{round_}.png"
+        if os.path.exists(img):
+            os.remove(img)
+
+    def __del_images(self):
+        # delete all images in Tmp
+        for file in os.listdir("./Tmp/"):
+            os.remove(f"./Tmp/{file}")
+
+    def __create_scoreboard(self, round_):
+        pass
+
+    def slot_append_stats(self, val):
+        self.stats.append(val)

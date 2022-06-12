@@ -97,9 +97,9 @@ class Settings:
     def __init__(self):
         # map
         self.random_map = True
-        self.random_width = None
-        self.random_height = None
-        self.random_density = None
+        self.random_width = 30
+        self.random_height = 30
+        self.random_density = 0.4
         self.preset_map = None
 
         # robots

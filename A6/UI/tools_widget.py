@@ -34,7 +34,7 @@ class WidgetTools(QWidget, DarkQSS):
         self.button_play = QPushButton()
         self.button_play.setFixedWidth(41)
         self.button_play.setFixedHeight(41)
-        self.button_play.setStyleSheet(self.qss_button_play)   # img
+        self.button_play.setStyleSheet(self.qss_button_pause)   # img
 
         self.button_break = QPushButton()
         self.button_break.setFixedWidth(41)
@@ -56,12 +56,12 @@ class WidgetTools(QWidget, DarkQSS):
 
     def change_play_pause(self):
         if self.paused:
-            self.button_play.setStyleSheet(self.qss_button_play)
+            self.button_play.setStyleSheet(self.qss_button_pause)
             self.paused = False
 
         else:
             self.paused = True
-            self.button_play.setStyleSheet(self.qss_button_pause)
+            self.button_play.setStyleSheet(self.qss_button_play)
 
 
 

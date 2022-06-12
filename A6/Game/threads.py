@@ -15,23 +15,31 @@ from Game.game_utils import Map, Status, GameParameters
 from Game.illustrator import Illustrator
 from Util import interface, util
 
+from UI.misc_widgets import *
 
-class Simulator(object):
-    def __init__(self, *, map, seed=None, vizfile=None, framerate):
+
+class BackgroundGameThread(QThread):
+    stats_round = pyqtSignal(list)
+
+    def __init__(self, map_, rounds, seed=None, vizfile=None, fps=16, printing=False):
+        super(BackgroundGameThread, self).__init__()
+
         self.colors = None
         self.rng = random.Random()
-        self.stats_to_emit = []
+        self.rounds = rounds
+        self.printing = printing
+        self.fps = fps
 
         if seed is None:
             seed = random.randrange(sys.maxsize)
         self.rng.seed(seed)
         self.seed = seed
-        self.map = map = copy.deepcopy(map)
-        for x in range(map.width):
-            for y in range(map.height):
-                if map[x, y].status == TileStatus.Unknown:
+        self.map = copy.deepcopy(map_)
+        for x in range(map_.width):
+            for y in range(map_.height):
+                if map_[x, y].status == TileStatus.Unknown:
                     raise ValueError("Tile (%d, %d) is unkown." % (x, y))
-                map[x, y].obj = None
+                map_[x, y].obj = None
 
         self.printInitial = True
         self.printRoundBegin = True
@@ -52,10 +60,10 @@ class Simulator(object):
         # keep a dictionary of the mines
         self._mines = {}  # (x, y) -> expiry_round -- the round in which the mine should expire
 
-        self._status = status = []  # the internal data, without map
-        self._pubStat = pubStat = []  # the object we give the player each time, updated from the internal data
+        self._status = []  # the internal data, without map
+        self._pubStat = []  # the object we give the player each time, updated from the internal data
 
-        self.illustrator = Illustrator(self.map, vizfile, framerate)
+        self.illustrator = Illustrator(self.map, vizfile, fps)
 
     def _random_empty_spot(self):
         while True:
@@ -81,12 +89,12 @@ class Simulator(object):
         # duplicate the public status object in the player object
         p.status = self._pubStat[-1]
 
-    def play(self, *, rounds, printing):
+    def run(self):
         """ Interface ##################################################"""
         self.colors = util.player_colors(len(self._players))
 
         """#############################################################"""
-        rounds = int(rounds)
+        rounds = int(self.rounds)
         for pId in range(len(self._players)):
             # to avoid breaking the player interface,
             # set number of rounds in the players status objects
@@ -97,23 +105,23 @@ class Simulator(object):
         self.illustrator._add_robots(self._players)
         self.illustrator._add_nrounds(rounds)
 
-        if self.printInitial and printing:
+        if self.printInitial and self.printing:
             print("Initial board:")
             print(self)
 
         for r in range(1, rounds + 1):
-            self._begin_round(r, printing=printing)
+            self._begin_round(r, printing=self.printing)
             self._handle_shooting(r)
             self._handle_setting_mines(r)
-            self._handle_moving(r, printing=printing)
+            self._handle_moving(r, printing=self.printing)
             self._handle_healing(r)
 
-            if printing:
+            if self.printing:
                 self.illustrator.append_goldpots(self._goldPots)
                 self.illustrator.append_robots(self._players)
                 self.illustrator.append_mines(getattr(self, '_mines', {}))
 
-        if printing:
+        if self.printing:
             print("=" * 80)
             print("Final board:")
             print(self)
@@ -178,6 +186,12 @@ class Simulator(object):
             current_round.save_image()
 
             # submit stats
+            stats = []
+            for i in range(len(self._players)):
+                temp = [nameFromPlayerId(i), self._status[i].gold]
+                stats.append(temp)
+            print(stats)
+            self.stats_round.emit(stats)
 
             """###########################################################################################"""
 
@@ -304,8 +318,8 @@ class Simulator(object):
             q.put((pId, moves))
             if printing:
                 print("Player {} returns moves after {:3.1f}s: {}"
-                  .format(pId, time.time() - startTime,
-                          list(map(str, moves))))
+                      .format(pId, time.time() - startTime,
+                              list(map(str, moves))))
 
         threads = [threading.Thread(target=askPlayer, args=(pId, time.time())) for pId in range(numPlayers)]
         for t in threads: t.start()
@@ -442,7 +456,7 @@ class Simulator(object):
                 print("Debug: move round %d" % mId)
                 for pId in range(len(self._players)):
                     print("Debug: move status %s; [%s]" % (
-                    nameFromPlayerId(pId), ", ".join(str(m) for m in moveStatusPerPlayer[pId])))
+                        nameFromPlayerId(pId), ", ".join(str(m) for m in moveStatusPerPlayer[pId])))
             if self.printEvents and printing:
                 for pId in range(len(moves)):
                     if mId >= len(movesPerPlayer[pId]):

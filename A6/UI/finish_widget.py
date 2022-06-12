@@ -34,7 +34,7 @@ class WidgetFinish(QWidget, DarkQSS):
 
         ### label winner
         self.label_winner = QLabel()
-        self.label_winner.setFont(self.font_1)
+        self.label_winner.setFont(self.font_4)
         self.label_winner.setStyleSheet(self.winner_qss)
 
         ### spacer 3

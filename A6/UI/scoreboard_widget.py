@@ -106,13 +106,12 @@ class WidgetScoreboard(QWidget, DarkQSS):
         for i in range(len(self.score_widgets)):
             name = scores[i][0]
             score = str(scores[i][1])
-            self.score_widgets[i].update(name, score)
+            self.score_widgets[i].update_score(name, score)
 
 
 class LabelScore(QWidget, DarkQSS):
     def __init__(self, qss):
         super().__init__()
-
         self.qss = qss
 
         self.setup()
@@ -137,6 +136,6 @@ class LabelScore(QWidget, DarkQSS):
         self.lay_main.addItem(self.spacer)
         self.lay_main.addWidget(self.label_score)
 
-    def update(self, name, score):
+    def update_score(self, name, score):
         self.label_score.setText(score)
         self.label_name.setText(name)
