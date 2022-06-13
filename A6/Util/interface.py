@@ -24,6 +24,8 @@ class RoundData:
         self.markersize = (200*900)/(self.width*self.height)
         self.linewidth = (7*900)/(self.width*self.height)
 
+        self.__img_find_walls()
+
     def __str__(self):
         s = str(self.round) + str(self.player) + str(self.gold) + str(self.health) + "\n\n\n" + str(self.map_) + "\n\n\n"
         return s
@@ -83,7 +85,7 @@ class RoundData:
         # modify image style
 
         # fill plot
-        self.__img_find_walls()
+        #self.__img_find_walls()
         self.__img_plot()
         self.__img_walls()
         self.__img_robots()
