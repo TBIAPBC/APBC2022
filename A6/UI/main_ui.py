@@ -348,7 +348,7 @@ class MainUI(DarkQSS):
 
             stats_updated = sorted(self.stats[round_no - 1], key=lambda x: -x[1])
             self.widget_scoreboard.update_scoreboard(stats_updated, self.robots, round_no)
-
+            QCoreApplication.processEvents()
             # remove old image
             if round_no > 1:
                 self.__del_image(round_no - 1)
@@ -358,11 +358,10 @@ class MainUI(DarkQSS):
             time_used = time_round_end - time_round_start
             time_to_sleep = (1/fps) - time_used
             if time_to_sleep > 0:
-                time.sleep(time_to_sleep)
+                sleeper = QEventLoop()
+                QTimer.singleShot(int(time_to_sleep * 1000), sleeper.quit)
+                sleeper.exec_()
 
-            # while time_to_sleep > 0:
-            #     time.sleep(0.1)
-            #     time_to_sleep -= 0.1
 
         # end of game
         self.__del_image(round_numbers + 1)  # delete last image
@@ -400,7 +399,9 @@ class MainUI(DarkQSS):
         self.thread_simulator.robot_list.connect(self.slot_set_robots)
 
         QCoreApplication.processEvents()
-        time.sleep(2.5)
+        sleeper = QEventLoop()
+        QTimer.singleShot(2222, sleeper.quit)
+        sleeper.exec_()
         self.map_widget.label_img.show()
         self.game_show()
 
