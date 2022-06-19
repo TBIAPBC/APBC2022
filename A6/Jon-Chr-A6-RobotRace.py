@@ -18,11 +18,6 @@ class MyRobot(Player):
 
     def __init__(self):
         self.player_name = "JonChr"
-        self.waymem = []
-        self.goldmem = None
-        self.playermem = None
-        self.curIt = -1
-        self.init = False
 
     def reset(self, player_id, max_players, width, height):
         # Reset every Round
@@ -40,7 +35,6 @@ class MyRobot(Player):
         print("Where is the gold?")
 
     def move(self, status):
-        moves = []
         ourMap = self.current_map
         others = status.others
 
@@ -59,64 +53,35 @@ class MyRobot(Player):
         assert len(status.goldPots) > 0
         gLoc = next(iter(status.goldPots))  # gLoc = (x,y)
 
-        wm = [[ourMap[x, y].status == TileStatus.Wall for y in range(height)]
-              for x in range(width)]
-
-        wallmap = np.array(wm, dtype="bool")
-        # print(wallmap)
-
         # Debug and Test
-        print("CurPos", curPos)
-        print("GLoc", gLoc)
-        print("Health", status.health)
-        print("Gold", status.gold)
-
+        # print("CurPos", curPos)
         goldInPot = list(status.goldPots.values())[0]
 
-        # TODO: Map
-        # level = saveMap(wm, self.stage)
-        # Radius around Char
-        # level = list([map(int, x) for x in wm])
-        # print("TEST", wallmap[7][1], wallmap[7][1] == True)
-
-        if self.init == False:
-            dirs = [d.as_xy() for d in self.moves]
-            way = path(wallmap, curPos, gLoc, status, dirs)
-        # print("Way:", way)
-
-            """
-        # Memory of Gold Pos
-        if self.init == False:
-            self.goldmem = gLoc
-            self.playermem = curPos
-            self.waymem = way
-            self.curIt = 0
-            self.init = True
-
-        # Player has not moved
-        if self.playermem == curPos and self.init == True:
-            # Make a random move
-            way = []
-            self.init = False
-            pass
-
-        # Check Memory fo Gold Pos if changed
-        if self.goldmem != gLoc:
-            self.init = False
-            pass
-
-        self.goldmem = gLoc
-        self.playermem = curPos
-        self.curIt += 1
-        """
-
-        if len(way) == 0:
-            print("Empty")
-
+        # A-Star Pathfinding
+        dirs = [d.as_xy() for d in self.moves]
+        way = path(self.stage, curPos, gLoc, status, dirs)
         # Append path to moves for robot
+        dist_est = self.estimate_dist(curPos, gLoc)
+        threshold_d = int(min(width, height) * 0.75)
+        # print("Track", dist_est, threshold_d)
+        if dist_est <= threshold_d:
+            moves = self.astar_way(curPos, way)
+        else:
+            moves = []
+
+        return moves
+
+    # Estimate distance btw two points
+
+    def estimate_dist(self, curPos, goal):
+        x, y = [abs(dx - dy) for dx, dy in zip(curPos, goal)]
+        est = x + y - min(x, y)
+        return est
+
+    def astar_way(self, curPos, way, maxmoves=4):
+        moves = []
         temp_pos = curPos
         nmoves = 0
-        maxmoves = 4  # 3 moves
         for direc in way:
             nmoves += 1
             if nmoves > maxmoves:
@@ -131,7 +96,6 @@ class MyRobot(Player):
             else:
                 myMove = self.ddict[dpos]
                 moves.append(myMove)
-
         return moves
 
 

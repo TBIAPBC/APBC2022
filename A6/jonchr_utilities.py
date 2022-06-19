@@ -89,7 +89,6 @@ def pathfinding_astar(maze, start, goal, status, directions=None):
     # Loop till end of list
 
     while not open_list.is_empty():  # len(open_list) > 0:
-
         # Get current Node
         # current_node = open_list[0]
         # current_idx = 0
@@ -114,7 +113,6 @@ def pathfinding_astar(maze, start, goal, status, directions=None):
 
         ### Experimental ###
         for new_pos in directions:
-
             # Node_pos = current_node + Node(None, new_pos)
             node_pos = (current_node.pos[0] + new_pos[0],
                         current_node.pos[1] + new_pos[1])
