@@ -71,7 +71,13 @@ class PQ():
                 return False
 
 
-def pathfinding_astar(maze, start, goal, status, directions=None):
+def pathfinding_astar(maze, start, goal, status, d_est, directions=None):
+    # TODO: Estimate point btw goal and start if estimate < 5
+    if d_est > 5:
+        # estimate dist to goal
+        # set goal to estimate
+        pass
+    # then only compute to shorter distance to increase (?) comp. time
     # cost = 1 (default)
     start_node = Node(None, start)
     start_node.initialize()  # set node values to zero
