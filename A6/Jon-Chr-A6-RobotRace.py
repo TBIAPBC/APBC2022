@@ -56,7 +56,6 @@ class MyRobot(Player):
         self.max_gold = status.gold if status.gold > self.max_gold else self.max_gold
         # Check how much gold increased or decreased
         maxmoves, thres = self.robot_scaling(status)
-        # print("Scale:", maxmoves, thres)
 
         # Current Position
         curPos = (status.x, status.y)
@@ -66,20 +65,17 @@ class MyRobot(Player):
         gLoc = next(iter(status.goldPots))  # gLoc = (x,y)
         goldInPot = list(status.goldPots.values())[0]
 
-        # A-Star Pathfinding
-        # TODO: Check gold in compare to start gold and current max gold
-        # if much more proportioanally increase nr max moves and radius slighlty
-        # if smaller than max gold propeortionally reset level back to beginning
-        # Append path to moves for robot
+        # A-Star Pathfinding. Append Path
         dist_est = self.estimate_dist(curPos, gLoc)
         threshold_d = int(min(width, height) * thres)
-        # print("Track", dist_est, threshold_d)
+
+        # If gold not to far away
         if dist_est <= threshold_d:
             dirs = [d.as_xy() for d in self.moves]
-            way = path(self.stage, curPos, gLoc, status, dist_est, dirs)
+            way = path(self.stage, curPos, gLoc, status, dirs)
             moves = self.astar_way(curPos, way, maxmoves)
         else:
-            # wait
+            # Wait
             moves = []
 
         return moves
@@ -91,6 +87,7 @@ class MyRobot(Player):
         est = x + y - min(x, y)
         return est
 
+    # Convert Pathway to Move-Set
     def astar_way(self, curPos, way, maxmoves=4):
         moves = []
         temp_pos = curPos
@@ -112,6 +109,7 @@ class MyRobot(Player):
                 moves.append(myMove)
         return moves
 
+    # Scale Robot Moves and Gold-detect radius based on gold
     def robot_scaling(self, status):
         # Check how much gold increased or decreased
         # scale-times init gold

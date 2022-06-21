@@ -71,12 +71,8 @@ class PQ():
                 return False
 
 
-def pathfinding_astar(maze, start, goal, status, d_est, directions=None):
-    # TODO: Estimate point btw goal and start if estimate < 5
-    if d_est > 5:
-        # estimate dist to goal
-        # set goal to estimate
-        pass
+def pathfinding_astar(maze, start, goal, status, directions=None):
+
     # then only compute to shorter distance to increase (?) comp. time
     # cost = 1 (default)
     start_node = Node(None, start)
@@ -86,18 +82,13 @@ def pathfinding_astar(maze, start, goal, status, d_est, directions=None):
     visited = np.array(maze)
 
     # Initialize open and closed list
-    # open_list = [start_node] # add start_node
     open_list = PQ()
     open_list.append((start_node.f, start_node))
+    closed_list = []
 
-    closed_list = []  # possibly dict
-
-    # Loop till end of list
-
-    while not open_list.is_empty():  # len(open_list) > 0:
+    # Loop till end of list. len(open_list) > 0
+    while not open_list.is_empty():
         # Get current Node
-        # current_node = open_list[0]
-        # current_idx = 0
         current_node = open_list.dequeue()[1]  # lowest cost node
         closed_list.append(current_node)
 
@@ -109,8 +100,6 @@ def pathfinding_astar(maze, start, goal, status, d_est, directions=None):
                 path.append(cur.pos)
                 cur = cur.parent
             return path[::-1]  # reverse path and return
-
-        cur_pos = current_node.pos
 
         # Generate children
         if directions is None:
@@ -128,9 +117,7 @@ def pathfinding_astar(maze, start, goal, status, d_est, directions=None):
 
             visited[current_node.pos[0]][current_node.pos[1]] = 1  # visited
 
-            # Make sure within range (is_Walkable)
-            # if node_pos[0] > (len(map) - 1) or node_pos[0] < 0 or node_pos[1] > (len(map[len(map) - 1]) - 1) or node_pos[1] < 0:
-            # continue  # TODO: check if correct, else think of mehcnaism
+            # Make sure within range (is_Walkable) and not in closed list
 
             if node_pos in closed_list:
                 continue
@@ -149,23 +136,18 @@ def pathfinding_astar(maze, start, goal, status, d_est, directions=None):
             new_node = Node(current_node, node_pos)
 
             if not new_node in open_list:
-                # idx = coor_dirs.index(new_node - current_node)
                 idx = directions.index(new_node - current_node)
                 # set_costs
-                new_node.g = new_node.parent.g + 1  # self.dir_costs[dir_idx]
-                # self.approx_distance(_node.coor)
+                new_node.g = new_node.parent.g + 1
                 new_node.h = ((new_node.pos[0] - goal_node.pos[0])
                               ** 2) + ((new_node.pos[1] - goal_node.pos[1]) ** 2)
                 new_node.f = new_node.g + new_node.h
                 open_list.append((new_node.f, new_node))
             else:
-                # if different_dir_costs:
                 find_node, idx_f = open_list.get_node(new_node)
                 if find_node.g < new_node.g:
                     open_list.queue[idx_f].parent = current_node
-                    # dir_idx = coor_dirs.index(find_node - current_node)
                     dir_idx = directions.index(find_node - current_node)
-                    # + self.dir_costs[dir_idx]
                     open_list.queue[idx_f].g = current_node.g
                     open_list.queue[idx_f].f = open_list.queue[idx_f].g + find_node.h
 
