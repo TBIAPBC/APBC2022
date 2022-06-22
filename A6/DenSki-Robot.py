@@ -10,11 +10,12 @@ from player_base import Player
 
 from shortestpaths import AllShortestPaths
 
-class DenskiPlayer(Player):
+class LeeroyPlayer(Player):
 
         def __init__(self,*,random=True):
                 self.random=random
-
+                self.give_up = False
+                self.old_coord = (0, 0)
         def reset(self, player_id, max_players, width, height):
                 self.player_name = "DenSki"
                 self.ourMap = Map(width, height)
@@ -55,6 +56,9 @@ class DenskiPlayer(Player):
 
                 goldInPot=list(status.goldPots.values())[0]
 
+                # status.goldPotRemainingRounds
+
+
                 ## determine next move d based on shortest path finding
                 paths = AllShortestPaths(gLoc,ourMap)
 
@@ -68,6 +72,8 @@ class DenskiPlayer(Player):
                 is_unknown = False
                 player_blocking = False
 
+
+
                 other_players = status.others
                 player_coord = []
 
@@ -80,27 +86,22 @@ class DenskiPlayer(Player):
                                 is_unknown = True
                         if step in player_coord:
                                 player_blocking = True
+                                self.give_up = True
+                                for coord, amount in status.goldPots.items():
+                                        self.old_coord = coord
+                if self.give_up:
+                        for coord, amount in status.goldPots.items():
+                                if coord != self.old_coord:
+                                        self.give_up = False
 
-
-                #print(f"player blocking:{player_blocking}")
-                #print(f"is unknown:{is_unknown}")
                 distance=len(bestpath)
 
-                cost = status.params.cost
-                #numMoves = random.randint(1, 5)
-               
-                #numMoves = max( numMoves 
-                #                for numMoves in range(1,100)
-                #               for totalCost in [(distance // numMoves)*cost(numMoves) 
-                #                                  + cost(distance % numMoves)]
-                #                if numMoves==1 or (totalCost < status.gold * 0.2
-                #                                   and totalCost < goldInPot * 0.3)
-                #)
+
+
                 cost = sum([n+1 for n in range(0, distance)])
-                print(f"my gold: {status.gold}")
-                if goldInPot > cost + 30 and status.gold > cost and not is_unknown and not player_coord:
+                if goldInPot > cost + 30 and status.gold > cost and not is_unknown and not player_blocking and not self.give_up:
                         numMoves = distance
-                elif status.gold > 13 and not player_blocking:
+                elif status.gold > 80 and not player_blocking and not self.give_up:
                         numMoves = 4
                 else:
                         numMoves = 0
@@ -112,4 +113,4 @@ class DenskiPlayer(Player):
 
                 return self._as_directions(curpos,bestpath[:numMoves])
 
-players = [ DenSkiPlayer()]
+players = [LeeroyPlayer()]
