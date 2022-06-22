@@ -7,6 +7,8 @@ from game_utils import Tile, TileStatus, TileObject
 from game_utils import Map, Status
 from simulator import Simulator
 from player_base import Player
+from VioSchaaf_Robot import MyRobot, MyMovingRobot
+from VioSchaaf_FinalRobot import VioSchaafRobot
 
 from shortestpaths import AllShortestPaths
 
@@ -87,4 +89,4 @@ class MyPathFindingPlayer(Player):
 
                 return self._as_directions(curpos,bestpath[:numMoves])
 
-players = [ MyPathFindingPlayer()]
+players = [ MyPathFindingPlayer(), MyRobot(), MyMovingRobot(), VioSchaafRobot()]
