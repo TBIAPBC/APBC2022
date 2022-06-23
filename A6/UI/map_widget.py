@@ -35,5 +35,6 @@ class WidgetMap(QWidget, DarkQSS):
 
         self.resize(min_dim, min_dim)
         self.label_img.resize(min_dim, min_dim)
+        self.label_img.setFixedSize(min_dim, min_dim)
         self.parent_widget.resize(min_dim, min_dim)
         self.label_img.move(0, 0)

@@ -293,7 +293,7 @@ class GameParameters(object):
 		self.healthPerPlayerCrash = 15
 		self.healthPerPlayerCrashRandom = 5
 
-		self.moveTimeout = 1/8 # players get at most moveTimeout seconds to answer each move request
+		self.moveTimeout = 1/12 # players get at most moveTimeout seconds to answer each move request
 
 		self.mineExpiryTime = 3 # how many rounds do mines exist
 

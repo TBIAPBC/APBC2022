@@ -48,6 +48,9 @@ class StartUI(DarkQSS):
         self.label_title.setText("Robot Race")
         self.label_title.setFont(self.font_4)
 
+        #self.title_img = QPixmap("./UI/resources/images/misc/test_title.png")
+        #self.label_title.setPixmap(self.title_img)
+
         # mid spacer
         spacer_mid = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 

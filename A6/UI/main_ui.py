@@ -29,6 +29,7 @@ class MainUI(DarkQSS):
         self.stats = []
         self.robots = []
 
+
     def setup_ui(self):
         self.parent.resize(900, 600)
         self.parent.setMinimumSize(QSize(900, 600))
@@ -389,8 +390,9 @@ class MainUI(DarkQSS):
         robots_for_game = {robot: robot_module_names[robot] for robot in self.settings.robots}
 
         robot_modules = {m: import_module(m) for m in robots_for_game.values()}
-        for name, module_name in robot_module_names.items():
-            for p in robot_modules[module_name].players:
+        for name, module_name in robot_modules.items():
+            print(robot_modules, name, module_name)
+            for p in module_name.players:
                 p.player_modname = name
                 self.thread_simulator.add_player(p)
 
@@ -400,7 +402,7 @@ class MainUI(DarkQSS):
 
         QCoreApplication.processEvents()
         sleeper = QEventLoop()
-        QTimer.singleShot(2222, sleeper.quit)
+        QTimer.singleShot(3500, sleeper.quit)
         sleeper.exec_()
         self.map_widget.label_img.show()
         self.game_show()
@@ -424,11 +426,13 @@ class MainUI(DarkQSS):
 
     def reset_game(self):
         # stop game, delete stats and imgs, restart with same settings
+        self.thread_simulator.exit()
         self.__del_images()
         self.play_again()
 
     def break_game(self):
         # stop game, delete stats and imgs, go back to settings
+        self.thread_simulator.exit()
         self.__del_images()
         self.back_settings()
 

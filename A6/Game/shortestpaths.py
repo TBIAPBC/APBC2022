@@ -8,7 +8,7 @@ import random
 import numpy as np
 
 class AllShortestPaths:
-    def __init__(self,sink,map):
+    def __init__(self, sink, map):
         self.sink = sink
         self.map = map
 
