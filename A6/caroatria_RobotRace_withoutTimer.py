@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import random
-import func_timeout
 from game_utils import nameFromPlayerId
 from game_utils import Direction as D, MoveStatus
 from game_utils import Tile, TileStatus, TileObject
@@ -112,27 +111,4 @@ class MyPathFindingPlayer(Player):
                 print("will mov", self._as_directions(curpos,bestpath[:numMoves]))
                 return self._as_directions(curpos,bestpath[:numMoves])
 
-# players = [ MyPathFindingPlayer()]
-
-def long_function():
-        players = [ MyPathFindingPlayer()]
-        return(players)
-
-
-def run_function(f, max_wait, default_value):
-    try:
-        return func_timeout.func_timeout(max_wait,long_function)
-    except func_timeout.FunctionTimedOut:
-        pass
-    return(stand_still())
-
-def stand_still():
-        return([])
-
-second_counter = 0.05
-max_time = second_counter
-# error_message=("Sorry, unable to complete the task in ", (max_time/60), " minutes!")
-error_message = ("casual caro took too long to decide, will stand still")
-x = run_function(long_function,max_time,error_message)
-# print(min(timeit.Timer(long_function).repeat(repeat=4, number=4)))
-print(x)
+players = [ MyPathFindingPlayer()]
