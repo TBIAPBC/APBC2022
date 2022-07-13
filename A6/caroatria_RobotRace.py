@@ -109,7 +109,7 @@ class MyPathFindingPlayer(Player):
                         bestpath.append(best_middle_path[1:])
                 elif goldInPot > 50 and distance < 10: #sprint if its worth it
                         numMoves += 1
-                print("will mov", self._as_directions(curpos,bestpath[:numMoves]))
+                # print("will mov", self._as_directions(curpos,bestpath[:numMoves]))
                 return self._as_directions(curpos,bestpath[:numMoves])
 
 # players = [ MyPathFindingPlayer()]
